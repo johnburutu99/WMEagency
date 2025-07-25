@@ -273,7 +273,9 @@ export default function Dashboard() {
               <span className="absolute -top-1 -right-1 w-2 h-2 bg-wme-gold rounded-full" />
             </Button>
             <div className="w-8 h-8 bg-wme-gold rounded-full flex items-center justify-center">
-              <span className="text-sm font-semibold text-black">JD</span>
+              <span className="text-sm font-semibold text-black">
+                {userData?.name ? userData.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2) : 'CL'}
+              </span>
             </div>
           </div>
         </header>
