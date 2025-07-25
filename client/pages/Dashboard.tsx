@@ -10,6 +10,7 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
+import { ThemeToggle } from "../components/ThemeToggle";
 import {
   Bell,
   Calendar,
@@ -31,7 +32,6 @@ import {
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [darkMode, setDarkMode] = useState(false);
   const location = useLocation();
 
   const navigation = [
@@ -250,17 +250,7 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-3">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setDarkMode(!darkMode)}
-              >
-                {darkMode ? (
-                  <Sun className="w-4 h-4" />
-                ) : (
-                  <Moon className="w-4 h-4" />
-                )}
-              </Button>
+              <ThemeToggle />
               <Button variant="ghost" size="sm" className="relative">
                 <Bell className="w-4 h-4" />
                 <span className="absolute -top-1 -right-1 w-2 h-2 bg-wme-gold rounded-full" />
