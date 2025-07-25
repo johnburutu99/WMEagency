@@ -16,6 +16,11 @@ export default function Index() {
     e.preventDefault();
     // TODO: Implement actual authentication
     console.log('Login attempt:', { email, password });
+
+    // For demo purposes, redirect to dashboard
+    if (email && password) {
+      window.location.href = '/dashboard';
+    }
   };
 
   return (
