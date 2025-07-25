@@ -57,6 +57,13 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        // WME Brand Colors
+        wme: {
+          gold: "hsl(var(--wme-gold))",
+          black: "hsl(var(--wme-black))",
+          gray: "hsl(var(--wme-gray))",
+          "light-gray": "hsl(var(--wme-light-gray))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
