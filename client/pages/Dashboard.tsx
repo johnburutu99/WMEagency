@@ -124,268 +124,266 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-        {/* Mobile sidebar overlay */}
-        {sidebarOpen && (
-          <div className="fixed inset-0 z-50 lg:hidden">
-            <div
-              className="fixed inset-0 bg-black/50"
-              onClick={() => setSidebarOpen(false)}
-            />
-            <div className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border">
-              <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
-                    <Star className="w-5 h-5 text-black" />
-                  </div>
-                  <div>
-                    <h1 className="font-bold">WME</h1>
-                    <p className="text-xs text-wme-gold">Client Portal</p>
-                  </div>
+      {/* Mobile sidebar overlay */}
+      {sidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div
+            className="fixed inset-0 bg-black/50"
+            onClick={() => setSidebarOpen(false)}
+          />
+          <div className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border">
+            <div className="flex h-16 items-center justify-between px-6 border-b border-border">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
+                  <Star className="w-5 h-5 text-black" />
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSidebarOpen(false)}
-                >
-                  <X className="w-4 h-4" />
-                </Button>
+                <div>
+                  <h1 className="font-bold">WME</h1>
+                  <p className="text-xs text-wme-gold">Client Portal</p>
+                </div>
               </div>
-              <nav className="px-4 py-6">
-                <ul className="space-y-2">
-                  {navigation.map((item) => (
-                    <li key={item.name}>
-                      <Link
-                        to={item.href}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                          item.current
-                            ? "bg-wme-gold text-black"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <item.icon className="w-4 h-4" />
-                          {item.name}
-                        </div>
-                        {item.badge && (
-                          <Badge
-                            variant="secondary"
-                            className="bg-wme-gold text-black"
-                          >
-                            {item.badge}
-                          </Badge>
-                        )}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </nav>
-            </div>
-          </div>
-        )}
-
-        {/* Desktop sidebar */}
-        <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:bg-card lg:border-r lg:border-border">
-          <div className="flex h-16 items-center px-6 border-b border-border">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
-                <Star className="w-5 h-5 text-black" />
-              </div>
-              <div>
-                <h1 className="font-bold">WME</h1>
-                <p className="text-xs text-wme-gold">Client Portal</p>
-              </div>
-            </div>
-          </div>
-          <nav className="px-4 py-6">
-            <ul className="space-y-2">
-              {navigation.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    to={item.href}
-                    className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      item.current
-                        ? "bg-wme-gold text-black"
-                        : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <item.icon className="w-4 h-4" />
-                      {item.name}
-                    </div>
-                    {item.badge && (
-                      <Badge
-                        variant="secondary"
-                        className="bg-wme-gold/20 text-wme-gold border-wme-gold/30"
-                      >
-                        {item.badge}
-                      </Badge>
-                    )}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
-        </div>
-
-        {/* Main content */}
-        <div className="lg:pl-64">
-          {/* Header */}
-          <header className="flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
-            <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
                 size="sm"
-                className="lg:hidden"
-                onClick={() => setSidebarOpen(true)}
+                onClick={() => setSidebarOpen(false)}
               >
-                <Menu className="w-4 h-4" />
+                <X className="w-4 h-4" />
               </Button>
-              <div>
-                <h1 className="text-lg font-semibold">Dashboard</h1>
-                <p className="text-sm text-muted-foreground">
-                  Welcome back, John Doe
-                </p>
-              </div>
             </div>
+            <nav className="px-4 py-6">
+              <ul className="space-y-2">
+                {navigation.map((item) => (
+                  <li key={item.name}>
+                    <Link
+                      to={item.href}
+                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        item.current
+                          ? "bg-wme-gold text-black"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <item.icon className="w-4 h-4" />
+                        {item.name}
+                      </div>
+                      {item.badge && (
+                        <Badge
+                          variant="secondary"
+                          className="bg-wme-gold text-black"
+                        >
+                          {item.badge}
+                        </Badge>
+                      )}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          </div>
+        </div>
+      )}
 
-            <div className="flex items-center gap-3">
-              <ThemeToggle />
-              <Button variant="ghost" size="sm" className="relative">
-                <Bell className="w-4 h-4" />
-                <span className="absolute -top-1 -right-1 w-2 h-2 bg-wme-gold rounded-full" />
-              </Button>
-              <div className="w-8 h-8 bg-wme-gold rounded-full flex items-center justify-center">
-                <span className="text-sm font-semibold text-black">JD</span>
-              </div>
+      {/* Desktop sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:bg-card lg:border-r lg:border-border">
+        <div className="flex h-16 items-center px-6 border-b border-border">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
+              <Star className="w-5 h-5 text-black" />
             </div>
-          </header>
-
-          {/* Dashboard content */}
-          <main className="p-6">
-            {/* Stats cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Active Bookings
-                      </p>
-                      <p className="text-2xl font-bold">12</p>
-                    </div>
-                    <Calendar className="w-8 h-8 text-wme-gold" />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    +2 from last month
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Pending Documents
-                      </p>
-                      <p className="text-2xl font-bold">3</p>
-                    </div>
-                    <FileText className="w-8 h-8 text-wme-gold" />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    2 NDAs, 1 Contract
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Unread Messages
-                      </p>
-                      <p className="text-2xl font-bold">8</p>
-                    </div>
-                    <MessageSquare className="w-8 h-8 text-wme-gold" />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    From coordinators
-                  </p>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-medium text-muted-foreground">
-                        Total Revenue
-                      </p>
-                      <p className="text-2xl font-bold">$4.2M</p>
-                    </div>
-                    <TrendingUp className="w-8 h-8 text-wme-gold" />
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    This year
-                  </p>
-                </CardContent>
-              </Card>
+            <div>
+              <h1 className="font-bold">WME</h1>
+              <p className="text-xs text-wme-gold">Client Portal</p>
             </div>
+          </div>
+        </div>
+        <nav className="px-4 py-6">
+          <ul className="space-y-2">
+            {navigation.map((item) => (
+              <li key={item.name}>
+                <Link
+                  to={item.href}
+                  className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    item.current
+                      ? "bg-wme-gold text-black"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    <item.icon className="w-4 h-4" />
+                    {item.name}
+                  </div>
+                  {item.badge && (
+                    <Badge
+                      variant="secondary"
+                      className="bg-wme-gold/20 text-wme-gold border-wme-gold/30"
+                    >
+                      {item.badge}
+                    </Badge>
+                  )}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
 
-            {/* Recent bookings */}
+      {/* Main content */}
+      <div className="lg:pl-64">
+        {/* Header */}
+        <header className="flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="lg:hidden"
+              onClick={() => setSidebarOpen(true)}
+            >
+              <Menu className="w-4 h-4" />
+            </Button>
+            <div>
+              <h1 className="text-lg font-semibold">Dashboard</h1>
+              <p className="text-sm text-muted-foreground">
+                Welcome back, John Doe
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Button variant="ghost" size="sm" className="relative">
+              <Bell className="w-4 h-4" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 bg-wme-gold rounded-full" />
+            </Button>
+            <div className="w-8 h-8 bg-wme-gold rounded-full flex items-center justify-center">
+              <span className="text-sm font-semibold text-black">JD</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Dashboard content */}
+        <main className="p-6">
+          {/* Stats cards */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card>
-              <CardHeader>
+              <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div>
-                    <CardTitle>Recent Bookings</CardTitle>
-                    <CardDescription>
-                      Your latest talent bookings and their status
-                    </CardDescription>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Active Bookings
+                    </p>
+                    <p className="text-2xl font-bold">12</p>
                   </div>
-                  <Button variant="outline" size="sm">
-                    View All
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Button>
+                  <Calendar className="w-8 h-8 text-wme-gold" />
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {recentBookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="flex items-center justify-between p-4 border border-border rounded-lg"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center">
-                          <Star className="w-6 h-6 text-wme-gold" />
-                        </div>
-                        <div>
-                          <p className="font-semibold">{booking.artist}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {booking.event}
-                          </p>
-                          <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                            <Clock className="w-3 h-3" />
-                            {booking.date}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">{booking.amount}</p>
-                        <Badge
-                          className={`mt-1 ${getStatusColor(booking.status)}`}
-                        >
-                          {booking.status}
-                        </Badge>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  +2 from last month
+                </p>
               </CardContent>
             </Card>
-          </main>
-        </div>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Pending Documents
+                    </p>
+                    <p className="text-2xl font-bold">3</p>
+                  </div>
+                  <FileText className="w-8 h-8 text-wme-gold" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  2 NDAs, 1 Contract
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Unread Messages
+                    </p>
+                    <p className="text-2xl font-bold">8</p>
+                  </div>
+                  <MessageSquare className="w-8 h-8 text-wme-gold" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  From coordinators
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">
+                      Total Revenue
+                    </p>
+                    <p className="text-2xl font-bold">$4.2M</p>
+                  </div>
+                  <TrendingUp className="w-8 h-8 text-wme-gold" />
+                </div>
+                <p className="text-xs text-muted-foreground mt-2">This year</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent bookings */}
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Recent Bookings</CardTitle>
+                  <CardDescription>
+                    Your latest talent bookings and their status
+                  </CardDescription>
+                </div>
+                <Button variant="outline" size="sm">
+                  View All
+                  <ChevronRight className="w-4 h-4 ml-2" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {recentBookings.map((booking) => (
+                  <div
+                    key={booking.id}
+                    className="flex items-center justify-between p-4 border border-border rounded-lg"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center">
+                        <Star className="w-6 h-6 text-wme-gold" />
+                      </div>
+                      <div>
+                        <p className="font-semibold">{booking.artist}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {booking.event}
+                        </p>
+                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                          <Clock className="w-3 h-3" />
+                          {booking.date}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">{booking.amount}</p>
+                      <Badge
+                        className={`mt-1 ${getStatusColor(booking.status)}`}
+                      >
+                        {booking.status}
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
     </div>
   );
 }
