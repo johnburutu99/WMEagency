@@ -35,17 +35,50 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Load user data from localStorage
+  // Load user data and verify session
   const [userData, setUserData] = useState<any>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(true);
 
   useEffect(() => {
-    const storedData = localStorage.getItem("wme-user-data");
-    if (storedData) {
-      setUserData(JSON.parse(storedData));
-    } else {
-      // Redirect to login if no user data
-      window.location.href = "/";
-    }
+    const initializeSession = async () => {
+      // First check if we have local data
+      const storedData = localStorage.getItem("wme-user-data");
+      if (storedData) {
+        setUserData(JSON.parse(storedData));
+      }
+
+      // Then verify with backend
+      if (apiClient.isAuthenticated()) {
+        try {
+          const response = await apiClient.verifySession();
+          if (response.success && response.user) {
+            setUserData(response.user);
+            // Update local storage with fresh data
+            localStorage.setItem("wme-user-data", JSON.stringify(response.user));
+          } else {
+            // Session invalid, clear and redirect
+            apiClient.clearSession();
+            window.location.href = "/";
+            return;
+          }
+        } catch (error) {
+          console.error('Session verification failed:', error);
+          // On network error, keep local data if available
+          if (!storedData) {
+            window.location.href = "/";
+            return;
+          }
+        }
+      } else {
+        // No session, redirect to login
+        window.location.href = "/";
+        return;
+      }
+
+      setIsLoadingSession(false);
+    };
+
+    initializeSession();
   }, []);
 
   const navigation = [
