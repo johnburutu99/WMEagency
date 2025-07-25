@@ -1,25 +1,45 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Button } from '../components/ui/button';
-import { Input } from '../components/ui/input';
-import { Label } from '../components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
-import { Eye, EyeOff, Lock, Mail, Shield, Star, Users, Globe } from 'lucide-react';
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
+import {
+  Eye,
+  EyeOff,
+  Lock,
+  Mail,
+  Shield,
+  Star,
+  Users,
+  Globe,
+} from "lucide-react";
 
 export default function Index() {
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // TODO: Implement actual authentication
-    console.log('Login attempt:', { email, password });
+    console.log("Login attempt:", { email, password });
 
     // For demo purposes, redirect to dashboard
     if (email && password) {
-      window.location.href = '/dashboard';
+      window.location.href = "/dashboard";
     }
   };
 
@@ -65,8 +85,9 @@ export default function Index() {
               </span>
             </h2>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              Your secure gateway to world-class talent representation. 
-              Manage bookings, documents, communications, and payments all in one place.
+              Your secure gateway to world-class talent representation. Manage
+              bookings, documents, communications, and payments all in one
+              place.
             </p>
             <div className="grid grid-cols-1 gap-4">
               <div className="flex items-center gap-3 text-gray-200">
@@ -98,13 +119,17 @@ export default function Index() {
                   <p className="text-sm text-wme-gold">Client Portal</p>
                 </div>
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">Welcome Back</h2>
+              <h2 className="text-2xl font-semibold text-white mb-2">
+                Welcome Back
+              </h2>
               <p className="text-gray-400">Sign in to access your account</p>
             </div>
 
             <Card className="bg-white/5 backdrop-blur-sm border-wme-gold/20">
               <CardHeader className="hidden lg:block">
-                <CardTitle className="text-2xl text-white">Welcome Back</CardTitle>
+                <CardTitle className="text-2xl text-white">
+                  Welcome Back
+                </CardTitle>
                 <CardDescription className="text-gray-400">
                   Sign in to access your WME client account
                 </CardDescription>
@@ -112,18 +137,26 @@ export default function Index() {
               <CardContent className="space-y-6">
                 <Tabs defaultValue="login" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 bg-black/20">
-                    <TabsTrigger value="login" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                    <TabsTrigger
+                      value="login"
+                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                    >
                       Sign In
                     </TabsTrigger>
-                    <TabsTrigger value="register" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                    <TabsTrigger
+                      value="register"
+                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                    >
                       New Client
                     </TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="login" className="space-y-4">
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-gray-200">Email Address</Label>
+                        <Label htmlFor="email" className="text-gray-200">
+                          Email Address
+                        </Label>
                         <Input
                           id="email"
                           type="email"
@@ -135,11 +168,13 @@ export default function Index() {
                         />
                       </div>
                       <div className="space-y-2">
-                        <Label htmlFor="password" className="text-gray-200">Password</Label>
+                        <Label htmlFor="password" className="text-gray-200">
+                          Password
+                        </Label>
                         <div className="relative">
                           <Input
                             id="password"
-                            type={showPassword ? 'text' : 'password'}
+                            type={showPassword ? "text" : "password"}
                             placeholder="Enter your password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -151,7 +186,11 @@ export default function Index() {
                             onClick={() => setShowPassword(!showPassword)}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-wme-gold"
                           >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
                       </div>
@@ -160,12 +199,15 @@ export default function Index() {
                           <input type="checkbox" className="accent-wme-gold" />
                           Remember me
                         </label>
-                        <Link to="/forgot-password" className="text-wme-gold hover:underline">
+                        <Link
+                          to="/forgot-password"
+                          className="text-wme-gold hover:underline"
+                        >
                           Forgot password?
                         </Link>
                       </div>
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold"
                         size="lg"
                       >
@@ -173,14 +215,21 @@ export default function Index() {
                       </Button>
                     </form>
                   </TabsContent>
-                  
+
                   <TabsContent value="register" className="space-y-4">
                     <div className="text-center py-8">
-                      <h3 className="text-lg font-semibold text-white mb-3">New Client Registration</h3>
+                      <h3 className="text-lg font-semibold text-white mb-3">
+                        New Client Registration
+                      </h3>
                       <p className="text-gray-400 mb-6">
-                        To create a new client account, please contact your WME representative who will provide you with registration credentials and setup instructions.
+                        To create a new client account, please contact your WME
+                        representative who will provide you with registration
+                        credentials and setup instructions.
                       </p>
-                      <Button variant="outline" className="border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black">
+                      <Button
+                        variant="outline"
+                        className="border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
+                      >
                         Contact WME
                       </Button>
                     </div>
@@ -189,10 +238,17 @@ export default function Index() {
 
                 <div className="text-center">
                   <p className="text-xs text-gray-400">
-                    By signing in, you agree to our{' '}
-                    <Link to="/terms" className="text-wme-gold hover:underline">Terms of Service</Link>
-                    {' '}and{' '}
-                    <Link to="/privacy" className="text-wme-gold hover:underline">Privacy Policy</Link>
+                    By signing in, you agree to our{" "}
+                    <Link to="/terms" className="text-wme-gold hover:underline">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      to="/privacy"
+                      className="text-wme-gold hover:underline"
+                    >
+                      Privacy Policy
+                    </Link>
                   </p>
                 </div>
               </CardContent>
@@ -200,7 +256,8 @@ export default function Index() {
 
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500">
-                © 2024 William Morris Endeavor Entertainment. All rights reserved.
+                © 2024 William Morris Endeavor Entertainment. All rights
+                reserved.
               </p>
             </div>
           </div>

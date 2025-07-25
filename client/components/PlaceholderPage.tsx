@@ -1,7 +1,13 @@
-import { Button } from './ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
-import { Construction, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Button } from "./ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Construction, ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
 
 interface PlaceholderPageProps {
   title: string;
@@ -10,11 +16,11 @@ interface PlaceholderPageProps {
   backTo?: string;
 }
 
-export default function PlaceholderPage({ 
-  title, 
-  description, 
+export default function PlaceholderPage({
+  title,
+  description,
   icon = <Construction className="w-12 h-12 text-wme-gold" />,
-  backTo = '/dashboard'
+  backTo = "/dashboard",
 }: PlaceholderPageProps) {
   return (
     <div className="min-h-screen bg-background">
@@ -22,9 +28,7 @@ export default function PlaceholderPage({
         <div className="max-w-2xl mx-auto">
           <Card>
             <CardHeader className="text-center pb-8">
-              <div className="flex justify-center mb-6">
-                {icon}
-              </div>
+              <div className="flex justify-center mb-6">{icon}</div>
               <CardTitle className="text-2xl mb-2">{title}</CardTitle>
               <CardDescription className="text-lg">
                 {description}
@@ -32,7 +36,8 @@ export default function PlaceholderPage({
             </CardHeader>
             <CardContent className="text-center">
               <p className="text-muted-foreground mb-6">
-                This section is currently under development. Please check back soon or contact your WME coordinator for assistance.
+                This section is currently under development. Please check back
+                soon or contact your WME coordinator for assistance.
               </p>
               <div className="flex gap-4 justify-center">
                 <Link to={backTo}>
