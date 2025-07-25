@@ -1,40 +1,40 @@
-import { RequestHandler } from 'express';
-import { authService, BookingIdSchema } from '../services/authService';
-import { z } from 'zod';
+import { RequestHandler } from "express";
+import { authService, BookingIdSchema } from "../services/authService";
+import { z } from "zod";
 
 // Request validation schemas
 const LoginRequestSchema = z.object({
-  bookingId: BookingIdSchema
+  bookingId: BookingIdSchema,
 });
 
 const CreateBookingRequestSchema = z.object({
-  clientName: z.string().min(1, 'Client name is required'),
-  clientEmail: z.string().email('Valid email is required'),
-  artist: z.string().min(1, 'Artist name is required'),
-  event: z.string().min(1, 'Event description is required'),
-  eventDate: z.string().min(1, 'Event date is required'),
-  coordinatorId: z.string().min(1, 'Coordinator ID is required')
+  clientName: z.string().min(1, "Client name is required"),
+  clientEmail: z.string().email("Valid email is required"),
+  artist: z.string().min(1, "Artist name is required"),
+  event: z.string().min(1, "Event description is required"),
+  eventDate: z.string().min(1, "Event date is required"),
+  coordinatorId: z.string().min(1, "Coordinator ID is required"),
 });
 
 // POST /api/auth/login
 export const handleLogin: RequestHandler = async (req, res) => {
   try {
-    console.log('Login attempt:', req.body);
+    console.log("Login attempt:", req.body);
 
     // Validate request body
     const validation = LoginRequestSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid request format',
-        details: validation.error.errors
+        error: "Invalid request format",
+        details: validation.error.errors,
       });
     }
 
     const { bookingId } = validation.data;
 
     // Simulate processing delay (remove in production)
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, 1000));
 
     // Authenticate user
     const result = await authService.authenticateByBookingId(bookingId);
@@ -42,7 +42,7 @@ export const handleLogin: RequestHandler = async (req, res) => {
     if (!result.success) {
       return res.status(401).json({
         success: false,
-        error: result.error
+        error: result.error,
       });
     }
 
@@ -56,22 +56,21 @@ export const handleLogin: RequestHandler = async (req, res) => {
       event: user!.event,
       eventDate: user!.eventDate,
       status: user!.status,
-      coordinatorId: user!.coordinatorId
+      coordinatorId: user!.coordinatorId,
     };
 
-    console.log('Login successful for:', userResponse.name);
+    console.log("Login successful for:", userResponse.name);
 
     res.json({
       success: true,
       user: userResponse,
-      message: 'Authentication successful'
+      message: "Authentication successful",
     });
-
   } catch (error) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: "Internal server error",
     });
   }
 };
@@ -79,15 +78,15 @@ export const handleLogin: RequestHandler = async (req, res) => {
 // POST /api/auth/create-booking
 export const handleCreateBooking: RequestHandler = async (req, res) => {
   try {
-    console.log('Creating new booking:', req.body);
+    console.log("Creating new booking:", req.body);
 
     // Validate request body
     const validation = CreateBookingRequestSchema.safeParse(req.body);
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Invalid booking data',
-        details: validation.error.errors
+        error: "Invalid booking data",
+        details: validation.error.errors,
       });
     }
 
@@ -99,7 +98,7 @@ export const handleCreateBooking: RequestHandler = async (req, res) => {
     if (!result.success) {
       return res.status(400).json({
         success: false,
-        error: result.error
+        error: result.error,
       });
     }
 
@@ -114,22 +113,21 @@ export const handleCreateBooking: RequestHandler = async (req, res) => {
       eventDate: booking!.eventDate,
       status: booking!.status,
       coordinatorId: booking!.coordinatorId,
-      createdAt: booking!.createdAt
+      createdAt: booking!.createdAt,
     };
 
-    console.log('Booking created successfully:', bookingResponse.bookingId);
+    console.log("Booking created successfully:", bookingResponse.bookingId);
 
     res.status(201).json({
       success: true,
       booking: bookingResponse,
-      message: 'Booking created successfully'
+      message: "Booking created successfully",
     });
-
   } catch (error) {
-    console.error('Create booking error:', error);
+    console.error("Create booking error:", error);
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: "Internal server error",
     });
   }
 };
@@ -139,12 +137,12 @@ export const handleVerifySession: RequestHandler = async (req, res) => {
   try {
     // In a real implementation, you would verify JWT token or session
     // For now, we'll check if booking ID is provided in headers
-    const bookingId = req.headers['x-booking-id'] as string;
+    const bookingId = req.headers["x-booking-id"] as string;
 
     if (!bookingId) {
       return res.status(401).json({
         success: false,
-        error: 'No session found'
+        error: "No session found",
       });
     }
 
@@ -154,7 +152,7 @@ export const handleVerifySession: RequestHandler = async (req, res) => {
     if (!result.success) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid session'
+        error: "Invalid session",
       });
     }
 
@@ -167,20 +165,19 @@ export const handleVerifySession: RequestHandler = async (req, res) => {
       event: user!.event,
       eventDate: user!.eventDate,
       status: user!.status,
-      coordinatorId: user!.coordinatorId
+      coordinatorId: user!.coordinatorId,
     };
 
     res.json({
       success: true,
       user: userResponse,
-      message: 'Session valid'
+      message: "Session valid",
     });
-
   } catch (error) {
-    console.error('Session verification error:', error);
+    console.error("Session verification error:", error);
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: "Internal server error",
     });
   }
 };
@@ -190,19 +187,18 @@ export const handleLogout: RequestHandler = async (req, res) => {
   try {
     // In a real implementation, you would invalidate the JWT token or session
     // For this demo, we'll just return success
-    
-    console.log('User logged out');
+
+    console.log("User logged out");
 
     res.json({
       success: true,
-      message: 'Logged out successfully'
+      message: "Logged out successfully",
     });
-
   } catch (error) {
-    console.error('Logout error:', error);
+    console.error("Logout error:", error);
     res.status(500).json({
       success: false,
-      error: 'Internal server error'
+      error: "Internal server error",
     });
   }
 };
@@ -211,18 +207,17 @@ export const handleLogout: RequestHandler = async (req, res) => {
 export const handleGenerateBookingId: RequestHandler = async (req, res) => {
   try {
     const newBookingId = authService.generateNewBookingId();
-    
+
     res.json({
       success: true,
       bookingId: newBookingId,
-      message: 'New booking ID generated'
+      message: "New booking ID generated",
     });
-
   } catch (error) {
-    console.error('Generate booking ID error:', error);
+    console.error("Generate booking ID error:", error);
     res.status(500).json({
       success: false,
-      error: 'Unable to generate booking ID'
+      error: "Unable to generate booking ID",
     });
   }
 };
