@@ -17,30 +17,68 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import {
-  Eye,
-  EyeOff,
-  Lock,
-  Mail,
   Shield,
   Star,
   Users,
   Globe,
+  IdCard,
+  Loader2,
 } from "lucide-react";
 
+// Mock user data based on booking ID
+const mockUserData = {
+  'WME24001': { name: 'John Doe', artist: 'Taylor Swift', event: 'Grammy Awards Performance' },
+  'WME24002': { name: 'Jane Smith', artist: 'Dwayne Johnson', event: 'Fast X Premiere' },
+  'WME24003': { name: 'Mike Johnson', artist: 'Zendaya', event: 'Vogue Photoshoot' },
+  'ABC12345': { name: 'Sarah Wilson', artist: 'Ryan Reynolds', event: 'Press Tour Services' },
+  'XYZ98765': { name: 'David Chen', artist: 'Chris Evans', event: 'Marvel Contract Signing' },
+};
+
 export default function Index() {
-  const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [bookingId, setBookingId] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const validateBookingId = (id: string) => {
+    // Check if it's 8 alphanumeric characters
+    const regex = /^[A-Z0-9]{8}$/i;
+    return regex.test(id);
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implement actual authentication
-    console.log("Login attempt:", { email, password });
-
-    // For demo purposes, redirect to dashboard
-    if (email && password) {
-      window.location.href = "/dashboard";
+    setError('');
+    
+    if (!bookingId) {
+      setError('Please enter your Booking ID');
+      return;
     }
+
+    if (!validateBookingId(bookingId)) {
+      setError('Booking ID must be 8 alphanumeric characters');
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Simulate API call to fetch user data
+    setTimeout(() => {
+      const userData = mockUserData[bookingId.toUpperCase() as keyof typeof mockUserData];
+      
+      if (userData) {
+        // Store user data in localStorage for the dashboard
+        localStorage.setItem('wme-user-data', JSON.stringify({
+          bookingId: bookingId.toUpperCase(),
+          ...userData
+        }));
+        
+        // Redirect to dashboard
+        window.location.href = '/dashboard';
+      } else {
+        setError('Invalid Booking ID. Please check your booking confirmation.');
+        setIsLoading(false);
+      }
+    }, 1500); // Simulate network delay
   };
 
   return (
@@ -85,9 +123,8 @@ export default function Index() {
               </span>
             </h2>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              Your secure gateway to world-class talent representation. Manage
-              bookings, documents, communications, and payments all in one
-              place.
+              Your secure gateway to world-class talent representation. 
+              Access your booking information, documents, and communications with your unique Booking ID.
             </p>
             <div className="grid grid-cols-1 gap-4">
               <div className="flex items-center gap-3 text-gray-200">
@@ -95,12 +132,22 @@ export default function Index() {
                 <span>Direct access to your dedicated coordinator</span>
               </div>
               <div className="flex items-center gap-3 text-gray-200">
-                <Lock className="w-5 h-5 text-wme-gold" />
-                <span>Bank-level security with 2FA protection</span>
+                <IdCard className="w-5 h-5 text-wme-gold" />
+                <span>Secure access with your unique Booking ID</span>
               </div>
               <div className="flex items-center gap-3 text-gray-200">
-                <Mail className="w-5 h-5 text-wme-gold" />
-                <span>Real-time notifications and updates</span>
+                <Shield className="w-5 h-5 text-wme-gold" />
+                <span>Bank-level security and data protection</span>
+              </div>
+            </div>
+            
+            {/* Sample Booking IDs for testing */}
+            <div className="mt-8 p-4 bg-black/30 rounded-lg border border-wme-gold/20">
+              <p className="text-sm text-wme-gold font-semibold mb-2">For Demo - Try these Booking IDs:</p>
+              <div className="text-xs text-gray-300 space-y-1">
+                <div>WME24001 - Taylor Swift</div>
+                <div>WME24002 - Dwayne Johnson</div>
+                <div>ABC12345 - Ryan Reynolds</div>
               </div>
             </div>
           </div>
@@ -119,136 +166,105 @@ export default function Index() {
                   <p className="text-sm text-wme-gold">Client Portal</p>
                 </div>
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">
-                Welcome Back
-              </h2>
-              <p className="text-gray-400">Sign in to access your account</p>
+              <h2 className="text-2xl font-semibold text-white mb-2">Access Your Booking</h2>
+              <p className="text-gray-400">Enter your Booking ID to continue</p>
             </div>
 
             <Card className="bg-white/5 backdrop-blur-sm border-wme-gold/20">
               <CardHeader className="hidden lg:block">
-                <CardTitle className="text-2xl text-white">
-                  Welcome Back
-                </CardTitle>
+                <CardTitle className="text-2xl text-white">Access Your Booking</CardTitle>
                 <CardDescription className="text-gray-400">
-                  Sign in to access your WME client account
+                  Enter your 8-character Booking ID to access your WME client account
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <Tabs defaultValue="login" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 bg-black/20">
-                    <TabsTrigger
-                      value="login"
-                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
-                    >
-                      Sign In
+                    <TabsTrigger value="login" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                      Client Access
                     </TabsTrigger>
-                    <TabsTrigger
-                      value="register"
-                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
-                    >
-                      New Client
+                    <TabsTrigger value="help" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                      Need Help?
                     </TabsTrigger>
                   </TabsList>
-
+                  
                   <TabsContent value="login" className="space-y-4">
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="email" className="text-gray-200">
-                          Email Address
-                        </Label>
-                        <Input
-                          id="email"
-                          type="email"
-                          placeholder="your.email@example.com"
-                          value={email}
-                          onChange={(e) => setEmail(e.target.value)}
-                          className="bg-black/20 border-gray-600 text-white placeholder:text-gray-400 focus:border-wme-gold"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-2">
-                        <Label htmlFor="password" className="text-gray-200">
-                          Password
-                        </Label>
+                        <Label htmlFor="bookingId" className="text-gray-200">Booking ID</Label>
                         <div className="relative">
                           <Input
-                            id="password"
-                            type={showPassword ? "text" : "password"}
-                            placeholder="Enter your password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            className="bg-black/20 border-gray-600 text-white placeholder:text-gray-400 focus:border-wme-gold pr-10"
+                            id="bookingId"
+                            type="text"
+                            placeholder="Enter 8-character Booking ID"
+                            value={bookingId}
+                            onChange={(e) => {
+                              const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                              if (value.length <= 8) {
+                                setBookingId(value);
+                                setError('');
+                              }
+                            }}
+                            className="bg-black/20 border-gray-600 text-white placeholder:text-gray-400 focus:border-wme-gold pl-10"
+                            maxLength={8}
                             required
                           />
-                          <button
-                            type="button"
-                            onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-wme-gold"
-                          >
-                            {showPassword ? (
-                              <EyeOff className="w-4 h-4" />
-                            ) : (
-                              <Eye className="w-4 h-4" />
-                            )}
-                          </button>
+                          <IdCard className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
                         </div>
+                        <p className="text-xs text-gray-400">
+                          Format: 8 alphanumeric characters (e.g., WME24001)
+                        </p>
                       </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <label className="flex items-center gap-2 text-gray-300 cursor-pointer">
-                          <input type="checkbox" className="accent-wme-gold" />
-                          Remember me
-                        </label>
-                        <Link
-                          to="/forgot-password"
-                          className="text-wme-gold hover:underline"
-                        >
-                          Forgot password?
-                        </Link>
-                      </div>
-                      <Button
-                        type="submit"
+                      
+                      {error && (
+                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                          <p className="text-red-400 text-sm">{error}</p>
+                        </div>
+                      )}
+
+                      <Button 
+                        type="submit" 
                         className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold"
                         size="lg"
+                        disabled={isLoading}
                       >
-                        Sign In
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Authenticating...
+                          </>
+                        ) : (
+                          'Access Account'
+                        )}
                       </Button>
                     </form>
                   </TabsContent>
-
-                  <TabsContent value="register" className="space-y-4">
-                    <div className="text-center py-8">
-                      <h3 className="text-lg font-semibold text-white mb-3">
-                        New Client Registration
-                      </h3>
-                      <p className="text-gray-400 mb-6">
-                        To create a new client account, please contact your WME
-                        representative who will provide you with registration
-                        credentials and setup instructions.
+                  
+                  <TabsContent value="help" className="space-y-4">
+                    <div className="text-center py-4">
+                      <h3 className="text-lg font-semibold text-white mb-3">Can't Find Your Booking ID?</h3>
+                      <p className="text-gray-400 mb-6 text-sm">
+                        Your Booking ID can be found in your booking confirmation email or contract documents. 
+                        It's an 8-character code that starts with letters followed by numbers.
                       </p>
-                      <Button
-                        variant="outline"
-                        className="border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
-                      >
-                        Contact WME
-                      </Button>
+                      <div className="space-y-3">
+                        <Button variant="outline" className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black">
+                          Contact Your Coordinator
+                        </Button>
+                        <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white">
+                          Request New Booking ID
+                        </Button>
+                      </div>
                     </div>
                   </TabsContent>
                 </Tabs>
 
                 <div className="text-center">
                   <p className="text-xs text-gray-400">
-                    By signing in, you agree to our{" "}
-                    <Link to="/terms" className="text-wme-gold hover:underline">
-                      Terms of Service
-                    </Link>{" "}
-                    and{" "}
-                    <Link
-                      to="/privacy"
-                      className="text-wme-gold hover:underline"
-                    >
-                      Privacy Policy
-                    </Link>
+                    By accessing your account, you agree to our{' '}
+                    <Link to="/terms" className="text-wme-gold hover:underline">Terms of Service</Link>
+                    {' '}and{' '}
+                    <Link to="/privacy" className="text-wme-gold hover:underline">Privacy Policy</Link>
                   </p>
                 </div>
               </CardContent>
@@ -256,8 +272,7 @@ export default function Index() {
 
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500">
-                © 2024 William Morris Endeavor Entertainment. All rights
-                reserved.
+                © 2024 William Morris Endeavor Entertainment. All rights reserved.
               </p>
             </div>
           </div>
