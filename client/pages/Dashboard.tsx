@@ -37,7 +37,7 @@ export default function Dashboard() {
   // Load user data from localStorage
   const [userData, setUserData] = useState<any>(null);
 
-  useState(() => {
+  useEffect(() => {
     const storedData = localStorage.getItem('wme-user-data');
     if (storedData) {
       setUserData(JSON.parse(storedData));
@@ -45,7 +45,7 @@ export default function Dashboard() {
       // Redirect to login if no user data
       window.location.href = '/';
     }
-  });
+  }, []);
 
   const navigation = [
     {
