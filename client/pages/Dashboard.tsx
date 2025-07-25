@@ -201,6 +201,21 @@ export default function Dashboard() {
     }
   };
 
+  // Show loading state while verifying session
+  if (isLoadingSession || !userData) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-wme-gold rounded-full flex items-center justify-center mx-auto mb-4">
+            <Star className="w-6 h-6 text-black animate-pulse" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2">WME Client Portal</h2>
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Mobile sidebar overlay */}
