@@ -16,20 +16,13 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import {
-  Shield,
-  Star,
-  Users,
-  Globe,
-  IdCard,
-  Loader2,
-} from "lucide-react";
+import { Shield, Star, Users, Globe, IdCard, Loader2 } from "lucide-react";
 import { apiClient } from "../services/apiClient";
 
 export default function Index() {
-  const [bookingId, setBookingId] = useState('');
+  const [bookingId, setBookingId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const validateBookingId = (id: string) => {
     // Check if it's 8 alphanumeric characters
@@ -39,15 +32,15 @@ export default function Index() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
 
     if (!bookingId) {
-      setError('Please enter your Booking ID');
+      setError("Please enter your Booking ID");
       return;
     }
 
     if (!validateBookingId(bookingId)) {
-      setError('Booking ID must be 8 alphanumeric characters');
+      setError("Booking ID must be 8 alphanumeric characters");
       return;
     }
 
@@ -59,14 +52,14 @@ export default function Index() {
 
       if (response.success && response.user) {
         // Redirect to dashboard on successful login
-        window.location.href = '/dashboard';
+        window.location.href = "/dashboard";
       } else {
-        setError(response.error || 'Authentication failed. Please try again.');
+        setError(response.error || "Authentication failed. Please try again.");
         setIsLoading(false);
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setError('Unable to connect to server. Please try again later.');
+      console.error("Login error:", error);
+      setError("Unable to connect to server. Please try again later.");
       setIsLoading(false);
     }
   };
@@ -113,8 +106,9 @@ export default function Index() {
               </span>
             </h2>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-              Your secure gateway to world-class talent representation. 
-              Access your booking information, documents, and communications with your unique Booking ID.
+              Your secure gateway to world-class talent representation. Access
+              your booking information, documents, and communications with your
+              unique Booking ID.
             </p>
             <div className="grid grid-cols-1 gap-4">
               <div className="flex items-center gap-3 text-gray-200">
@@ -130,10 +124,12 @@ export default function Index() {
                 <span>Bank-level security and data protection</span>
               </div>
             </div>
-            
+
             {/* Sample Booking IDs for testing */}
             <div className="mt-8 p-4 bg-black/30 rounded-lg border border-wme-gold/20">
-              <p className="text-sm text-wme-gold font-semibold mb-2">For Demo - Try these Booking IDs:</p>
+              <p className="text-sm text-wme-gold font-semibold mb-2">
+                For Demo - Try these Booking IDs:
+              </p>
               <div className="text-xs text-gray-300 space-y-1">
                 <div>WME24001 - Taylor Swift</div>
                 <div>WME24002 - Dwayne Johnson</div>
@@ -156,32 +152,45 @@ export default function Index() {
                   <p className="text-sm text-wme-gold">Client Portal</p>
                 </div>
               </div>
-              <h2 className="text-2xl font-semibold text-white mb-2">Access Your Booking</h2>
+              <h2 className="text-2xl font-semibold text-white mb-2">
+                Access Your Booking
+              </h2>
               <p className="text-gray-400">Enter your Booking ID to continue</p>
             </div>
 
             <Card className="bg-white/5 backdrop-blur-sm border-wme-gold/20">
               <CardHeader className="hidden lg:block">
-                <CardTitle className="text-2xl text-white">Access Your Booking</CardTitle>
+                <CardTitle className="text-2xl text-white">
+                  Access Your Booking
+                </CardTitle>
                 <CardDescription className="text-gray-400">
-                  Enter your 8-character Booking ID to access your WME client account
+                  Enter your 8-character Booking ID to access your WME client
+                  account
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
                 <Tabs defaultValue="login" className="w-full">
                   <TabsList className="grid w-full grid-cols-2 bg-black/20">
-                    <TabsTrigger value="login" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                    <TabsTrigger
+                      value="login"
+                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                    >
                       Client Access
                     </TabsTrigger>
-                    <TabsTrigger value="help" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                    <TabsTrigger
+                      value="help"
+                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                    >
                       Need Help?
                     </TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="login" className="space-y-4">
                     <form onSubmit={handleLogin} className="space-y-4">
                       <div className="space-y-2">
-                        <Label htmlFor="bookingId" className="text-gray-200">Booking ID</Label>
+                        <Label htmlFor="bookingId" className="text-gray-200">
+                          Booking ID
+                        </Label>
                         <div className="relative">
                           <Input
                             id="bookingId"
@@ -189,10 +198,12 @@ export default function Index() {
                             placeholder="Enter 8-character Booking ID"
                             value={bookingId}
                             onChange={(e) => {
-                              const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+                              const value = e.target.value
+                                .toUpperCase()
+                                .replace(/[^A-Z0-9]/g, "");
                               if (value.length <= 8) {
                                 setBookingId(value);
-                                setError('');
+                                setError("");
                               }
                             }}
                             className="bg-black/20 border-gray-600 text-white placeholder:text-gray-400 focus:border-wme-gold pl-10"
@@ -205,15 +216,15 @@ export default function Index() {
                           Format: 8 alphanumeric characters (e.g., WME24001)
                         </p>
                       </div>
-                      
+
                       {error && (
                         <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
                           <p className="text-red-400 text-sm">{error}</p>
                         </div>
                       )}
 
-                      <Button 
-                        type="submit" 
+                      <Button
+                        type="submit"
                         className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold"
                         size="lg"
                         disabled={isLoading}
@@ -224,24 +235,34 @@ export default function Index() {
                             Authenticating...
                           </>
                         ) : (
-                          'Access Account'
+                          "Access Account"
                         )}
                       </Button>
                     </form>
                   </TabsContent>
-                  
+
                   <TabsContent value="help" className="space-y-4">
                     <div className="text-center py-4">
-                      <h3 className="text-lg font-semibold text-white mb-3">Can't Find Your Booking ID?</h3>
+                      <h3 className="text-lg font-semibold text-white mb-3">
+                        Can't Find Your Booking ID?
+                      </h3>
                       <p className="text-gray-400 mb-6 text-sm">
-                        Your Booking ID can be found in your booking confirmation email or contract documents. 
-                        It's an 8-character code that starts with letters followed by numbers.
+                        Your Booking ID can be found in your booking
+                        confirmation email or contract documents. It's an
+                        8-character code that starts with letters followed by
+                        numbers.
                       </p>
                       <div className="space-y-3">
-                        <Button variant="outline" className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black">
+                        <Button
+                          variant="outline"
+                          className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
+                        >
                           Contact Your Coordinator
                         </Button>
-                        <Button variant="outline" className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white">
+                        <Button
+                          variant="outline"
+                          className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
+                        >
                           Request New Booking ID
                         </Button>
                       </div>
@@ -251,10 +272,17 @@ export default function Index() {
 
                 <div className="text-center">
                   <p className="text-xs text-gray-400">
-                    By accessing your account, you agree to our{' '}
-                    <Link to="/terms" className="text-wme-gold hover:underline">Terms of Service</Link>
-                    {' '}and{' '}
-                    <Link to="/privacy" className="text-wme-gold hover:underline">Privacy Policy</Link>
+                    By accessing your account, you agree to our{" "}
+                    <Link to="/terms" className="text-wme-gold hover:underline">
+                      Terms of Service
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      to="/privacy"
+                      className="text-wme-gold hover:underline"
+                    >
+                      Privacy Policy
+                    </Link>
                   </p>
                 </div>
               </CardContent>
@@ -262,7 +290,8 @@ export default function Index() {
 
             <div className="mt-6 text-center">
               <p className="text-xs text-gray-500">
-                © 2024 William Morris Endeavor Entertainment. All rights reserved.
+                © 2024 William Morris Endeavor Entertainment. All rights
+                reserved.
               </p>
             </div>
           </div>

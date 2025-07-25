@@ -54,7 +54,10 @@ export default function Dashboard() {
           if (response.success && response.user) {
             setUserData(response.user);
             // Update local storage with fresh data
-            localStorage.setItem("wme-user-data", JSON.stringify(response.user));
+            localStorage.setItem(
+              "wme-user-data",
+              JSON.stringify(response.user),
+            );
           } else {
             // Session invalid, clear and redirect
             apiClient.clearSession();
@@ -62,7 +65,7 @@ export default function Dashboard() {
             return;
           }
         } catch (error) {
-          console.error('Session verification failed:', error);
+          console.error("Session verification failed:", error);
           // On network error, keep local data if available
           if (!storedData) {
             window.location.href = "/";
