@@ -123,8 +123,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className={`min-h-screen ${darkMode ? "dark" : ""}`}>
-      <div className="bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground">
         {/* Mobile sidebar overlay */}
         {sidebarOpen && (
           <div className="fixed inset-0 z-50 lg:hidden">
@@ -387,7 +386,6 @@ export default function Dashboard() {
             </Card>
           </main>
         </div>
-      </div>
     </div>
   );
 }
