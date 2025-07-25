@@ -95,32 +95,61 @@ export default function Dashboard() {
     },
   ];
 
-  const recentBookings = [
-    {
+  // Create personalized recent bookings with user's booking first
+  const getRecentBookings = () => {
+    const baseBookings = [
+      {
+        id: "BK002",
+        artist: "Dwayne Johnson",
+        event: "Fast X Premiere",
+        date: "2024-01-15",
+        status: "Pending",
+        amount: "$750,000",
+      },
+      {
+        id: "BK003",
+        artist: "Zendaya",
+        event: "Vogue Photoshoot",
+        date: "2024-01-22",
+        status: "Completed",
+        amount: "$150,000",
+      },
+    ];
+
+    if (userData) {
+      const userBooking = {
+        id: userData.bookingId,
+        artist: userData.artist,
+        event: userData.event,
+        date: "2024-02-04",
+        status: "Confirmed",
+        amount: getAmountForArtist(userData.artist),
+      };
+      return [userBooking, ...baseBookings];
+    }
+
+    return [{
       id: "BK001",
       artist: "Taylor Swift",
       event: "Grammy Awards Performance",
       date: "2024-02-04",
       status: "Confirmed",
       amount: "$2,500,000",
-    },
-    {
-      id: "BK002",
-      artist: "Dwayne Johnson",
-      event: "Fast X Premiere",
-      date: "2024-01-15",
-      status: "Pending",
-      amount: "$750,000",
-    },
-    {
-      id: "BK003",
-      artist: "Zendaya",
-      event: "Vogue Photoshoot",
-      date: "2024-01-22",
-      status: "Completed",
-      amount: "$150,000",
-    },
-  ];
+    }, ...baseBookings];
+  };
+
+  const getAmountForArtist = (artist: string) => {
+    const amounts: { [key: string]: string } = {
+      'Taylor Swift': '$2,500,000',
+      'Dwayne Johnson': '$750,000',
+      'Zendaya': '$150,000',
+      'Ryan Reynolds': '$1,200,000',
+      'Chris Evans': '$950,000',
+    };
+    return amounts[artist] || '$500,000';
+  };
+
+  const recentBookings = getRecentBookings();
 
   const getStatusColor = (status: string) => {
     switch (status) {
