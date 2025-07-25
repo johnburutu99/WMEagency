@@ -60,7 +60,9 @@ export default function Index() {
           <div className="flex flex-col justify-center p-12 relative z-10">
             <h2 className="text-5xl font-bold text-white mb-6">
               Welcome to the
-              <span className="block text-wme-gold">WME Client Portal</span>
+              <span className="block text-wme-gold">
+                <strong>WME Client Portal</strong>
+              </span>
             </h2>
             <p className="text-xl text-gray-300 mb-8 leading-relaxed">
               Your secure gateway to world-class talent representation. 
