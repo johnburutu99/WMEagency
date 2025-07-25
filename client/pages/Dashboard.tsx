@@ -38,12 +38,12 @@ export default function Dashboard() {
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
-    const storedData = localStorage.getItem("wme-user-data");
+    const storedData = localStorage.getItem('wme-user-data');
     if (storedData) {
       setUserData(JSON.parse(storedData));
     } else {
       // Redirect to login if no user data
-      window.location.href = "/";
+      window.location.href = '/';
     }
   }, []);
 
@@ -256,8 +256,13 @@ export default function Dashboard() {
             <div>
               <h1 className="text-lg font-semibold">Dashboard</h1>
               <p className="text-sm text-muted-foreground">
-                Welcome back, John Doe
+                Welcome back, {userData?.name || 'Client'}
               </p>
+              {userData?.bookingId && (
+                <p className="text-xs text-wme-gold">
+                  Booking ID: {userData.bookingId}
+                </p>
+              )}
             </div>
           </div>
 
