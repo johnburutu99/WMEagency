@@ -38,12 +38,12 @@ export default function Dashboard() {
   const [userData, setUserData] = useState<any>(null);
 
   useEffect(() => {
-    const storedData = localStorage.getItem('wme-user-data');
+    const storedData = localStorage.getItem("wme-user-data");
     if (storedData) {
       setUserData(JSON.parse(storedData));
     } else {
       // Redirect to login if no user data
-      window.location.href = '/';
+      window.location.href = "/";
     }
   }, []);
 
@@ -128,25 +128,28 @@ export default function Dashboard() {
       return [userBooking, ...baseBookings];
     }
 
-    return [{
-      id: "BK001",
-      artist: "Taylor Swift",
-      event: "Grammy Awards Performance",
-      date: "2024-02-04",
-      status: "Confirmed",
-      amount: "$2,500,000",
-    }, ...baseBookings];
+    return [
+      {
+        id: "BK001",
+        artist: "Taylor Swift",
+        event: "Grammy Awards Performance",
+        date: "2024-02-04",
+        status: "Confirmed",
+        amount: "$2,500,000",
+      },
+      ...baseBookings,
+    ];
   };
 
   const getAmountForArtist = (artist: string) => {
     const amounts: { [key: string]: string } = {
-      'Taylor Swift': '$2,500,000',
-      'Dwayne Johnson': '$750,000',
-      'Zendaya': '$150,000',
-      'Ryan Reynolds': '$1,200,000',
-      'Chris Evans': '$950,000',
+      "Taylor Swift": "$2,500,000",
+      "Dwayne Johnson": "$750,000",
+      Zendaya: "$150,000",
+      "Ryan Reynolds": "$1,200,000",
+      "Chris Evans": "$950,000",
     };
-    return amounts[artist] || '$500,000';
+    return amounts[artist] || "$500,000";
   };
 
   const recentBookings = getRecentBookings();
@@ -285,7 +288,7 @@ export default function Dashboard() {
             <div>
               <h1 className="text-lg font-semibold">Dashboard</h1>
               <p className="text-sm text-muted-foreground">
-                Welcome back, {userData?.name || 'Client'}
+                Welcome back, {userData?.name || "Client"}
               </p>
               {userData?.bookingId && (
                 <p className="text-xs text-wme-gold">
@@ -303,7 +306,13 @@ export default function Dashboard() {
             </Button>
             <div className="w-8 h-8 bg-wme-gold rounded-full flex items-center justify-center">
               <span className="text-sm font-semibold text-black">
-                {userData?.name ? userData.name.split(' ').map((n: string) => n[0]).join('').slice(0, 2) : 'CL'}
+                {userData?.name
+                  ? userData.name
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")
+                      .slice(0, 2)
+                  : "CL"}
               </span>
             </div>
           </div>
