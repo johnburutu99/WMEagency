@@ -29,13 +29,13 @@ export default function Dashboard() {
   const location = useLocation();
 
   const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: TrendingUp, current: true },
-    { name: 'Bookings', href: '/dashboard/bookings', icon: Calendar, current: false, badge: '3' },
-    { name: 'Documents', href: '/dashboard/documents', icon: FileText, current: false, badge: '2' },
-    { name: 'Messages', href: '/dashboard/messages', icon: MessageSquare, current: false, badge: '5' },
-    { name: 'Payments', href: '/dashboard/payments', icon: CreditCard, current: false },
-    { name: 'Coordinators', href: '/dashboard/coordinators', icon: Users, current: false },
-    { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: false },
+    { name: 'Dashboard', href: '/dashboard', icon: TrendingUp, current: location.pathname === '/dashboard' },
+    { name: 'Bookings', href: '/dashboard/bookings', icon: Calendar, current: location.pathname === '/dashboard/bookings', badge: '3' },
+    { name: 'Documents', href: '/dashboard/documents', icon: FileText, current: location.pathname === '/dashboard/documents', badge: '2' },
+    { name: 'Messages', href: '/dashboard/messages', icon: MessageSquare, current: location.pathname === '/dashboard/messages', badge: '5' },
+    { name: 'Payments', href: '/dashboard/payments', icon: CreditCard, current: location.pathname === '/dashboard/payments' },
+    { name: 'Coordinators', href: '/dashboard/coordinators', icon: Users, current: location.pathname === '/dashboard/coordinators' },
+    { name: 'Settings', href: '/dashboard/settings', icon: Settings, current: location.pathname === '/dashboard/settings' },
   ];
 
   const recentBookings = [
