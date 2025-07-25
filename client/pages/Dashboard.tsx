@@ -34,6 +34,19 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
+  // Load user data from localStorage
+  const [userData, setUserData] = useState<any>(null);
+
+  useState(() => {
+    const storedData = localStorage.getItem('wme-user-data');
+    if (storedData) {
+      setUserData(JSON.parse(storedData));
+    } else {
+      // Redirect to login if no user data
+      window.location.href = '/';
+    }
+  });
+
   const navigation = [
     {
       name: "Dashboard",
