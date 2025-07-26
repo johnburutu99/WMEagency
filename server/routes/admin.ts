@@ -1,30 +1,43 @@
-import { RequestHandler } from 'express';
-import { clientDatabase } from '../models/Client';
+import { RequestHandler } from "express";
+import { clientDatabase } from "../models/Client";
 
 // Get dashboard statistics
 export const getDashboardStats: RequestHandler = async (req, res) => {
   try {
     const allClients = await clientDatabase.getAllClients();
-    
+
     const stats = {
       total: allClients.length,
-      active: allClients.filter(c => c.status === 'active').length,
-      pending: allClients.filter(c => c.status === 'pending').length,
-      completed: allClients.filter(c => c.status === 'completed').length,
-      cancelled: allClients.filter(c => c.status === 'cancelled').length,
-      highPriority: allClients.filter(c => c.metadata?.priority === 'high').length,
-      mediumPriority: allClients.filter(c => c.metadata?.priority === 'medium').length,
-      lowPriority: allClients.filter(c => c.metadata?.priority === 'low').length,
-      totalRevenue: allClients.reduce((sum, c) => sum + (c.contractAmount || 0), 0),
-      avgContractValue: allClients.length ? 
-        allClients.reduce((sum, c) => sum + (c.contractAmount || 0), 0) / allClients.length : 0,
+      active: allClients.filter((c) => c.status === "active").length,
+      pending: allClients.filter((c) => c.status === "pending").length,
+      completed: allClients.filter((c) => c.status === "completed").length,
+      cancelled: allClients.filter((c) => c.status === "cancelled").length,
+      highPriority: allClients.filter((c) => c.metadata?.priority === "high")
+        .length,
+      mediumPriority: allClients.filter(
+        (c) => c.metadata?.priority === "medium",
+      ).length,
+      lowPriority: allClients.filter((c) => c.metadata?.priority === "low")
+        .length,
+      totalRevenue: allClients.reduce(
+        (sum, c) => sum + (c.contractAmount || 0),
+        0,
+      ),
+      avgContractValue: allClients.length
+        ? allClients.reduce((sum, c) => sum + (c.contractAmount || 0), 0) /
+          allClients.length
+        : 0,
     };
 
     // Recent activity
     const recentClients = allClients
-      .sort((a, b) => (b.metadata?.updatedAt?.getTime() || 0) - (a.metadata?.updatedAt?.getTime() || 0))
+      .sort(
+        (a, b) =>
+          (b.metadata?.updatedAt?.getTime() || 0) -
+          (a.metadata?.updatedAt?.getTime() || 0),
+      )
       .slice(0, 10)
-      .map(client => ({
+      .map((client) => ({
         bookingId: client.bookingId,
         name: client.name,
         artist: client.artist,
@@ -36,22 +49,25 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
 
     // Revenue by month (mock data for demo)
     const revenueByMonth = [
-      { month: 'Jan', revenue: 2500000 },
-      { month: 'Feb', revenue: 3200000 },
-      { month: 'Mar', revenue: 2800000 },
-      { month: 'Apr', revenue: 4100000 },
-      { month: 'May', revenue: 3600000 },
-      { month: 'Jun', revenue: 4800000 },
+      { month: "Jan", revenue: 2500000 },
+      { month: "Feb", revenue: 3200000 },
+      { month: "Mar", revenue: 2800000 },
+      { month: "Apr", revenue: 4100000 },
+      { month: "May", revenue: 3600000 },
+      { month: "Jun", revenue: 4800000 },
     ];
 
     // Top artists (mock data)
-    const artistFrequency = allClients.reduce((acc, client) => {
-      acc[client.artist] = (acc[client.artist] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const artistFrequency = allClients.reduce(
+      (acc, client) => {
+        acc[client.artist] = (acc[client.artist] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>,
+    );
 
     const topArtists = Object.entries(artistFrequency)
-      .sort(([,a], [,b]) => b - a)
+      .sort(([, a], [, b]) => b - a)
       .slice(0, 5)
       .map(([artist, count]) => ({ artist, bookings: count }));
 
@@ -65,10 +81,10 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error('Dashboard stats error:', error);
+    console.error("Dashboard stats error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get dashboard statistics',
+      error: "Failed to get dashboard statistics",
     });
   }
 };
@@ -76,50 +92,56 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
 // Get client analytics
 export const getClientAnalytics: RequestHandler = async (req, res) => {
   try {
-    const { period = '30d' } = req.query;
+    const { period = "30d" } = req.query;
     const allClients = await clientDatabase.getAllClients();
 
     // Calculate date range
     const now = new Date();
-    const daysBack = period === '7d' ? 7 : period === '30d' ? 30 : 90;
-    const startDate = new Date(now.getTime() - (daysBack * 24 * 60 * 60 * 1000));
+    const daysBack = period === "7d" ? 7 : period === "30d" ? 30 : 90;
+    const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
 
     const analytics = {
       totalClients: allClients.length,
-      newClients: allClients.filter(c => 
-        c.metadata?.createdAt && c.metadata.createdAt >= startDate
+      newClients: allClients.filter(
+        (c) => c.metadata?.createdAt && c.metadata.createdAt >= startDate,
       ).length,
-      activeClients: allClients.filter(c => 
-        c.metadata?.lastLogin && c.metadata.lastLogin >= startDate
+      activeClients: allClients.filter(
+        (c) => c.metadata?.lastLogin && c.metadata.lastLogin >= startDate,
       ).length,
       conversionRate: 0.85, // Mock conversion rate
-      
+
       // Status distribution
       statusDistribution: {
-        active: allClients.filter(c => c.status === 'active').length,
-        pending: allClients.filter(c => c.status === 'pending').length,
-        completed: allClients.filter(c => c.status === 'completed').length,
-        cancelled: allClients.filter(c => c.status === 'cancelled').length,
+        active: allClients.filter((c) => c.status === "active").length,
+        pending: allClients.filter((c) => c.status === "pending").length,
+        completed: allClients.filter((c) => c.status === "completed").length,
+        cancelled: allClients.filter((c) => c.status === "cancelled").length,
       },
 
       // Priority distribution
       priorityDistribution: {
-        high: allClients.filter(c => c.metadata?.priority === 'high').length,
-        medium: allClients.filter(c => c.metadata?.priority === 'medium').length,
-        low: allClients.filter(c => c.metadata?.priority === 'low').length,
+        high: allClients.filter((c) => c.metadata?.priority === "high").length,
+        medium: allClients.filter((c) => c.metadata?.priority === "medium")
+          .length,
+        low: allClients.filter((c) => c.metadata?.priority === "low").length,
       },
 
       // Revenue analytics
       revenue: {
         total: allClients.reduce((sum, c) => sum + (c.contractAmount || 0), 0),
-        average: allClients.length ? 
-          allClients.reduce((sum, c) => sum + (c.contractAmount || 0), 0) / allClients.length : 0,
+        average: allClients.length
+          ? allClients.reduce((sum, c) => sum + (c.contractAmount || 0), 0) /
+            allClients.length
+          : 0,
         byStatus: {
-          active: allClients.filter(c => c.status === 'active')
+          active: allClients
+            .filter((c) => c.status === "active")
             .reduce((sum, c) => sum + (c.contractAmount || 0), 0),
-          pending: allClients.filter(c => c.status === 'pending')
+          pending: allClients
+            .filter((c) => c.status === "pending")
             .reduce((sum, c) => sum + (c.contractAmount || 0), 0),
-          completed: allClients.filter(c => c.status === 'completed')
+          completed: allClients
+            .filter((c) => c.status === "completed")
             .reduce((sum, c) => sum + (c.contractAmount || 0), 0),
         },
       },
@@ -130,10 +152,10 @@ export const getClientAnalytics: RequestHandler = async (req, res) => {
       data: { analytics, period },
     });
   } catch (error) {
-    console.error('Client analytics error:', error);
+    console.error("Client analytics error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to get client analytics',
+      error: "Failed to get client analytics",
     });
   }
 };
@@ -141,16 +163,16 @@ export const getClientAnalytics: RequestHandler = async (req, res) => {
 // Export client data
 export const exportClients: RequestHandler = async (req, res) => {
   try {
-    const { format = 'json', status } = req.query;
-    
+    const { format = "json", status } = req.query;
+
     let clients = await clientDatabase.getAllClients();
-    
-    if (status && typeof status === 'string') {
-      clients = clients.filter(c => c.status === status);
+
+    if (status && typeof status === "string") {
+      clients = clients.filter((c) => c.status === status);
     }
 
     // Remove sensitive data
-    const exportData = clients.map(client => ({
+    const exportData = clients.map((client) => ({
       bookingId: client.bookingId,
       name: client.name,
       email: client.email,
@@ -170,20 +192,25 @@ export const exportClients: RequestHandler = async (req, res) => {
       lastLogin: client.metadata?.lastLogin,
     }));
 
-    if (format === 'csv') {
+    if (format === "csv") {
       // Convert to CSV
       const headers = Object.keys(exportData[0] || {});
       const csvContent = [
-        headers.join(','),
-        ...exportData.map(row => 
-          headers.map(header => 
-            JSON.stringify(row[header as keyof typeof row] || '')
-          ).join(',')
-        )
-      ].join('\n');
+        headers.join(","),
+        ...exportData.map((row) =>
+          headers
+            .map((header) =>
+              JSON.stringify(row[header as keyof typeof row] || ""),
+            )
+            .join(","),
+        ),
+      ].join("\n");
 
-      res.setHeader('Content-Type', 'text/csv');
-      res.setHeader('Content-Disposition', `attachment; filename="wme-clients-${new Date().toISOString().split('T')[0]}.csv"`);
+      res.setHeader("Content-Type", "text/csv");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="wme-clients-${new Date().toISOString().split("T")[0]}.csv"`,
+      );
       res.send(csvContent);
     } else {
       // Return JSON
@@ -197,10 +224,10 @@ export const exportClients: RequestHandler = async (req, res) => {
       });
     }
   } catch (error) {
-    console.error('Export clients error:', error);
+    console.error("Export clients error:", error);
     res.status(500).json({
       success: false,
-      error: 'Failed to export client data',
+      error: "Failed to export client data",
     });
   }
 };
@@ -209,13 +236,13 @@ export const exportClients: RequestHandler = async (req, res) => {
 export const getSystemHealth: RequestHandler = async (req, res) => {
   try {
     const allClients = await clientDatabase.getAllClients();
-    
+
     const health = {
-      status: 'healthy',
+      status: "healthy",
       timestamp: new Date().toISOString(),
-      version: '1.0.0',
+      version: "1.0.0",
       database: {
-        status: 'connected',
+        status: "connected",
         clients: allClients.length,
       },
       memory: {
@@ -230,12 +257,12 @@ export const getSystemHealth: RequestHandler = async (req, res) => {
       data: health,
     });
   } catch (error) {
-    console.error('System health error:', error);
+    console.error("System health error:", error);
     res.status(500).json({
       success: false,
-      error: 'System health check failed',
+      error: "System health check failed",
       data: {
-        status: 'unhealthy',
+        status: "unhealthy",
         timestamp: new Date().toISOString(),
       },
     });

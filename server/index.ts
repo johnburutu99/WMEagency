@@ -3,20 +3,20 @@ import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
 import { login, verifyBookingId, logout } from "./routes/auth";
-import { 
-  getAllClients, 
-  getClient, 
-  createClient, 
-  updateClient, 
+import {
+  getAllClients,
+  getClient,
+  createClient,
+  updateClient,
   deleteClient,
   bulkUpdateClients,
-  generateBookingId 
+  generateBookingId,
 } from "./routes/clients";
-import { 
-  getDashboardStats, 
-  getClientAnalytics, 
-  exportClients, 
-  getSystemHealth 
+import {
+  getDashboardStats,
+  getClientAnalytics,
+  exportClients,
+  getSystemHealth,
 } from "./routes/admin";
 
 export function createServer() {
@@ -24,26 +24,33 @@ export function createServer() {
 
   // Middleware
   app.use(cors());
-  app.use(express.json({ limit: '10mb' }));
-  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+  app.use(express.json({ limit: "10mb" }));
+  app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
   // Error handling middleware
-  app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-    console.error('Server error:', err);
-    res.status(500).json({
-      success: false,
-      error: 'Internal server error',
-      ...(process.env.NODE_ENV === 'development' && { details: err.message }),
-    });
-  });
+  app.use(
+    (
+      err: any,
+      req: express.Request,
+      res: express.Response,
+      next: express.NextFunction,
+    ) => {
+      console.error("Server error:", err);
+      res.status(500).json({
+        success: false,
+        error: "Internal server error",
+        ...(process.env.NODE_ENV === "development" && { details: err.message }),
+      });
+    },
+  );
 
   // Health check
   app.get("/api/ping", (_req, res) => {
     const ping = process.env.PING_MESSAGE ?? "ping";
-    res.json({ 
+    res.json({
       message: ping,
       timestamp: new Date().toISOString(),
-      status: 'healthy',
+      status: "healthy",
     });
   });
 
