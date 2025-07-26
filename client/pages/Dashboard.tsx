@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { apiClient } from "../services/apiClient";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -34,17 +35,53 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Load user data from localStorage
+  // Load user data and verify session
   const [userData, setUserData] = useState<any>(null);
+  const [isLoadingSession, setIsLoadingSession] = useState(true);
 
   useEffect(() => {
-    const storedData = localStorage.getItem("wme-user-data");
-    if (storedData) {
-      setUserData(JSON.parse(storedData));
-    } else {
-      // Redirect to login if no user data
-      window.location.href = "/";
-    }
+    const initializeSession = async () => {
+      // First check if we have local data
+      const storedData = localStorage.getItem("wme-user-data");
+      if (storedData) {
+        setUserData(JSON.parse(storedData));
+      }
+
+      // Then verify with backend
+      if (apiClient.isAuthenticated()) {
+        try {
+          const response = await apiClient.verifySession();
+          if (response.success && response.user) {
+            setUserData(response.user);
+            // Update local storage with fresh data
+            localStorage.setItem(
+              "wme-user-data",
+              JSON.stringify(response.user),
+            );
+          } else {
+            // Session invalid, clear and redirect
+            apiClient.clearSession();
+            window.location.href = "/";
+            return;
+          }
+        } catch (error) {
+          console.error("Session verification failed:", error);
+          // On network error, keep local data if available
+          if (!storedData) {
+            window.location.href = "/";
+            return;
+          }
+        }
+      } else {
+        // No session, redirect to login
+        window.location.href = "/";
+        return;
+      }
+
+      setIsLoadingSession(false);
+    };
+
+    initializeSession();
   }, []);
 
   const navigation = [
@@ -166,6 +203,21 @@ export default function Dashboard() {
         return "bg-gray-500/10 text-gray-500 border-gray-500/20";
     }
   };
+
+  // Show loading state while verifying session
+  if (isLoadingSession || !userData) {
+    return (
+      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 bg-wme-gold rounded-full flex items-center justify-center mx-auto mb-4">
+            <Star className="w-6 h-6 text-black animate-pulse" />
+          </div>
+          <h2 className="text-xl font-semibold mb-2">WME Client Portal</h2>
+          <p className="text-muted-foreground">Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">

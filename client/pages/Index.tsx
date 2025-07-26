@@ -17,7 +17,11 @@ import {
   TabsTrigger,
 } from "../components/ui/tabs";
 import { Shield, Star, Users, Globe, IdCard, Loader2 } from "lucide-react";
+<<<<<<< HEAD
 import { apiClient } from "../lib/api";
+=======
+import { apiClient } from "../services/apiClient";
+>>>>>>> 78090f6af51bfa4bce7537e950ad787e75a88f6c
 
 export default function Index() {
   const [bookingId, setBookingId] = useState("");
@@ -47,6 +51,7 @@ export default function Index() {
     setIsLoading(true);
 
     try {
+<<<<<<< HEAD
       // Call the real API for authentication
       const response = await apiClient.login(bookingId);
 
@@ -64,11 +69,25 @@ export default function Index() {
           response.error ||
             "Authentication failed. Please check your booking ID.",
         );
+=======
+      // Call real API for authentication
+      const response = await apiClient.login(bookingId.toUpperCase());
+
+      if (response.success && response.user) {
+        // Redirect to dashboard on successful login
+        window.location.href = "/dashboard";
+      } else {
+        setError(response.error || "Authentication failed. Please try again.");
+>>>>>>> 78090f6af51bfa4bce7537e950ad787e75a88f6c
         setIsLoading(false);
       }
     } catch (error) {
       console.error("Login error:", error);
+<<<<<<< HEAD
       setError("Authentication failed. Please try again.");
+=======
+      setError("Unable to connect to server. Please try again later.");
+>>>>>>> 78090f6af51bfa4bce7537e950ad787e75a88f6c
       setIsLoading(false);
     }
   };
