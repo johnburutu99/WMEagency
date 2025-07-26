@@ -40,7 +40,7 @@ export default function Index() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (!bookingId) {
       setError('Please enter your Booking ID');
       return;
@@ -53,24 +53,25 @@ export default function Index() {
 
     setIsLoading(true);
 
-    // Simulate API call to fetch user data
-    setTimeout(() => {
-      const userData = mockUserData[bookingId.toUpperCase() as keyof typeof mockUserData];
-      
-      if (userData) {
+    try {
+      // Call the real API for authentication
+      const response = await apiClient.login(bookingId);
+
+      if (response.success && response.data?.client) {
         // Store user data in localStorage for the dashboard
-        localStorage.setItem('wme-user-data', JSON.stringify({
-          bookingId: bookingId.toUpperCase(),
-          ...userData
-        }));
-        
+        localStorage.setItem('wme-user-data', JSON.stringify(response.data.client));
+
         // Redirect to dashboard
         window.location.href = '/dashboard';
       } else {
-        setError('Invalid Booking ID. Please check your booking confirmation.');
+        setError(response.error || 'Authentication failed. Please check your booking ID.');
         setIsLoading(false);
       }
-    }, 1500); // Simulate network delay
+    } catch (error) {
+      console.error('Login error:', error);
+      setError('Authentication failed. Please try again.');
+      setIsLoading(false);
+    }
   };
 
   return (
