@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { apiClient } from "../services/apiClient";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Badge } from "../components/ui/badge";
@@ -23,8 +22,6 @@ import {
   Star,
   Menu,
   X,
-  Sun,
-  Moon,
   ChevronRight,
   TrendingUp,
   Clock,
@@ -35,53 +32,23 @@ export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
 
-  // Load user data and verify session
+  // Load user data from localStorage
   const [userData, setUserData] = useState<any>(null);
-  const [isLoadingSession, setIsLoadingSession] = useState(true);
 
   useEffect(() => {
-    const initializeSession = async () => {
-      // First check if we have local data
-      const storedData = localStorage.getItem("wme-user-data");
-      if (storedData) {
+    const storedData = localStorage.getItem("wme-user-data");
+    if (storedData) {
+      try {
         setUserData(JSON.parse(storedData));
+      } catch (error) {
+        console.error('Error parsing user data:', error);
+        localStorage.removeItem('wme-user-data');
+        window.location.href = '/';
       }
-
-      // Then verify with backend
-      if (apiClient.isAuthenticated()) {
-        try {
-          const response = await apiClient.verifySession();
-          if (response.success && response.user) {
-            setUserData(response.user);
-            // Update local storage with fresh data
-            localStorage.setItem(
-              "wme-user-data",
-              JSON.stringify(response.user),
-            );
-          } else {
-            // Session invalid, clear and redirect
-            apiClient.clearSession();
-            window.location.href = "/";
-            return;
-          }
-        } catch (error) {
-          console.error("Session verification failed:", error);
-          // On network error, keep local data if available
-          if (!storedData) {
-            window.location.href = "/";
-            return;
-          }
-        }
-      } else {
-        // No session, redirect to login
-        window.location.href = "/";
-        return;
-      }
-
-      setIsLoadingSession(false);
-    };
-
-    initializeSession();
+    } else {
+      // Redirect to login if no user data
+      window.location.href = '/';
+    }
   }, []);
 
   const navigation = [
@@ -158,7 +125,7 @@ export default function Dashboard() {
         id: userData.bookingId,
         artist: userData.artist,
         event: userData.event,
-        date: "2024-02-04",
+        date: userData.eventDate || "2024-02-04",
         status: "Confirmed",
         amount: getAmountForArtist(userData.artist),
       };
@@ -199,25 +166,14 @@ export default function Dashboard() {
         return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
       case "Completed":
         return "bg-blue-500/10 text-blue-500 border-blue-500/20";
+      case "Draft":
+        return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+      case "Cancelled":
+        return "bg-red-500/10 text-red-500 border-red-500/20";
       default:
         return "bg-gray-500/10 text-gray-500 border-gray-500/20";
     }
   };
-
-  // Show loading state while verifying session
-  if (isLoadingSession || !userData) {
-    return (
-      <div className="min-h-screen bg-background text-foreground flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-12 h-12 bg-wme-gold rounded-full flex items-center justify-center mx-auto mb-4">
-            <Star className="w-6 h-6 text-black animate-pulse" />
-          </div>
-          <h2 className="text-xl font-semibold mb-2">WME Client Portal</h2>
-          <p className="text-muted-foreground">Loading your dashboard...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen bg-background text-foreground">
