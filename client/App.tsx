@@ -87,12 +87,15 @@ const App = () => (
   </QueryClientProvider>
 );
 
-// Fix React 18 createRoot warning by checking if root already exists
+// Fix React 18 createRoot warning by using a module-level root
 const container = document.getElementById("root")!;
-if (!container._reactRoot) {
-  const root = createRoot(container);
-  container._reactRoot = root;
+let root: ReturnType<typeof createRoot> | null = null;
+
+function renderApp() {
+  if (!root) {
+    root = createRoot(container);
+  }
   root.render(<App />);
-} else {
-  container._reactRoot.render(<App />);
 }
+
+renderApp();
