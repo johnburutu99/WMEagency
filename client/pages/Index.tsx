@@ -138,9 +138,10 @@ export default function Index() {
             <div className="mt-8 p-4 bg-black/30 rounded-lg border border-wme-gold/20">
               <p className="text-sm text-wme-gold font-semibold mb-2">For Demo - Try these Booking IDs:</p>
               <div className="text-xs text-gray-300 space-y-1">
-                <div>WME24001 - Taylor Swift</div>
-                <div>WME24002 - Dwayne Johnson</div>
-                <div>ABC12345 - Ryan Reynolds</div>
+                <div>WME24001 - John Doe (Taylor Swift)</div>
+                <div>WME24002 - Jane Smith (Dwayne Johnson)</div>
+                <div>ABC12345 - Sarah Wilson (Ryan Reynolds)</div>
+                <div>XYZ98765 - David Chen (Chris Evans)</div>
               </div>
             </div>
           </div>
