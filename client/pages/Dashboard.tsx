@@ -41,13 +41,13 @@ export default function Dashboard() {
       try {
         setUserData(JSON.parse(storedData));
       } catch (error) {
-        console.error('Error parsing user data:', error);
-        localStorage.removeItem('wme-user-data');
-        window.location.href = '/';
+        console.error("Error parsing user data:", error);
+        localStorage.removeItem("wme-user-data");
+        window.location.href = "/";
       }
     } else {
       // Redirect to login if no user data
-      window.location.href = '/';
+      window.location.href = "/";
     }
   }, []);
 
