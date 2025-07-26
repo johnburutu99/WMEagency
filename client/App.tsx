@@ -1,6 +1,7 @@
 import "./global.css";
 
 import { Toaster } from "@/components/ui/toaster";
+import { createRoot } from "react-dom/client";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,13 +14,14 @@ import Documents from "./pages/Documents";
 import Messages from "./pages/Messages";
 import Payments from "./pages/Payments";
 import Coordinators from "./pages/Coordinators";
+import Admin from "./pages/Admin";
 import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import { Settings } from "lucide-react";
 
 const queryClient = new QueryClient();
 
-export const App = () => (
+const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="wme-ui-theme">
       <TooltipProvider>
@@ -83,3 +85,5 @@ export const App = () => (
     </ThemeProvider>
   </QueryClientProvider>
 );
+
+createRoot(document.getElementById("root")!).render(<App />);
