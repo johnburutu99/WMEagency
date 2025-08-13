@@ -280,6 +280,20 @@ export default function Index() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {showSuccess && (
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <div>
+                        <p className="text-green-400 font-semibold">Email Verified Successfully!</p>
+                        <p className="text-green-400 text-sm">
+                          Your booking request has been submitted. You can now access your portal below.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <Tabs defaultValue="login" className="w-full">
                   <TabsList className="grid w-full grid-cols-3 bg-black/20">
                     <TabsTrigger
