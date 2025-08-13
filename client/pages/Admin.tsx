@@ -94,7 +94,8 @@ export default function Admin() {
     setLoading(true);
     try {
       const response = await apiClient.getAllClients({
-        status: statusFilter && statusFilter !== "all" ? statusFilter : undefined,
+        status:
+          statusFilter && statusFilter !== "all" ? statusFilter : undefined,
         search: searchTerm || undefined,
       });
 
@@ -225,7 +226,8 @@ export default function Admin() {
     try {
       const response = await apiClient.exportClients({
         format,
-        status: statusFilter && statusFilter !== "all" ? statusFilter : undefined,
+        status:
+          statusFilter && statusFilter !== "all" ? statusFilter : undefined,
       });
 
       if (response.success && response.data) {
