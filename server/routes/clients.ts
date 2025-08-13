@@ -7,6 +7,7 @@ import {
   ClientSchema,
   type Client,
 } from "../models/Client";
+import { globalClients } from "./booking-submission";
 
 // Get all clients (admin endpoint)
 export const getAllClients: RequestHandler = async (req, res) => {
