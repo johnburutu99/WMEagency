@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./hooks/use-theme";
 import Index from "./pages/Index";
+import BookingForm from "./pages/BookingForm";
 import Dashboard from "./pages/Dashboard";
 import Bookings from "./pages/Bookings";
 import Documents from "./pages/Documents";
