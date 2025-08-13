@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
@@ -16,13 +16,36 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import { Shield, Star, Users, Globe, IdCard, Loader2 } from "lucide-react";
+import {
+  Shield,
+  Star,
+  Users,
+  Globe,
+  IdCard,
+  Loader2,
+  CheckCircle,
+} from "lucide-react";
 import { apiClient } from "../lib/api";
 
 export default function Index() {
+  const [searchParams] = useSearchParams();
   const [bookingId, setBookingId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    const verified = searchParams.get("verified");
+    const verifiedBookingId = searchParams.get("bookingId");
+
+    if (verified === "true" && verifiedBookingId) {
+      setShowSuccess(true);
+      setBookingId(verifiedBookingId);
+      // Hide success message after 10 seconds
+      const timer = setTimeout(() => setShowSuccess(false), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const validateBookingId = (id: string) => {
     // Check if it's 8 alphanumeric characters
@@ -265,13 +288,36 @@ export default function Index() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
+                {showSuccess && (
+                  <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg mb-4">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="w-5 h-5 text-green-500" />
+                      <div>
+                        <p className="text-green-400 font-semibold">
+                          Email Verified Successfully!
+                        </p>
+                        <p className="text-green-400 text-sm">
+                          Your booking request has been submitted. You can now
+                          access your portal below.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <Tabs defaultValue="login" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 bg-black/20">
+                  <TabsList className="grid w-full grid-cols-3 bg-black/20">
                     <TabsTrigger
                       value="login"
                       className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
                     >
                       Client Access
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="booking"
+                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                    >
+                      New Booking
                     </TabsTrigger>
                     <TabsTrigger
                       value="help"
@@ -335,6 +381,30 @@ export default function Index() {
                         )}
                       </Button>
                     </form>
+                  </TabsContent>
+
+                  <TabsContent value="booking" className="space-y-4">
+                    <div className="text-center py-6">
+                      <h3 className="text-lg font-semibold text-white mb-3">
+                        Ready to Book with WME?
+                      </h3>
+                      <p className="text-gray-400 mb-6 text-sm">
+                        Start your booking request by providing details about
+                        your event. We'll guide you through the entire process
+                        and connect you with the perfect talent for your needs.
+                      </p>
+                      <div className="space-y-3">
+                        <Link to="/booking">
+                          <Button className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold">
+                            Start New Booking Request
+                          </Button>
+                        </Link>
+                        <p className="text-xs text-gray-400">
+                          Already have a booking? Use the "Client Access" tab to
+                          log in with your Booking ID.
+                        </p>
+                      </div>
+                    </div>
                   </TabsContent>
 
                   <TabsContent value="help" className="space-y-4">

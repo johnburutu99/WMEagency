@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { authService, BookingIdSchema } from "../services/authService";
+import { globalClients } from "./booking-submission";
 import { z } from "zod";
 
 // Request validation schemas
@@ -36,13 +37,24 @@ export const handleLogin: RequestHandler = async (req, res) => {
     // Simulate processing delay (remove in production)
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Authenticate user
-    const result = await authService.authenticateByBookingId(bookingId);
+    // Authenticate user - first try existing database, then check new bookings
+    let result = await authService.authenticateByBookingId(bookingId);
+
+    // If not found in existing database, check new bookings
+    if (!result.success) {
+      const newBookingClient = globalClients.get(bookingId);
+      if (newBookingClient) {
+        result = {
+          success: true,
+          user: newBookingClient,
+        };
+      }
+    }
 
     if (!result.success) {
       return res.status(401).json({
         success: false,
-        error: result.error,
+        error: result.error || "Invalid booking ID",
       });
     }
 

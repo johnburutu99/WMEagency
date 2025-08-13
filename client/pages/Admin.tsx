@@ -57,7 +57,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [stats, setStats] = useState<any>(null);
 
@@ -94,7 +94,8 @@ export default function Admin() {
     setLoading(true);
     try {
       const response = await apiClient.getAllClients({
-        status: statusFilter || undefined,
+        status:
+          statusFilter && statusFilter !== "all" ? statusFilter : undefined,
         search: searchTerm || undefined,
       });
 
@@ -225,7 +226,8 @@ export default function Admin() {
     try {
       const response = await apiClient.exportClients({
         format,
-        status: statusFilter || undefined,
+        status:
+          statusFilter && statusFilter !== "all" ? statusFilter : undefined,
       });
 
       if (response.success && response.data) {
@@ -362,7 +364,7 @@ export default function Admin() {
               <SelectValue placeholder="All Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Status</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>

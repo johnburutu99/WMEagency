@@ -29,6 +29,12 @@ import {
   exportClients,
   getSystemHealth,
 } from "./routes/admin";
+import {
+  handleBookingSubmission,
+  handleEmailVerification,
+  handleResendOTP,
+  handleBookingStatus,
+} from "./routes/booking-submission";
 
 export function createServer() {
   const app = express();
@@ -88,6 +94,12 @@ export function createServer() {
   app.get("/api/admin/analytics", getClientAnalytics);
   app.get("/api/admin/export", exportClients);
   app.get("/api/admin/health", getSystemHealth);
+
+  // Booking submission routes
+  app.post("/api/booking/submit", handleBookingSubmission);
+  app.post("/api/booking/verify-email", handleEmailVerification);
+  app.post("/api/booking/resend-otp", handleResendOTP);
+  app.get("/api/booking/status/:bookingId", handleBookingStatus);
 
   // Error handling middleware
   app.use(
