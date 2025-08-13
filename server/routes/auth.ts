@@ -1,5 +1,6 @@
 import { RequestHandler } from "express";
 import { authService, BookingIdSchema } from "../services/authService";
+import { globalClients } from "./booking-submission";
 import { z } from "zod";
 
 // Request validation schemas
