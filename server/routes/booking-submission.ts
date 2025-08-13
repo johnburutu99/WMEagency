@@ -369,7 +369,65 @@ WME Booking Team
 async function processVerifiedBooking(submission: BookingSubmission) {
   try {
     const { formData, bookingId } = submission;
-    
+
+    // Estimate contract amount based on budget range
+    const getEstimatedAmount = (budgetRange: string): number => {
+      const ranges: Record<string, number> = {
+        "under-10k": 5000,
+        "10k-25k": 17500,
+        "25k-50k": 37500,
+        "50k-100k": 75000,
+        "100k-250k": 175000,
+        "250k-500k": 375000,
+        "500k-1m": 750000,
+        "over-1m": 1500000,
+      };
+      return ranges[budgetRange] || 0;
+    };
+
+    // Assign coordinator based on artist category
+    const getCoordinator = (category: string) => {
+      const coordinators: Record<string, any> = {
+        "musician": {
+          name: "Sarah Johnson",
+          email: "sarah.johnson@wme.com",
+          phone: "+1 (555) 123-4567",
+          department: "Music Division",
+        },
+        "actor": {
+          name: "Michael Chen",
+          email: "michael.chen@wme.com",
+          phone: "+1 (555) 234-5678",
+          department: "Film & TV Division",
+        },
+        "comedian": {
+          name: "Emma Williams",
+          email: "emma.williams@wme.com",
+          phone: "+1 (555) 345-6789",
+          department: "Comedy Division",
+        },
+        "speaker": {
+          name: "David Park",
+          email: "david.park@wme.com",
+          phone: "+1 (555) 456-7890",
+          department: "Speakers Bureau",
+        },
+        "athlete": {
+          name: "Jessica Rivera",
+          email: "jessica.rivera@wme.com",
+          phone: "+1 (555) 567-8901",
+          department: "Sports Division",
+        },
+        "default": {
+          name: "Booking Team",
+          email: "bookings@wme.com",
+          phone: "+1 (555) 123-4567",
+          department: "New Bookings",
+        },
+      };
+      return coordinators[category] || coordinators.default;
+    };
+
     // Create client profile in the system
     const clientData = {
       bookingId,
@@ -381,33 +439,47 @@ async function processVerifiedBooking(submission: BookingSubmission) {
       eventDate: formData.eventDate,
       eventLocation: formData.eventLocation,
       status: "pending" as const,
-      contractAmount: 0, // Will be updated when quote is provided
+      contractAmount: getEstimatedAmount(formData.budgetRange),
       currency: "USD",
-      coordinator: {
-        name: "Booking Team", // Will be assigned based on artist category
-        email: "bookings@wme.com",
-        phone: "+1 (555) 123-4567",
-        department: "New Bookings",
-      },
+      coordinator: getCoordinator(formData.artistCategory),
       lastLogin: new Date().toISOString(),
       priority: "medium" as const,
-      // Store additional booking data in metadata
+      // Store additional booking data
+      company: formData.company,
+      eventDescription: formData.eventDescription,
+      eventDuration: formData.eventDuration,
+      artistCategory: formData.artistCategory,
+      specialRequests: formData.specialRequests,
+      budgetRange: formData.budgetRange,
+      paymentMethod: formData.paymentMethod,
+      billingAddress: formData.billingAddress,
+      hearAboutUs: formData.hearAboutUs,
+      additionalNotes: formData.additionalNotes,
+      marketingConsent: formData.marketingConsent,
       metadata: {
         originalSubmission: formData,
         submissionId: submission.id,
         verifiedAt: submission.verifiedAt,
+        paymentStatus: "pending",
+        contractStatus: "draft",
       },
     };
-    
-    // In a real application, save to database
+
+    // In a real application, this would save to the same database as the existing clients
+    // For now, we'll add it to a global clients store that the API can access
+    globalClients.set(bookingId, clientData);
+
     console.log("✅ Client profile created:", clientData);
-    
+
     submission.status = 'processed';
-    
+
   } catch (error) {
     console.error("Error processing verified booking:", error);
   }
 }
+
+// Global clients store (in production, this would be a database)
+export const globalClients = new Map<string, any>();
 
 // Get booking status
 export const handleBookingStatus: RequestHandler = async (req, res) => {
