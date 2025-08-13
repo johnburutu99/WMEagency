@@ -87,7 +87,12 @@ export const getClient: RequestHandler = async (req, res) => {
       });
     }
 
-    const client = await clientDatabase.getClient(bookingId);
+    let client = await clientDatabase.getClient(bookingId);
+
+    // If not found in database, check new bookings
+    if (!client) {
+      client = globalClients.get(bookingId);
+    }
 
     if (!client) {
       return res.status(404).json({
