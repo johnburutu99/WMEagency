@@ -266,12 +266,18 @@ export default function Index() {
               </CardHeader>
               <CardContent className="space-y-6">
                 <Tabs defaultValue="login" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2 bg-black/20">
+                  <TabsList className="grid w-full grid-cols-3 bg-black/20">
                     <TabsTrigger
                       value="login"
                       className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
                     >
                       Client Access
+                    </TabsTrigger>
+                    <TabsTrigger
+                      value="booking"
+                      className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                    >
+                      New Booking
                     </TabsTrigger>
                     <TabsTrigger
                       value="help"
