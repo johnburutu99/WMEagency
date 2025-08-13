@@ -208,16 +208,31 @@ export default function BookingForm() {
 
     setIsSubmitting(true);
     try {
-      // TODO: Submit to backend API
-      await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate API call
-      
-      // For now, redirect to success page or show success message
-      console.log("Form submitted:", formData);
-      alert("Booking request submitted successfully! You will receive an email with your booking ID and next steps.");
-      
+      // Prepare form data for submission
+      const submissionData = {
+        ...formData,
+        eventDate: formData.eventDate?.toISOString() || "",
+      };
+
+      const response = await fetch("/api/booking/submit", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(submissionData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Redirect to email verification page
+        navigate(`/verify-email?email=${encodeURIComponent(formData.email)}&bookingId=${data.data.bookingId}`);
+      } else {
+        setErrors({ submit: data.error || "Failed to submit booking request" });
+      }
     } catch (error) {
       console.error("Submission error:", error);
-      alert("Error submitting booking request. Please try again.");
+      setErrors({ submit: "Network error. Please try again." });
     } finally {
       setIsSubmitting(false);
     }
