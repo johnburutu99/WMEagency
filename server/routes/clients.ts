@@ -26,8 +26,27 @@ export const getAllClients: RequestHandler = async (req, res) => {
       clients = await clientDatabase.getAllClients();
     }
 
+    // Include newly submitted bookings from globalClients
+    const newBookings = Array.from(globalClients.values());
+    const allClients = [...clients, ...newBookings];
+
+    // Apply filtering if needed
+    let filteredClients = allClients;
+    if (status && typeof status === "string") {
+      filteredClients = allClients.filter(client => client.status === status);
+    }
+    if (search && typeof search === "string") {
+      const searchLower = search.toLowerCase();
+      filteredClients = allClients.filter(client =>
+        client.name.toLowerCase().includes(searchLower) ||
+        client.artist.toLowerCase().includes(searchLower) ||
+        client.event.toLowerCase().includes(searchLower) ||
+        client.bookingId.toLowerCase().includes(searchLower)
+      );
+    }
+
     // Remove sensitive data for list view
-    const clientList = clients.map((client) => ({
+    const clientList = filteredClients.map((client) => ({
       bookingId: client.bookingId,
       name: client.name,
       artist: client.artist,
