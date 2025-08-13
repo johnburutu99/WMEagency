@@ -115,14 +115,8 @@ export function createServer() {
     });
   });
 
-  // 404 handler for non-API routes
-  app.use((req, res) => {
-    res.status(404).json({
-      success: false,
-      error: "Endpoint not found",
-      path: req.path,
-    });
-  });
+  // Let Vite handle non-API routes in development
+  // In production, you would serve static files here
 
   return app;
 }
