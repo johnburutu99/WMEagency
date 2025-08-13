@@ -121,6 +121,7 @@ const initialFormData: BookingFormData = {
 };
 
 export default function BookingForm() {
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<BookingFormData>(initialFormData);
   const [isSubmitting, setIsSubmitting] = useState(false);
