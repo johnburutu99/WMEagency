@@ -57,7 +57,7 @@ export default function Admin() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [stats, setStats] = useState<any>(null);
 
