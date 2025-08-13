@@ -706,7 +706,13 @@ export default function BookingForm() {
                 </div>
               </div>
               {errors.termsAccepted && <p className="text-red-400 text-sm">{errors.termsAccepted}</p>}
-              
+
+              {errors.submit && (
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="text-red-400 text-sm">{errors.submit}</p>
+                </div>
+              )}
+
               <div className="flex items-start space-x-2">
                 <Checkbox
                   id="marketingConsent"
