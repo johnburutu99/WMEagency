@@ -58,7 +58,7 @@ interface BookingFormData {
   email: string;
   phone: string;
   company?: string;
-  
+
   // Event Details
   eventType: string;
   eventTitle: string;
@@ -66,12 +66,12 @@ interface BookingFormData {
   eventDate: Date | undefined;
   eventLocation: string;
   eventDuration: string;
-  
+
   // Artist/Talent
   artistName: string;
   artistCategory: string;
   specialRequests?: string;
-  
+
   // Budget & Payment
   budgetRange: string;
   paymentMethod: string;
@@ -82,7 +82,7 @@ interface BookingFormData {
     zipCode: string;
     country: string;
   };
-  
+
   // Additional Information
   hearAboutUs: string;
   additionalNotes?: string;
@@ -130,23 +130,23 @@ export default function BookingForm() {
   const totalSteps = 5;
 
   const updateFormData = (field: string, value: any) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
     // Clear error when user starts typing
     if (errors[field]) {
-      setErrors(prev => ({ ...prev, [field]: "" }));
+      setErrors((prev) => ({ ...prev, [field]: "" }));
     }
   };
 
   const updateBillingAddress = (field: string, value: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       billingAddress: {
         ...prev.billingAddress,
-        [field]: value
-      }
+        [field]: value,
+      },
     }));
   };
 
@@ -155,37 +155,53 @@ export default function BookingForm() {
 
     switch (step) {
       case 1: // Personal Information
-        if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
-        if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+        if (!formData.firstName.trim())
+          newErrors.firstName = "First name is required";
+        if (!formData.lastName.trim())
+          newErrors.lastName = "Last name is required";
         if (!formData.email.trim()) newErrors.email = "Email is required";
-        else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
-        if (!formData.phone.trim()) newErrors.phone = "Phone number is required";
+        else if (!/\S+@\S+\.\S+/.test(formData.email))
+          newErrors.email = "Invalid email format";
+        if (!formData.phone.trim())
+          newErrors.phone = "Phone number is required";
         break;
-      
+
       case 2: // Event Details
         if (!formData.eventType) newErrors.eventType = "Event type is required";
-        if (!formData.eventTitle.trim()) newErrors.eventTitle = "Event title is required";
+        if (!formData.eventTitle.trim())
+          newErrors.eventTitle = "Event title is required";
         if (!formData.eventDate) newErrors.eventDate = "Event date is required";
-        if (!formData.eventLocation.trim()) newErrors.eventLocation = "Event location is required";
-        if (!formData.eventDuration) newErrors.eventDuration = "Event duration is required";
+        if (!formData.eventLocation.trim())
+          newErrors.eventLocation = "Event location is required";
+        if (!formData.eventDuration)
+          newErrors.eventDuration = "Event duration is required";
         break;
-      
+
       case 3: // Artist/Talent
-        if (!formData.artistName.trim()) newErrors.artistName = "Artist/talent name is required";
-        if (!formData.artistCategory) newErrors.artistCategory = "Artist category is required";
+        if (!formData.artistName.trim())
+          newErrors.artistName = "Artist/talent name is required";
+        if (!formData.artistCategory)
+          newErrors.artistCategory = "Artist category is required";
         break;
-      
+
       case 4: // Budget & Payment
-        if (!formData.budgetRange) newErrors.budgetRange = "Budget range is required";
-        if (!formData.paymentMethod) newErrors.paymentMethod = "Payment method is required";
-        if (!formData.billingAddress.street.trim()) newErrors["billingAddress.street"] = "Street address is required";
-        if (!formData.billingAddress.city.trim()) newErrors["billingAddress.city"] = "City is required";
-        if (!formData.billingAddress.state.trim()) newErrors["billingAddress.state"] = "State is required";
-        if (!formData.billingAddress.zipCode.trim()) newErrors["billingAddress.zipCode"] = "ZIP code is required";
+        if (!formData.budgetRange)
+          newErrors.budgetRange = "Budget range is required";
+        if (!formData.paymentMethod)
+          newErrors.paymentMethod = "Payment method is required";
+        if (!formData.billingAddress.street.trim())
+          newErrors["billingAddress.street"] = "Street address is required";
+        if (!formData.billingAddress.city.trim())
+          newErrors["billingAddress.city"] = "City is required";
+        if (!formData.billingAddress.state.trim())
+          newErrors["billingAddress.state"] = "State is required";
+        if (!formData.billingAddress.zipCode.trim())
+          newErrors["billingAddress.zipCode"] = "ZIP code is required";
         break;
-      
+
       case 5: // Review & Submit
-        if (!formData.termsAccepted) newErrors.termsAccepted = "You must accept the terms and conditions";
+        if (!formData.termsAccepted)
+          newErrors.termsAccepted = "You must accept the terms and conditions";
         break;
     }
 
@@ -195,12 +211,12 @@ export default function BookingForm() {
 
   const nextStep = () => {
     if (validateStep(currentStep)) {
-      setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      setCurrentStep((prev) => Math.min(prev + 1, totalSteps));
     }
   };
 
   const prevStep = () => {
-    setCurrentStep(prev => Math.max(prev - 1, 1));
+    setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
   const handleSubmit = async () => {
@@ -226,7 +242,9 @@ export default function BookingForm() {
 
       if (data.success) {
         // Redirect to email verification page
-        navigate(`/verify-email?email=${encodeURIComponent(formData.email)}&bookingId=${data.data.bookingId}`);
+        navigate(
+          `/verify-email?email=${encodeURIComponent(formData.email)}&bookingId=${data.data.bookingId}`,
+        );
       } else {
         setErrors({ submit: data.error || "Failed to submit booking request" });
       }
@@ -245,13 +263,17 @@ export default function BookingForm() {
           <div className="space-y-6">
             <div className="text-center mb-6">
               <User className="w-12 h-12 text-wme-gold mx-auto mb-3" />
-              <h2 className="text-2xl font-bold text-white">Personal Information</h2>
+              <h2 className="text-2xl font-bold text-white">
+                Personal Information
+              </h2>
               <p className="text-gray-400">Tell us about yourself</p>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="firstName" className="text-gray-200">First Name *</Label>
+                <Label htmlFor="firstName" className="text-gray-200">
+                  First Name *
+                </Label>
                 <Input
                   id="firstName"
                   value={formData.firstName}
@@ -259,11 +281,15 @@ export default function BookingForm() {
                   className="bg-black/20 border-gray-600 text-white"
                   placeholder="Enter your first name"
                 />
-                {errors.firstName && <p className="text-red-400 text-sm">{errors.firstName}</p>}
+                {errors.firstName && (
+                  <p className="text-red-400 text-sm">{errors.firstName}</p>
+                )}
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="lastName" className="text-gray-200">Last Name *</Label>
+                <Label htmlFor="lastName" className="text-gray-200">
+                  Last Name *
+                </Label>
                 <Input
                   id="lastName"
                   value={formData.lastName}
@@ -271,12 +297,16 @@ export default function BookingForm() {
                   className="bg-black/20 border-gray-600 text-white"
                   placeholder="Enter your last name"
                 />
-                {errors.lastName && <p className="text-red-400 text-sm">{errors.lastName}</p>}
+                {errors.lastName && (
+                  <p className="text-red-400 text-sm">{errors.lastName}</p>
+                )}
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-gray-200">Email Address *</Label>
+              <Label htmlFor="email" className="text-gray-200">
+                Email Address *
+              </Label>
               <div className="relative">
                 <Input
                   id="email"
@@ -288,11 +318,15 @@ export default function BookingForm() {
                 />
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               </div>
-              {errors.email && <p className="text-red-400 text-sm">{errors.email}</p>}
+              {errors.email && (
+                <p className="text-red-400 text-sm">{errors.email}</p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="phone" className="text-gray-200">Phone Number *</Label>
+              <Label htmlFor="phone" className="text-gray-200">
+                Phone Number *
+              </Label>
               <div className="relative">
                 <Input
                   id="phone"
@@ -304,11 +338,15 @@ export default function BookingForm() {
                 />
                 <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               </div>
-              {errors.phone && <p className="text-red-400 text-sm">{errors.phone}</p>}
+              {errors.phone && (
+                <p className="text-red-400 text-sm">{errors.phone}</p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="company" className="text-gray-200">Company/Organization (Optional)</Label>
+              <Label htmlFor="company" className="text-gray-200">
+                Company/Organization (Optional)
+              </Label>
               <Input
                 id="company"
                 value={formData.company}
@@ -319,7 +357,7 @@ export default function BookingForm() {
             </div>
           </div>
         );
-      
+
       case 2:
         return (
           <div className="space-y-6">
@@ -328,30 +366,43 @@ export default function BookingForm() {
               <h2 className="text-2xl font-bold text-white">Event Details</h2>
               <p className="text-gray-400">Tell us about your event</p>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="eventType" className="text-gray-200">Event Type *</Label>
-              <Select value={formData.eventType} onValueChange={(value) => updateFormData("eventType", value)}>
+              <Label htmlFor="eventType" className="text-gray-200">
+                Event Type *
+              </Label>
+              <Select
+                value={formData.eventType}
+                onValueChange={(value) => updateFormData("eventType", value)}
+              >
                 <SelectTrigger className="bg-black/20 border-gray-600 text-white">
                   <SelectValue placeholder="Select event type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="concert">Concert/Live Performance</SelectItem>
+                  <SelectItem value="concert">
+                    Concert/Live Performance
+                  </SelectItem>
                   <SelectItem value="corporate">Corporate Event</SelectItem>
                   <SelectItem value="wedding">Wedding</SelectItem>
                   <SelectItem value="private-party">Private Party</SelectItem>
                   <SelectItem value="festival">Festival</SelectItem>
                   <SelectItem value="awards-show">Awards Show</SelectItem>
                   <SelectItem value="film-tv">Film/TV Production</SelectItem>
-                  <SelectItem value="commercial">Commercial/Advertisement</SelectItem>
+                  <SelectItem value="commercial">
+                    Commercial/Advertisement
+                  </SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.eventType && <p className="text-red-400 text-sm">{errors.eventType}</p>}
+              {errors.eventType && (
+                <p className="text-red-400 text-sm">{errors.eventType}</p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="eventTitle" className="text-gray-200">Event Title *</Label>
+              <Label htmlFor="eventTitle" className="text-gray-200">
+                Event Title *
+              </Label>
               <Input
                 id="eventTitle"
                 value={formData.eventTitle}
@@ -359,21 +410,27 @@ export default function BookingForm() {
                 className="bg-black/20 border-gray-600 text-white"
                 placeholder="Enter event title"
               />
-              {errors.eventTitle && <p className="text-red-400 text-sm">{errors.eventTitle}</p>}
+              {errors.eventTitle && (
+                <p className="text-red-400 text-sm">{errors.eventTitle}</p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="eventDescription" className="text-gray-200">Event Description</Label>
+              <Label htmlFor="eventDescription" className="text-gray-200">
+                Event Description
+              </Label>
               <Textarea
                 id="eventDescription"
                 value={formData.eventDescription}
-                onChange={(e) => updateFormData("eventDescription", e.target.value)}
+                onChange={(e) =>
+                  updateFormData("eventDescription", e.target.value)
+                }
                 className="bg-black/20 border-gray-600 text-white"
                 placeholder="Describe your event in detail..."
                 rows={3}
               />
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-gray-200">Event Date *</Label>
@@ -383,11 +440,13 @@ export default function BookingForm() {
                       variant="outline"
                       className={cn(
                         "w-full justify-start text-left font-normal bg-black/20 border-gray-600 text-white",
-                        !formData.eventDate && "text-gray-400"
+                        !formData.eventDate && "text-gray-400",
                       )}
                     >
                       <CalendarIcon className="mr-2 h-4 w-4" />
-                      {formData.eventDate ? format(formData.eventDate, "PPP") : "Pick a date"}
+                      {formData.eventDate
+                        ? format(formData.eventDate, "PPP")
+                        : "Pick a date"}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent className="w-auto p-0">
@@ -399,44 +458,65 @@ export default function BookingForm() {
                     />
                   </PopoverContent>
                 </Popover>
-                {errors.eventDate && <p className="text-red-400 text-sm">{errors.eventDate}</p>}
+                {errors.eventDate && (
+                  <p className="text-red-400 text-sm">{errors.eventDate}</p>
+                )}
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="eventDuration" className="text-gray-200">Event Duration *</Label>
-                <Select value={formData.eventDuration} onValueChange={(value) => updateFormData("eventDuration", value)}>
+                <Label htmlFor="eventDuration" className="text-gray-200">
+                  Event Duration *
+                </Label>
+                <Select
+                  value={formData.eventDuration}
+                  onValueChange={(value) =>
+                    updateFormData("eventDuration", value)
+                  }
+                >
                   <SelectTrigger className="bg-black/20 border-gray-600 text-white">
                     <SelectValue placeholder="Select duration" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="1-2-hours">1-2 hours</SelectItem>
                     <SelectItem value="3-4-hours">3-4 hours</SelectItem>
-                    <SelectItem value="half-day">Half day (4-6 hours)</SelectItem>
-                    <SelectItem value="full-day">Full day (8+ hours)</SelectItem>
+                    <SelectItem value="half-day">
+                      Half day (4-6 hours)
+                    </SelectItem>
+                    <SelectItem value="full-day">
+                      Full day (8+ hours)
+                    </SelectItem>
                     <SelectItem value="multi-day">Multi-day event</SelectItem>
                   </SelectContent>
                 </Select>
-                {errors.eventDuration && <p className="text-red-400 text-sm">{errors.eventDuration}</p>}
+                {errors.eventDuration && (
+                  <p className="text-red-400 text-sm">{errors.eventDuration}</p>
+                )}
               </div>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="eventLocation" className="text-gray-200">Event Location *</Label>
+              <Label htmlFor="eventLocation" className="text-gray-200">
+                Event Location *
+              </Label>
               <div className="relative">
                 <Input
                   id="eventLocation"
                   value={formData.eventLocation}
-                  onChange={(e) => updateFormData("eventLocation", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("eventLocation", e.target.value)
+                  }
                   className="bg-black/20 border-gray-600 text-white pl-10"
                   placeholder="Enter event location (city, state, venue)"
                 />
                 <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               </div>
-              {errors.eventLocation && <p className="text-red-400 text-sm">{errors.eventLocation}</p>}
+              {errors.eventLocation && (
+                <p className="text-red-400 text-sm">{errors.eventLocation}</p>
+              )}
             </div>
           </div>
         );
-      
+
       case 3:
         return (
           <div className="space-y-6">
@@ -445,9 +525,11 @@ export default function BookingForm() {
               <h2 className="text-2xl font-bold text-white">Artist & Talent</h2>
               <p className="text-gray-400">Who would you like to book?</p>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="artistName" className="text-gray-200">Artist/Talent Name *</Label>
+              <Label htmlFor="artistName" className="text-gray-200">
+                Artist/Talent Name *
+              </Label>
               <Input
                 id="artistName"
                 value={formData.artistName}
@@ -455,12 +537,21 @@ export default function BookingForm() {
                 className="bg-black/20 border-gray-600 text-white"
                 placeholder="Enter artist or talent name"
               />
-              {errors.artistName && <p className="text-red-400 text-sm">{errors.artistName}</p>}
+              {errors.artistName && (
+                <p className="text-red-400 text-sm">{errors.artistName}</p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="artistCategory" className="text-gray-200">Category *</Label>
-              <Select value={formData.artistCategory} onValueChange={(value) => updateFormData("artistCategory", value)}>
+              <Label htmlFor="artistCategory" className="text-gray-200">
+                Category *
+              </Label>
+              <Select
+                value={formData.artistCategory}
+                onValueChange={(value) =>
+                  updateFormData("artistCategory", value)
+                }
+              >
                 <SelectTrigger className="bg-black/20 border-gray-600 text-white">
                   <SelectValue placeholder="Select category" />
                 </SelectTrigger>
@@ -472,19 +563,27 @@ export default function BookingForm() {
                   <SelectItem value="athlete">Athlete</SelectItem>
                   <SelectItem value="dj">DJ/Electronic Artist</SelectItem>
                   <SelectItem value="dancer">Dancer/Choreographer</SelectItem>
-                  <SelectItem value="influencer">Social Media Influencer</SelectItem>
+                  <SelectItem value="influencer">
+                    Social Media Influencer
+                  </SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.artistCategory && <p className="text-red-400 text-sm">{errors.artistCategory}</p>}
+              {errors.artistCategory && (
+                <p className="text-red-400 text-sm">{errors.artistCategory}</p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="specialRequests" className="text-gray-200">Special Requests or Requirements</Label>
+              <Label htmlFor="specialRequests" className="text-gray-200">
+                Special Requests or Requirements
+              </Label>
               <Textarea
                 id="specialRequests"
                 value={formData.specialRequests}
-                onChange={(e) => updateFormData("specialRequests", e.target.value)}
+                onChange={(e) =>
+                  updateFormData("specialRequests", e.target.value)
+                }
                 className="bg-black/20 border-gray-600 text-white"
                 placeholder="Any special requirements, technical needs, or requests..."
                 rows={4}
@@ -492,19 +591,26 @@ export default function BookingForm() {
             </div>
           </div>
         );
-      
+
       case 4:
         return (
           <div className="space-y-6">
             <div className="text-center mb-6">
               <DollarSign className="w-12 h-12 text-wme-gold mx-auto mb-3" />
-              <h2 className="text-2xl font-bold text-white">Budget & Payment</h2>
+              <h2 className="text-2xl font-bold text-white">
+                Budget & Payment
+              </h2>
               <p className="text-gray-400">Financial information</p>
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="budgetRange" className="text-gray-200">Budget Range *</Label>
-              <Select value={formData.budgetRange} onValueChange={(value) => updateFormData("budgetRange", value)}>
+              <Label htmlFor="budgetRange" className="text-gray-200">
+                Budget Range *
+              </Label>
+              <Select
+                value={formData.budgetRange}
+                onValueChange={(value) => updateFormData("budgetRange", value)}
+              >
                 <SelectTrigger className="bg-black/20 border-gray-600 text-white">
                   <SelectValue placeholder="Select budget range" />
                 </SelectTrigger>
@@ -519,12 +625,21 @@ export default function BookingForm() {
                   <SelectItem value="over-1m">Over $1,000,000</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.budgetRange && <p className="text-red-400 text-sm">{errors.budgetRange}</p>}
+              {errors.budgetRange && (
+                <p className="text-red-400 text-sm">{errors.budgetRange}</p>
+              )}
             </div>
-            
+
             <div className="space-y-2">
-              <Label htmlFor="paymentMethod" className="text-gray-200">Preferred Payment Method *</Label>
-              <Select value={formData.paymentMethod} onValueChange={(value) => updateFormData("paymentMethod", value)}>
+              <Label htmlFor="paymentMethod" className="text-gray-200">
+                Preferred Payment Method *
+              </Label>
+              <Select
+                value={formData.paymentMethod}
+                onValueChange={(value) =>
+                  updateFormData("paymentMethod", value)
+                }
+              >
                 <SelectTrigger className="bg-black/20 border-gray-600 text-white">
                   <SelectValue placeholder="Select payment method" />
                 </SelectTrigger>
@@ -535,73 +650,120 @@ export default function BookingForm() {
                   <SelectItem value="financing">Financing Options</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.paymentMethod && <p className="text-red-400 text-sm">{errors.paymentMethod}</p>}
+              {errors.paymentMethod && (
+                <p className="text-red-400 text-sm">{errors.paymentMethod}</p>
+              )}
             </div>
-            
+
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-white">Billing Address</h3>
-              
+              <h3 className="text-lg font-semibold text-white">
+                Billing Address
+              </h3>
+
               <div className="space-y-2">
-                <Label htmlFor="street" className="text-gray-200">Street Address *</Label>
+                <Label htmlFor="street" className="text-gray-200">
+                  Street Address *
+                </Label>
                 <Input
                   id="street"
                   value={formData.billingAddress.street}
-                  onChange={(e) => updateBillingAddress("street", e.target.value)}
+                  onChange={(e) =>
+                    updateBillingAddress("street", e.target.value)
+                  }
                   className="bg-black/20 border-gray-600 text-white"
                   placeholder="Enter street address"
                 />
-                {errors["billingAddress.street"] && <p className="text-red-400 text-sm">{errors["billingAddress.street"]}</p>}
+                {errors["billingAddress.street"] && (
+                  <p className="text-red-400 text-sm">
+                    {errors["billingAddress.street"]}
+                  </p>
+                )}
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="city" className="text-gray-200">City *</Label>
+                  <Label htmlFor="city" className="text-gray-200">
+                    City *
+                  </Label>
                   <Input
                     id="city"
                     value={formData.billingAddress.city}
-                    onChange={(e) => updateBillingAddress("city", e.target.value)}
+                    onChange={(e) =>
+                      updateBillingAddress("city", e.target.value)
+                    }
                     className="bg-black/20 border-gray-600 text-white"
                     placeholder="Enter city"
                   />
-                  {errors["billingAddress.city"] && <p className="text-red-400 text-sm">{errors["billingAddress.city"]}</p>}
+                  {errors["billingAddress.city"] && (
+                    <p className="text-red-400 text-sm">
+                      {errors["billingAddress.city"]}
+                    </p>
+                  )}
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="state" className="text-gray-200">State *</Label>
+                  <Label htmlFor="state" className="text-gray-200">
+                    State *
+                  </Label>
                   <Input
                     id="state"
                     value={formData.billingAddress.state}
-                    onChange={(e) => updateBillingAddress("state", e.target.value)}
+                    onChange={(e) =>
+                      updateBillingAddress("state", e.target.value)
+                    }
                     className="bg-black/20 border-gray-600 text-white"
                     placeholder="Enter state"
                   />
-                  {errors["billingAddress.state"] && <p className="text-red-400 text-sm">{errors["billingAddress.state"]}</p>}
+                  {errors["billingAddress.state"] && (
+                    <p className="text-red-400 text-sm">
+                      {errors["billingAddress.state"]}
+                    </p>
+                  )}
                 </div>
               </div>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="zipCode" className="text-gray-200">ZIP Code *</Label>
+                  <Label htmlFor="zipCode" className="text-gray-200">
+                    ZIP Code *
+                  </Label>
                   <Input
                     id="zipCode"
                     value={formData.billingAddress.zipCode}
-                    onChange={(e) => updateBillingAddress("zipCode", e.target.value)}
+                    onChange={(e) =>
+                      updateBillingAddress("zipCode", e.target.value)
+                    }
                     className="bg-black/20 border-gray-600 text-white"
                     placeholder="Enter ZIP code"
                   />
-                  {errors["billingAddress.zipCode"] && <p className="text-red-400 text-sm">{errors["billingAddress.zipCode"]}</p>}
+                  {errors["billingAddress.zipCode"] && (
+                    <p className="text-red-400 text-sm">
+                      {errors["billingAddress.zipCode"]}
+                    </p>
+                  )}
                 </div>
-                
+
                 <div className="space-y-2">
-                  <Label htmlFor="country" className="text-gray-200">Country</Label>
-                  <Select value={formData.billingAddress.country} onValueChange={(value) => updateBillingAddress("country", value)}>
+                  <Label htmlFor="country" className="text-gray-200">
+                    Country
+                  </Label>
+                  <Select
+                    value={formData.billingAddress.country}
+                    onValueChange={(value) =>
+                      updateBillingAddress("country", value)
+                    }
+                  >
                     <SelectTrigger className="bg-black/20 border-gray-600 text-white">
                       <SelectValue placeholder="Select country" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="United States">United States</SelectItem>
+                      <SelectItem value="United States">
+                        United States
+                      </SelectItem>
                       <SelectItem value="Canada">Canada</SelectItem>
-                      <SelectItem value="United Kingdom">United Kingdom</SelectItem>
+                      <SelectItem value="United Kingdom">
+                        United Kingdom
+                      </SelectItem>
                       <SelectItem value="Australia">Australia</SelectItem>
                       <SelectItem value="Other">Other</SelectItem>
                     </SelectContent>
@@ -611,7 +773,7 @@ export default function BookingForm() {
             </div>
           </div>
         );
-      
+
       case 5:
         return (
           <div className="space-y-6">
@@ -620,51 +782,92 @@ export default function BookingForm() {
               <h2 className="text-2xl font-bold text-white">Review & Submit</h2>
               <p className="text-gray-400">Please review your information</p>
             </div>
-            
+
             {/* Summary of all information */}
             <div className="space-y-4">
               <Card className="bg-black/20 border-gray-600">
                 <CardHeader>
-                  <CardTitle className="text-white">Personal Information</CardTitle>
+                  <CardTitle className="text-white">
+                    Personal Information
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="text-gray-300">
-                  <p><strong>Name:</strong> {formData.firstName} {formData.lastName}</p>
-                  <p><strong>Email:</strong> {formData.email}</p>
-                  <p><strong>Phone:</strong> {formData.phone}</p>
-                  {formData.company && <p><strong>Company:</strong> {formData.company}</p>}
+                  <p>
+                    <strong>Name:</strong> {formData.firstName}{" "}
+                    {formData.lastName}
+                  </p>
+                  <p>
+                    <strong>Email:</strong> {formData.email}
+                  </p>
+                  <p>
+                    <strong>Phone:</strong> {formData.phone}
+                  </p>
+                  {formData.company && (
+                    <p>
+                      <strong>Company:</strong> {formData.company}
+                    </p>
+                  )}
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-black/20 border-gray-600">
                 <CardHeader>
                   <CardTitle className="text-white">Event Details</CardTitle>
                 </CardHeader>
                 <CardContent className="text-gray-300">
-                  <p><strong>Type:</strong> {formData.eventType}</p>
-                  <p><strong>Title:</strong> {formData.eventTitle}</p>
-                  <p><strong>Date:</strong> {formData.eventDate ? format(formData.eventDate, "PPP") : "Not selected"}</p>
-                  <p><strong>Location:</strong> {formData.eventLocation}</p>
-                  <p><strong>Duration:</strong> {formData.eventDuration}</p>
+                  <p>
+                    <strong>Type:</strong> {formData.eventType}
+                  </p>
+                  <p>
+                    <strong>Title:</strong> {formData.eventTitle}
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {formData.eventDate
+                      ? format(formData.eventDate, "PPP")
+                      : "Not selected"}
+                  </p>
+                  <p>
+                    <strong>Location:</strong> {formData.eventLocation}
+                  </p>
+                  <p>
+                    <strong>Duration:</strong> {formData.eventDuration}
+                  </p>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-black/20 border-gray-600">
                 <CardHeader>
                   <CardTitle className="text-white">Artist & Budget</CardTitle>
                 </CardHeader>
                 <CardContent className="text-gray-300">
-                  <p><strong>Artist:</strong> {formData.artistName}</p>
-                  <p><strong>Category:</strong> {formData.artistCategory}</p>
-                  <p><strong>Budget:</strong> {formData.budgetRange}</p>
-                  <p><strong>Payment:</strong> {formData.paymentMethod}</p>
+                  <p>
+                    <strong>Artist:</strong> {formData.artistName}
+                  </p>
+                  <p>
+                    <strong>Category:</strong> {formData.artistCategory}
+                  </p>
+                  <p>
+                    <strong>Budget:</strong> {formData.budgetRange}
+                  </p>
+                  <p>
+                    <strong>Payment:</strong> {formData.paymentMethod}
+                  </p>
                 </CardContent>
               </Card>
             </div>
-            
+
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="hearAboutUs" className="text-gray-200">How did you hear about us?</Label>
-                <Select value={formData.hearAboutUs} onValueChange={(value) => updateFormData("hearAboutUs", value)}>
+                <Label htmlFor="hearAboutUs" className="text-gray-200">
+                  How did you hear about us?
+                </Label>
+                <Select
+                  value={formData.hearAboutUs}
+                  onValueChange={(value) =>
+                    updateFormData("hearAboutUs", value)
+                  }
+                >
                   <SelectTrigger className="bg-black/20 border-gray-600 text-white">
                     <SelectValue placeholder="Select an option" />
                   </SelectTrigger>
@@ -673,39 +876,63 @@ export default function BookingForm() {
                     <SelectItem value="social-media">Social Media</SelectItem>
                     <SelectItem value="referral">Referral</SelectItem>
                     <SelectItem value="advertisement">Advertisement</SelectItem>
-                    <SelectItem value="industry-contact">Industry Contact</SelectItem>
+                    <SelectItem value="industry-contact">
+                      Industry Contact
+                    </SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="additionalNotes" className="text-gray-200">Additional Notes</Label>
+                <Label htmlFor="additionalNotes" className="text-gray-200">
+                  Additional Notes
+                </Label>
                 <Textarea
                   id="additionalNotes"
                   value={formData.additionalNotes}
-                  onChange={(e) => updateFormData("additionalNotes", e.target.value)}
+                  onChange={(e) =>
+                    updateFormData("additionalNotes", e.target.value)
+                  }
                   className="bg-black/20 border-gray-600 text-white"
                   placeholder="Any additional information..."
                   rows={3}
                 />
               </div>
             </div>
-            
+
             <div className="space-y-4 border-t border-gray-600 pt-4">
               <div className="flex items-start space-x-2">
                 <Checkbox
                   id="termsAccepted"
                   checked={formData.termsAccepted}
-                  onCheckedChange={(checked) => updateFormData("termsAccepted", checked)}
+                  onCheckedChange={(checked) =>
+                    updateFormData("termsAccepted", checked)
+                  }
                 />
                 <div className="space-y-1 leading-none">
-                  <Label htmlFor="termsAccepted" className="text-gray-200 text-sm">
-                    I accept the <Link to="/terms" className="text-wme-gold hover:underline">Terms and Conditions</Link> and <Link to="/privacy" className="text-wme-gold hover:underline">Privacy Policy</Link> *
+                  <Label
+                    htmlFor="termsAccepted"
+                    className="text-gray-200 text-sm"
+                  >
+                    I accept the{" "}
+                    <Link to="/terms" className="text-wme-gold hover:underline">
+                      Terms and Conditions
+                    </Link>{" "}
+                    and{" "}
+                    <Link
+                      to="/privacy"
+                      className="text-wme-gold hover:underline"
+                    >
+                      Privacy Policy
+                    </Link>{" "}
+                    *
                   </Label>
                 </div>
               </div>
-              {errors.termsAccepted && <p className="text-red-400 text-sm">{errors.termsAccepted}</p>}
+              {errors.termsAccepted && (
+                <p className="text-red-400 text-sm">{errors.termsAccepted}</p>
+              )}
 
               {errors.submit && (
                 <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
@@ -717,10 +944,15 @@ export default function BookingForm() {
                 <Checkbox
                   id="marketingConsent"
                   checked={formData.marketingConsent}
-                  onCheckedChange={(checked) => updateFormData("marketingConsent", checked)}
+                  onCheckedChange={(checked) =>
+                    updateFormData("marketingConsent", checked)
+                  }
                 />
                 <div className="space-y-1 leading-none">
-                  <Label htmlFor="marketingConsent" className="text-gray-200 text-sm">
+                  <Label
+                    htmlFor="marketingConsent"
+                    className="text-gray-200 text-sm"
+                  >
                     I would like to receive marketing communications from WME
                   </Label>
                 </div>
@@ -728,7 +960,7 @@ export default function BookingForm() {
             </div>
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -755,7 +987,11 @@ export default function BookingForm() {
                 <span>Secure Form</span>
               </div>
               <Link to="/">
-                <Button variant="outline" size="sm" className="border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
+                >
                   Back to Login
                 </Button>
               </Link>
@@ -770,11 +1006,15 @@ export default function BookingForm() {
           {/* Progress Bar */}
           <div className="mb-8">
             <div className="flex items-center justify-between mb-2">
-              <h1 className="text-2xl font-bold text-white">Booking Request Form</h1>
-              <span className="text-sm text-gray-400">Step {currentStep} of {totalSteps}</span>
+              <h1 className="text-2xl font-bold text-white">
+                Booking Request Form
+              </h1>
+              <span className="text-sm text-gray-400">
+                Step {currentStep} of {totalSteps}
+              </span>
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2">
-              <div 
+              <div
                 className="bg-wme-gold h-2 rounded-full transition-all duration-300"
                 style={{ width: `${(currentStep / totalSteps) * 100}%` }}
               />
@@ -784,7 +1024,7 @@ export default function BookingForm() {
           <Card className="bg-white/5 backdrop-blur-sm border-wme-gold/20">
             <CardContent className="p-8">
               {renderStepContent()}
-              
+
               {/* Navigation Buttons */}
               <div className="flex justify-between mt-8 pt-6 border-t border-gray-600">
                 <Button
@@ -796,7 +1036,7 @@ export default function BookingForm() {
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Previous
                 </Button>
-                
+
                 {currentStep < totalSteps ? (
                   <Button
                     onClick={nextStep}

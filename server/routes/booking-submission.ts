@@ -8,18 +8,18 @@ const BookingFormSchema = z.object({
   email: z.string().email("Invalid email format"),
   phone: z.string().min(1, "Phone number is required"),
   company: z.string().optional(),
-  
+
   eventType: z.string().min(1, "Event type is required"),
   eventTitle: z.string().min(1, "Event title is required"),
   eventDescription: z.string().optional(),
   eventDate: z.string().min(1, "Event date is required"),
   eventLocation: z.string().min(1, "Event location is required"),
   eventDuration: z.string().min(1, "Event duration is required"),
-  
+
   artistName: z.string().min(1, "Artist name is required"),
   artistCategory: z.string().min(1, "Artist category is required"),
   specialRequests: z.string().optional(),
-  
+
   budgetRange: z.string().min(1, "Budget range is required"),
   paymentMethod: z.string().min(1, "Payment method is required"),
   billingAddress: z.object({
@@ -29,10 +29,12 @@ const BookingFormSchema = z.object({
     zipCode: z.string().min(1, "ZIP code is required"),
     country: z.string().min(1, "Country is required"),
   }),
-  
+
   hearAboutUs: z.string().optional(),
   additionalNotes: z.string().optional(),
-  termsAccepted: z.boolean().refine(val => val === true, "Terms must be accepted"),
+  termsAccepted: z
+    .boolean()
+    .refine((val) => val === true, "Terms must be accepted"),
   marketingConsent: z.boolean().optional(),
 });
 
@@ -42,7 +44,7 @@ interface BookingSubmission {
   id: string;
   bookingId: string;
   formData: z.infer<typeof BookingFormSchema>;
-  status: 'pending' | 'verified' | 'processed';
+  status: "pending" | "verified" | "processed";
   emailVerified: boolean;
   otpCode?: string;
   otpExpiry?: Date;
@@ -64,7 +66,9 @@ const otpSessions = new Map<string, OTPSession>();
 function generateBookingId(): string {
   const prefix = "WME";
   const year = new Date().getFullYear().toString().slice(-2);
-  const randomNum = Math.floor(Math.random() * 99999).toString().padStart(5, '0');
+  const randomNum = Math.floor(Math.random() * 99999)
+    .toString()
+    .padStart(5, "0");
   return `${prefix}${year}${randomNum}`;
 }
 
@@ -74,14 +78,18 @@ function generateOTP(): string {
 }
 
 // Simulate sending email (in production, use actual email service)
-function sendEmail(to: string, subject: string, content: string): Promise<boolean> {
+function sendEmail(
+  to: string,
+  subject: string,
+  content: string,
+): Promise<boolean> {
   return new Promise((resolve) => {
     console.log(`\n📧 Email Simulation:`);
     console.log(`To: ${to}`);
     console.log(`Subject: ${subject}`);
     console.log(`Content: ${content}`);
     console.log(`─────────────────────────────────────\n`);
-    
+
     // Simulate async email sending
     setTimeout(() => resolve(true), 100);
   });
@@ -92,29 +100,29 @@ export const handleBookingSubmission: RequestHandler = async (req, res) => {
   try {
     // Validate request body
     const validatedData = BookingFormSchema.parse(req.body);
-    
+
     // Generate unique booking ID
     const bookingId = generateBookingId();
     const submissionId = `sub_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    
+
     // Generate OTP for email verification
     const otpCode = generateOTP();
     const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
-    
+
     // Store booking submission
     const submission: BookingSubmission = {
       id: submissionId,
       bookingId,
       formData: validatedData,
-      status: 'pending',
+      status: "pending",
       emailVerified: false,
       otpCode,
       otpExpiry,
       submittedAt: new Date(),
     };
-    
+
     bookingSubmissions.set(bookingId, submission);
-    
+
     // Store OTP session
     const otpSession: OTPSession = {
       email: validatedData.email,
@@ -122,9 +130,9 @@ export const handleBookingSubmission: RequestHandler = async (req, res) => {
       bookingId,
       expiresAt: otpExpiry,
     };
-    
+
     otpSessions.set(validatedData.email, otpSession);
-    
+
     // Send verification email
     const emailContent = `
 Hello ${validatedData.firstName},
@@ -156,26 +164,26 @@ If you have any questions, feel free to contact us.
 Best regards,
 WME Booking Team
     `;
-    
+
     await sendEmail(
       validatedData.email,
       `WME Booking Request - Verification Required (${bookingId})`,
-      emailContent
+      emailContent,
     );
-    
+
     res.json({
       success: true,
       data: {
         bookingId,
         submissionId,
-        message: "Booking request submitted successfully. Please check your email for verification instructions.",
+        message:
+          "Booking request submitted successfully. Please check your email for verification instructions.",
         nextStep: "email_verification",
       },
     });
-    
   } catch (error) {
     console.error("Booking submission error:", error);
-    
+
     if (error instanceof z.ZodError) {
       res.status(400).json({
         success: false,
@@ -195,14 +203,14 @@ WME Booking Team
 export const handleEmailVerification: RequestHandler = async (req, res) => {
   try {
     const { email, otpCode } = req.body;
-    
+
     if (!email || !otpCode) {
       return res.status(400).json({
         success: false,
         error: "Email and OTP code are required",
       });
     }
-    
+
     // Check OTP session
     const otpSession = otpSessions.get(email);
     if (!otpSession) {
@@ -211,7 +219,7 @@ export const handleEmailVerification: RequestHandler = async (req, res) => {
         error: "Invalid email or OTP session expired",
       });
     }
-    
+
     // Check if OTP has expired
     if (new Date() > otpSession.expiresAt) {
       otpSessions.delete(email);
@@ -220,7 +228,7 @@ export const handleEmailVerification: RequestHandler = async (req, res) => {
         error: "OTP code has expired. Please request a new one.",
       });
     }
-    
+
     // Verify OTP code
     if (otpSession.otpCode !== otpCode) {
       return res.status(400).json({
@@ -228,21 +236,21 @@ export const handleEmailVerification: RequestHandler = async (req, res) => {
         error: "Invalid OTP code",
       });
     }
-    
+
     // Mark submission as verified
     const submission = bookingSubmissions.get(otpSession.bookingId);
     if (submission) {
       submission.emailVerified = true;
-      submission.status = 'verified';
+      submission.status = "verified";
       submission.verifiedAt = new Date();
-      
+
       // Process the booking (create client profile)
       await processVerifiedBooking(submission);
     }
-    
+
     // Clean up OTP session
     otpSessions.delete(email);
-    
+
     // Send confirmation email
     const confirmationContent = `
 Hello ${submission?.formData.firstName},
@@ -253,7 +261,7 @@ Your booking request for "${submission?.formData.eventTitle}" has been submitted
 
 Booking ID: ${otpSession.bookingId}
 
-You can now access your client portal using your Booking ID at: ${process.env.FRONTEND_URL || 'http://localhost:8080'}
+You can now access your client portal using your Booking ID at: ${process.env.FRONTEND_URL || "http://localhost:8080"}
 
 Our team will review your request and contact you within 24 hours with:
 - Talent availability confirmation
@@ -265,22 +273,22 @@ Thank you for choosing WME!
 Best regards,
 WME Booking Team
     `;
-    
+
     await sendEmail(
       email,
       `Email Verified - Booking Request Under Review (${otpSession.bookingId})`,
-      confirmationContent
+      confirmationContent,
     );
-    
+
     res.json({
       success: true,
       data: {
         bookingId: otpSession.bookingId,
-        message: "Email verified successfully. Your booking request is now under review.",
+        message:
+          "Email verified successfully. Your booking request is now under review.",
         nextStep: "access_portal",
       },
     });
-    
   } catch (error) {
     console.error("Email verification error:", error);
     res.status(500).json({
@@ -294,14 +302,14 @@ WME Booking Team
 export const handleResendOTP: RequestHandler = async (req, res) => {
   try {
     const { email } = req.body;
-    
+
     if (!email) {
       return res.status(400).json({
         success: false,
         error: "Email is required",
       });
     }
-    
+
     // Check if there's an active OTP session
     const existingSession = otpSessions.get(email);
     if (!existingSession) {
@@ -310,22 +318,22 @@ export const handleResendOTP: RequestHandler = async (req, res) => {
         error: "No active OTP session found for this email",
       });
     }
-    
+
     // Generate new OTP
     const newOtpCode = generateOTP();
     const newExpiry = new Date(Date.now() + 10 * 60 * 1000);
-    
+
     // Update session
     existingSession.otpCode = newOtpCode;
     existingSession.expiresAt = newExpiry;
-    
+
     // Update submission
     const submission = bookingSubmissions.get(existingSession.bookingId);
     if (submission) {
       submission.otpCode = newOtpCode;
       submission.otpExpiry = newExpiry;
     }
-    
+
     // Send new OTP email
     const emailContent = `
 Hello,
@@ -342,20 +350,19 @@ If you did not request this code, please ignore this email.
 Best regards,
 WME Booking Team
     `;
-    
+
     await sendEmail(
       email,
       `WME Booking - New Verification Code (${existingSession.bookingId})`,
-      emailContent
+      emailContent,
     );
-    
+
     res.json({
       success: true,
       data: {
         message: "New verification code sent to your email",
       },
     });
-    
   } catch (error) {
     console.error("Resend OTP error:", error);
     res.status(500).json({
@@ -388,37 +395,37 @@ async function processVerifiedBooking(submission: BookingSubmission) {
     // Assign coordinator based on artist category
     const getCoordinator = (category: string) => {
       const coordinators: Record<string, any> = {
-        "musician": {
+        musician: {
           name: "Sarah Johnson",
           email: "sarah.johnson@wme.com",
           phone: "+1 (555) 123-4567",
           department: "Music Division",
         },
-        "actor": {
+        actor: {
           name: "Michael Chen",
           email: "michael.chen@wme.com",
           phone: "+1 (555) 234-5678",
           department: "Film & TV Division",
         },
-        "comedian": {
+        comedian: {
           name: "Emma Williams",
           email: "emma.williams@wme.com",
           phone: "+1 (555) 345-6789",
           department: "Comedy Division",
         },
-        "speaker": {
+        speaker: {
           name: "David Park",
           email: "david.park@wme.com",
           phone: "+1 (555) 456-7890",
           department: "Speakers Bureau",
         },
-        "athlete": {
+        athlete: {
           name: "Jessica Rivera",
           email: "jessica.rivera@wme.com",
           phone: "+1 (555) 567-8901",
           department: "Sports Division",
         },
-        "default": {
+        default: {
           name: "Booking Team",
           email: "bookings@wme.com",
           phone: "+1 (555) 123-4567",
@@ -471,8 +478,7 @@ async function processVerifiedBooking(submission: BookingSubmission) {
 
     console.log("✅ Client profile created:", clientData);
 
-    submission.status = 'processed';
-
+    submission.status = "processed";
   } catch (error) {
     console.error("Error processing verified booking:", error);
   }
@@ -485,7 +491,7 @@ export const globalClients = new Map<string, any>();
 export const handleBookingStatus: RequestHandler = async (req, res) => {
   try {
     const { bookingId } = req.params;
-    
+
     const submission = bookingSubmissions.get(bookingId);
     if (!submission) {
       return res.status(404).json({
@@ -493,7 +499,7 @@ export const handleBookingStatus: RequestHandler = async (req, res) => {
         error: "Booking not found",
       });
     }
-    
+
     res.json({
       success: true,
       data: {
@@ -506,7 +512,6 @@ export const handleBookingStatus: RequestHandler = async (req, res) => {
         artistName: submission.formData.artistName,
       },
     });
-    
   } catch (error) {
     console.error("Get booking status error:", error);
     res.status(500).json({

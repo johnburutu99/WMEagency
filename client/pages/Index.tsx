@@ -16,7 +16,15 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import { Shield, Star, Users, Globe, IdCard, Loader2, CheckCircle } from "lucide-react";
+import {
+  Shield,
+  Star,
+  Users,
+  Globe,
+  IdCard,
+  Loader2,
+  CheckCircle,
+} from "lucide-react";
 import { apiClient } from "../lib/api";
 
 export default function Index() {
@@ -285,9 +293,12 @@ export default function Index() {
                     <div className="flex items-center gap-2">
                       <CheckCircle className="w-5 h-5 text-green-500" />
                       <div>
-                        <p className="text-green-400 font-semibold">Email Verified Successfully!</p>
+                        <p className="text-green-400 font-semibold">
+                          Email Verified Successfully!
+                        </p>
                         <p className="text-green-400 text-sm">
-                          Your booking request has been submitted. You can now access your portal below.
+                          Your booking request has been submitted. You can now
+                          access your portal below.
                         </p>
                       </div>
                     </div>
@@ -378,9 +389,9 @@ export default function Index() {
                         Ready to Book with WME?
                       </h3>
                       <p className="text-gray-400 mb-6 text-sm">
-                        Start your booking request by providing details about your event.
-                        We'll guide you through the entire process and connect you with
-                        the perfect talent for your needs.
+                        Start your booking request by providing details about
+                        your event. We'll guide you through the entire process
+                        and connect you with the perfect talent for your needs.
                       </p>
                       <div className="space-y-3">
                         <Link to="/booking">
@@ -389,8 +400,8 @@ export default function Index() {
                           </Button>
                         </Link>
                         <p className="text-xs text-gray-400">
-                          Already have a booking? Use the "Client Access" tab to log in
-                          with your Booking ID.
+                          Already have a booking? Use the "Client Access" tab to
+                          log in with your Booking ID.
                         </p>
                       </div>
                     </div>

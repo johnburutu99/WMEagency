@@ -122,7 +122,9 @@ export default function EmailVerification() {
         <Card className="w-full max-w-md bg-white/5 backdrop-blur-sm border-wme-gold/20">
           <CardContent className="p-8 text-center">
             <CheckCircle className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold text-white mb-2">Email Verified!</h2>
+            <h2 className="text-2xl font-bold text-white mb-2">
+              Email Verified!
+            </h2>
             <p className="text-gray-400 mb-4">
               Your booking request has been submitted successfully.
             </p>
@@ -156,7 +158,11 @@ export default function EmailVerification() {
                 <span>Secure Verification</span>
               </div>
               <Link to="/">
-                <Button variant="outline" size="sm" className="border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
+                >
                   <ArrowLeft className="w-4 h-4 mr-2" />
                   Back
                 </Button>
@@ -233,7 +239,9 @@ export default function EmailVerification() {
               </form>
 
               <div className="text-center space-y-3">
-                <p className="text-sm text-gray-400">Didn't receive the code?</p>
+                <p className="text-sm text-gray-400">
+                  Didn't receive the code?
+                </p>
                 <Button
                   onClick={handleResendOTP}
                   disabled={isResending || countdown > 0}
@@ -262,18 +270,26 @@ export default function EmailVerification() {
                   Your Booking Details:
                 </h4>
                 <div className="text-xs text-gray-300 space-y-1">
-                  <div><strong>Booking ID:</strong> {bookingId}</div>
-                  <div><strong>Email:</strong> {email}</div>
+                  <div>
+                    <strong>Booking ID:</strong> {bookingId}
+                  </div>
+                  <div>
+                    <strong>Email:</strong> {email}
+                  </div>
                 </div>
                 <p className="text-xs text-gray-400 mt-2">
-                  After verification, you can access your booking portal using your Booking ID.
+                  After verification, you can access your booking portal using
+                  your Booking ID.
                 </p>
               </div>
 
               <div className="text-center">
                 <p className="text-xs text-gray-400">
                   Having trouble? Contact{" "}
-                  <a href="mailto:support@wme.com" className="text-wme-gold hover:underline">
+                  <a
+                    href="mailto:support@wme.com"
+                    className="text-wme-gold hover:underline"
+                  >
                     support@wme.com
                   </a>
                 </p>
