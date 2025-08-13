@@ -343,6 +343,30 @@ export default function Index() {
                     </form>
                   </TabsContent>
 
+                  <TabsContent value="booking" className="space-y-4">
+                    <div className="text-center py-6">
+                      <h3 className="text-lg font-semibold text-white mb-3">
+                        Ready to Book with WME?
+                      </h3>
+                      <p className="text-gray-400 mb-6 text-sm">
+                        Start your booking request by providing details about your event.
+                        We'll guide you through the entire process and connect you with
+                        the perfect talent for your needs.
+                      </p>
+                      <div className="space-y-3">
+                        <Link to="/booking">
+                          <Button className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold">
+                            Start New Booking Request
+                          </Button>
+                        </Link>
+                        <p className="text-xs text-gray-400">
+                          Already have a booking? Use the "Client Access" tab to log in
+                          with your Booking ID.
+                        </p>
+                      </div>
+                    </div>
+                  </TabsContent>
+
                   <TabsContent value="help" className="space-y-4">
                     <div className="text-center py-4">
                       <h3 className="text-lg font-semibold text-white mb-3">
