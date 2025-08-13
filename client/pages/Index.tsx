@@ -20,9 +20,24 @@ import { Shield, Star, Users, Globe, IdCard, Loader2 } from "lucide-react";
 import { apiClient } from "../lib/api";
 
 export default function Index() {
+  const [searchParams] = useSearchParams();
   const [bookingId, setBookingId] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  useEffect(() => {
+    const verified = searchParams.get("verified");
+    const verifiedBookingId = searchParams.get("bookingId");
+
+    if (verified === "true" && verifiedBookingId) {
+      setShowSuccess(true);
+      setBookingId(verifiedBookingId);
+      // Hide success message after 10 seconds
+      const timer = setTimeout(() => setShowSuccess(false), 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [searchParams]);
 
   const validateBookingId = (id: string) => {
     // Check if it's 8 alphanumeric characters
