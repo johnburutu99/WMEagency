@@ -16,7 +16,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import { Shield, Star, Users, Globe, IdCard, Loader2 } from "lucide-react";
+import { Shield, Star, Users, Globe, IdCard, Loader2, CheckCircle } from "lucide-react";
 import { apiClient } from "../lib/api";
 
 export default function Index() {
