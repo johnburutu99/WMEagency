@@ -29,6 +29,12 @@ import {
   exportClients,
   getSystemHealth,
 } from "./routes/admin";
+import {
+  handleBookingSubmission,
+  handleEmailVerification,
+  handleResendOTP,
+  handleBookingStatus,
+} from "./routes/booking-submission";
 
 export function createServer() {
   const app = express();
