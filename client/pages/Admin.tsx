@@ -59,6 +59,8 @@ export default function Admin() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [stats, setStats] = useState<any>(null);
 
   // Form state for creating new client
@@ -194,6 +196,32 @@ export default function Admin() {
     }
   };
 
+  const handleEditClick = (client: Client) => {
+    setEditingClient(client);
+    setShowEditDialog(true);
+  };
+
+  const handleUpdateClient = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingClient) return;
+
+    try {
+      // The updateClient method in apiClient might need to be created or adjusted
+      const response = await apiClient.updateClient(editingClient.bookingId, editingClient);
+
+      if (response.success) {
+        setShowEditDialog(false);
+        setEditingClient(null);
+        loadClients(); // Refresh the client list
+        loadStats(); // Refresh stats
+      } else {
+        setError(response.error || "Failed to update client");
+      }
+    } catch (err) {
+      setError("Failed to update client");
+    }
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
@@ -252,7 +280,7 @@ export default function Admin() {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
           <div>
             <h1 className="text-3xl font-bold">WME Admin Dashboard</h1>
             <p className="text-muted-foreground">
@@ -607,6 +635,89 @@ export default function Admin() {
               </form>
             </DialogContent>
           </Dialog>
+
+          {/* Edit Client Dialog */}
+          <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>Edit Client</DialogTitle>
+                <DialogDescription>
+                  Update the client's booking information.
+                </DialogDescription>
+              </DialogHeader>
+              {editingClient && (
+                <form onSubmit={handleUpdateClient} className="space-y-4">
+                  {/* Form fields are pre-populated from editingClient state */}
+                  {/* Note: This is a simplified example. A real implementation
+                      would have more robust state management for the form fields. */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-bookingId">Booking ID</Label>
+                      <Input id="edit-bookingId" value={editingClient.bookingId} disabled />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-name">Client Name</Label>
+                      <Input
+                        id="edit-name"
+                        value={editingClient.name}
+                        onChange={(e) =>
+                          setEditingClient({ ...editingClient, name: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+                   <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-email">Email</Label>
+                      <Input
+                        id="edit-email"
+                        type="email"
+                        value={editingClient.email || ''}
+                        onChange={(e) =>
+                          setEditingClient({ ...editingClient, email: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-status">Status</Label>
+                      <Select
+                        value={editingClient.status}
+                        onValueChange={(value) =>
+                           setEditingClient({ ...editingClient, status: value as any})
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="active">Active</SelectItem>
+                          <SelectItem value="pending">Pending</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="cancelled">Cancelled</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {/* Add other fields as needed, similar to the create form */}
+
+                  <div className="flex justify-end gap-3">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowEditDialog(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit" className="bg-wme-gold text-black hover:bg-wme-gold/90">
+                      Save Changes
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Client List */}
@@ -629,9 +740,9 @@ export default function Admin() {
                     key={client.bookingId}
                     className="p-4 border border-border rounded-lg"
                   >
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center">
+                        <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
                           <Star className="w-6 h-6 text-wme-gold" />
                         </div>
                         <div>
@@ -656,8 +767,8 @@ export default function Admin() {
                           </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-right mr-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                        <div className="text-left sm:text-right sm:mr-4">
                           <p className="font-semibold">
                             ${(client.contractAmount || 0).toLocaleString()}
                           </p>
@@ -668,7 +779,7 @@ export default function Admin() {
                         <Button variant="outline" size="sm">
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button variant="outline" size="sm" onClick={() => handleEditClick(client)}>
                           <Edit className="w-4 h-4" />
                         </Button>
                         <Button

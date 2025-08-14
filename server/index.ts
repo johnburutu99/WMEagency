@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import { handleDemo } from "./routes/demo";
 import {
   handleLogin,
@@ -8,6 +9,8 @@ import {
   handleVerifySession,
   handleLogout,
   handleGenerateBookingId,
+  handleAdminLogin,
+  handleVerifyAdminSession,
 } from "./routes/auth";
 import {
   handleGetMyBookings,
@@ -29,12 +32,18 @@ import {
   exportClients,
   getSystemHealth,
 } from "./routes/admin";
+import { adminAuthMiddleware } from "./middleware/auth";
 import {
   handleBookingSubmission,
   handleEmailVerification,
   handleResendOTP,
   handleBookingStatus,
 } from "./routes/booking-submission";
+import {
+  handleInitiatePaymentOtp,
+  handleVerifyPaymentOtp,
+} from "./routes/payment";
+import { handleProfilePictureUpload } from "./routes/user";
 
 export function createServer() {
   const app = express();
@@ -48,6 +57,7 @@ export function createServer() {
   );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+  app.use(cookieParser());
 
   // Request logging middleware
   app.use((req, res, next) => {
@@ -70,6 +80,8 @@ export function createServer() {
 
   // Authentication routes
   app.post("/api/auth/login", handleLogin);
+  app.post("/api/auth/admin/login", handleAdminLogin);
+  app.get("/api/auth/admin/verify", adminAuthMiddleware, handleVerifyAdminSession);
   app.post("/api/auth/create-booking", handleCreateBooking);
   app.get("/api/auth/verify-session", handleVerifySession);
   app.post("/api/auth/logout", handleLogout);
@@ -83,13 +95,14 @@ export function createServer() {
   // Client management routes
   app.get("/api/clients", getAllClients);
   app.get("/api/clients/:bookingId", getClient);
-  app.post("/api/clients", createClient);
-  app.put("/api/clients/:bookingId", updateClient);
-  app.delete("/api/clients/:bookingId", deleteClient);
-  app.post("/api/clients/bulk-update", bulkUpdateClients);
+  app.post("/api/clients", adminAuthMiddleware, createClient);
+  app.put("/api/clients/:bookingId", adminAuthMiddleware, updateClient);
+  app.delete("/api/clients/:bookingId", adminAuthMiddleware, deleteClient);
+  app.post("/api/clients/bulk-update", adminAuthMiddleware, bulkUpdateClients);
   app.get("/api/booking-id/generate", generateBookingId);
 
   // Admin routes
+  app.use("/api/admin", adminAuthMiddleware);
   app.get("/api/admin/dashboard", getDashboardStats);
   app.get("/api/admin/analytics", getClientAnalytics);
   app.get("/api/admin/export", exportClients);
@@ -100,6 +113,13 @@ export function createServer() {
   app.post("/api/booking/verify-email", handleEmailVerification);
   app.post("/api/booking/resend-otp", handleResendOTP);
   app.get("/api/booking/status/:bookingId", handleBookingStatus);
+
+  // Payment routes
+  app.post("/api/payment/initiate-otp", handleInitiatePaymentOtp);
+  app.post("/api/payment/verify-otp", handleVerifyPaymentOtp);
+
+  // User routes
+  app.post("/api/user/profile-picture", handleProfilePictureUpload);
 
   // Error handling middleware
   app.use(

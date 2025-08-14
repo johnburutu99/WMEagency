@@ -214,7 +214,7 @@ export default function Bookings() {
                       </div>
 
                       {/* Actions */}
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2">
                         <Button variant="outline" size="sm">
                           <Eye className="w-4 h-4 mr-2" />
                           View

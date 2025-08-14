@@ -85,6 +85,20 @@ class ApiClient {
   }
 
   // Authentication
+  async adminLogin(credentials: {
+    username?: string;
+    password?: string;
+  }): Promise<ApiResponse<{ message: string }>> {
+    return this.request("/auth/admin/login", {
+      method: "POST",
+      body: JSON.stringify(credentials),
+    });
+  }
+
+  async verifyAdminSession(): Promise<ApiResponse<{ user: { isAdmin: boolean } }>> {
+    return this.request("/auth/admin/verify");
+  }
+
   async login(
     bookingId: string,
   ): Promise<ApiResponse<{ client: Client; message: string }>> {
@@ -103,6 +117,26 @@ class ApiClient {
   async logout(): Promise<ApiResponse<{ message: string }>> {
     return this.request("/auth/logout", {
       method: "POST",
+    });
+  }
+
+  // Payment
+  async initiatePaymentOtp(
+    bookingId: string
+  ): Promise<ApiResponse<{ message: string }>> {
+    return this.request("/payment/initiate-otp", {
+      method: "POST",
+      body: JSON.stringify({ bookingId }),
+    });
+  }
+
+  async verifyPaymentOtp(
+    bookingId: string,
+    otp: string
+  ): Promise<ApiResponse<{ message: string }>> {
+    return this.request("/payment/verify-otp", {
+      method: "POST",
+      body: JSON.stringify({ bookingId, otp }),
     });
   }
 

@@ -36,8 +36,78 @@ import {
   ArrowDownRight,
 } from "lucide-react";
 
+import { apiClient } from "@/lib/api";
+import { QRCodeSVG } from "qrcode.react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../components/ui/dialog";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+
+
 export default function Payments() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [showOtpDialog, setShowOtpDialog] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [otp, setOtp] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [userData, setUserData] = useState<any>(null); // Assuming user data is fetched/available
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const storedData = localStorage.getItem("wme-user-data");
+    if (storedData) {
+      setUserData(JSON.parse(storedData));
+    }
+  }, []);
+
+  const handleDepositClick = async () => {
+    if (!userData?.bookingId) {
+      setError("Could not identify user. Please log in again.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.initiatePaymentOtp(userData.bookingId);
+      if (response.success) {
+        setShowOtpDialog(true);
+      } else {
+        setError(response.error || "Failed to start deposit process.");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOtpSubmit = async () => {
+    if (!userData?.bookingId || otp.length !== 6) {
+      setError("Please enter a valid 6-digit OTP.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.verifyPaymentOtp(userData.bookingId, otp);
+      if (response.success) {
+        setShowOtpDialog(false);
+        setShowPaymentDialog(true);
+        setOtp("");
+      } else {
+        setError(response.error || "Invalid or expired OTP.");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const transactions = [
     {
@@ -207,9 +277,9 @@ export default function Payments() {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Payment Method
+            <Button onClick={handleDepositClick} disabled={loading}>
+              <Wallet className="w-4 h-4 mr-2" />
+              {loading ? "Initiating..." : "Deposit with Crypto"}
             </Button>
             <Link to="/dashboard">
               <Button variant="outline">Back to Dashboard</Button>
@@ -564,6 +634,69 @@ export default function Payments() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* OTP Dialog */}
+        <Dialog open={showOtpDialog} onOpenChange={setShowOtpDialog}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Enter Verification Code</DialogTitle>
+              <DialogDescription>
+                A 6-digit code has been sent to your registered email address.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-4 py-4">
+              <InputOTP maxLength={6} value={otp} onChange={(value) => setOtp(value)}>
+                <InputOTPGroup>
+                  <InputOTPSlot index={0} />
+                  <InputOTPSlot index={1} />
+                  <InputOTPSlot index={2} />
+                  <InputOTPSlot index={3} />
+                  <InputOTPSlot index={4} />
+                  <InputOTPSlot index={5} />
+                </InputOTPGroup>
+              </InputOTP>
+              {error && <p className="text-sm text-red-500">{error}</p>}
+              <Button onClick={handleOtpSubmit} disabled={loading || otp.length < 6} className="w-full">
+                {loading ? "Verifying..." : "Verify & Proceed"}
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Payment Details Dialog */}
+        <Dialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Deposit with Bitcoin (BTC)</DialogTitle>
+              <DialogDescription>
+                Scan the QR code or copy the address below to make your payment.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col items-center gap-6 py-4">
+              <div className="p-4 bg-white rounded-lg">
+                <QRCodeSVG value="bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6" size={200} />
+              </div>
+              <div className="w-full text-center">
+                <Label>BTC Wallet Address</Label>
+                <p className="text-sm font-mono break-all p-2 bg-muted rounded-md">
+                  bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6
+                </p>
+                <Button variant="ghost" size="sm" className="mt-2" onClick={() => navigator.clipboard.writeText("bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6")}>
+                  Copy Address
+                </Button>
+              </div>
+              <Separator />
+              <div className="w-full space-y-4">
+                 <p className="text-xs text-muted-foreground text-center">
+                    Please ensure you are sending only BTC to this address. Sending any other currency may result in the loss of your deposit.
+                 </p>
+                 <Button onClick={() => setShowPaymentDialog(false)} className="w-full">
+                    I have sent the payment
+                 </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
