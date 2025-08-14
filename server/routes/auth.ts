@@ -289,6 +289,21 @@ export const handleVerifyAdminSession: RequestHandler = (req, res) => {
   });
 };
 
+// POST /api/auth/admin/logout
+export const handleAdminLogout: RequestHandler = (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    expires: new Date(0),
+  });
+
+  res.json({
+    success: true,
+    message: "Admin logged out successfully",
+  });
+};
+
 // GET /api/auth/generate-booking-id (Admin only - for testing)
 export const handleGenerateBookingId: RequestHandler = async (req, res) => {
   try {

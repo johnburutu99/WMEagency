@@ -99,6 +99,12 @@ class ApiClient {
     return this.request("/auth/admin/verify");
   }
 
+  async adminLogout(): Promise<ApiResponse<{ message: string }>> {
+    return this.request("/auth/admin/logout", {
+      method: "POST",
+    });
+  }
+
   async login(
     bookingId: string,
   ): Promise<ApiResponse<{ client: Client; message: string }>> {
