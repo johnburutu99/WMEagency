@@ -12,7 +12,7 @@ import {
   handleAdminLogin,
   handleVerifyAdminSession,
   handleAdminLogout,
-  handleImpersonateClient,
+
 } from "./routes/auth";
 import {
   handleGetMyBookings,

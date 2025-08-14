@@ -50,10 +50,7 @@ import {
   CheckCircle,
   Loader2,
   LogOut,
-  ShieldCheck,
-  ShieldAlert,
-  UserCog,
-  Settings,
+  
 } from "lucide-react";
 import { apiClient, type Client, type CreateClient } from "../lib/api";
 
@@ -361,12 +358,7 @@ export default function Admin() {
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
-            <Link to="/admin/settings">
-              <Button variant="outline">
-                <Settings className="w-4 h-4 mr-2" />
-                Settings
-              </Button>
-            </Link>
+
           </div>
         </div>
 
@@ -840,18 +832,7 @@ export default function Admin() {
                         }
                       />
                     </div>
-                    <div>
-                      <Label htmlFor="edit-balance">Balance</Label>
-                      <Input
-                        id="edit-balance"
-                        type="number"
-                        value={editingClient.balance || 0}
-                        onChange={(e) =>
-                          setEditingClient({ ...editingClient, balance: Number(e.target.value) })
-                        }
-                      />
-                    </div>
-                    <div>
+               
                       <Label htmlFor="edit-status">Status</Label>
                       <Select
                         value={editingClient.status}
@@ -976,25 +957,13 @@ export default function Admin() {
                       <p>${(viewingClient.contractAmount || 0).toLocaleString()}</p>
                     </div>
                     <div>
-                      <Label>Balance</Label>
-                      <p>${(viewingClient.balance || 0).toLocaleString()}</p>
-                    </div>
-                    <div>
+
                       <Label>Status</Label>
                       <p><Badge className={getStatusColor(viewingClient.status)}>{viewingClient.status}</Badge></p>
                     </div>
                   </div>
                   <div>
-                    <Label>Verification Status</Label>
-                    <p>
-                      {viewingClient.metadata?.isVerified ? (
-                        <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Verified</Badge>
-                      ) : (
-                        <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Not Verified</Badge>
-                      )}
-                    </p>
-                  </div>
-                  <div>
+
                     <h4 className="font-semibold">Coordinator Information</h4>
                     <div className="grid grid-cols-2 gap-4 mt-2">
                       <div>
