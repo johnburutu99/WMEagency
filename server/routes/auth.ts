@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import jwt from "jsonwebtoken";
 import { authService, BookingIdSchema } from "../services/authService";
 import { globalClients } from "./booking-submission";
 import { z } from "zod";
@@ -6,6 +7,11 @@ import { z } from "zod";
 // Request validation schemas
 const LoginRequestSchema = z.object({
   bookingId: BookingIdSchema,
+});
+
+const AdminLoginRequestSchema = z.object({
+  username: z.string(),
+  password: z.string(),
 });
 
 const CreateBookingRequestSchema = z.object({
@@ -213,6 +219,74 @@ export const handleLogout: RequestHandler = async (req, res) => {
       error: "Internal server error",
     });
   }
+};
+
+// POST /api/auth/admin/login
+export const handleAdminLogin: RequestHandler = async (req, res) => {
+  try {
+    const validation = AdminLoginRequestSchema.safeParse(req.body);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid request format",
+        details: validation.error.errors,
+      });
+    }
+
+    const { username, password } = validation.data;
+
+    const adminUser = process.env.ADMIN_USER;
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!adminUser || !adminPassword || !jwtSecret) {
+      console.error("Admin credentials or JWT secret not set in .env");
+      return res.status(500).json({
+        success: false,
+        error: "Server configuration error",
+      });
+    }
+
+    if (username === adminUser && password === adminPassword) {
+      const token = jwt.sign({ isAdmin: true, username }, jwtSecret, {
+        expiresIn: "1h",
+      });
+
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 3600000, // 1 hour
+      });
+
+      return res.json({
+        success: true,
+        message: "Admin login successful",
+      });
+    } else {
+      return res.status(401).json({
+        success: false,
+        error: "Invalid admin credentials",
+      });
+    }
+  } catch (error) {
+    console.error("Admin login error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
+// GET /api/auth/admin/verify
+export const handleVerifyAdminSession: RequestHandler = (req, res) => {
+  // This route is protected by the adminAuthMiddleware.
+  // If we reach here, the user is an authenticated admin.
+  res.json({
+    success: true,
+    message: "Admin session is valid",
+    user: req.user,
+  });
 };
 
 // GET /api/auth/generate-booking-id (Admin only - for testing)

@@ -16,14 +16,18 @@ import Documents from "./pages/Documents";
 import Messages from "./pages/Messages";
 import Payments from "./pages/Payments";
 import Coordinators from "./pages/Coordinators";
+import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin";
+import AdminLogin from "./pages/AdminLogin";
 import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
+import SettingsPage from "./pages/Settings"; // Renamed to avoid conflict with lucide-react
+import VerifyIdentityPage from "./pages/VerifyIdentity";
 import { Settings } from "lucide-react";
 
 const queryClient = new QueryClient();
 
-const App = () => (
+export const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="system" storageKey="wme-ui-theme">
       <TooltipProvider>
@@ -34,23 +38,23 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/booking" element={<BookingForm />} />
             <Route path="/verify-email" element={<EmailVerification />} />
-            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route
+              path="/admin"
+              element={
+                <AdminProtectedRoute>
+                  <Admin />
+                </AdminProtectedRoute>
+              }
+            />
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/verify-identity" element={<VerifyIdentityPage />} />
             <Route path="/dashboard/bookings" element={<Bookings />} />
             <Route path="/dashboard/documents" element={<Documents />} />
             <Route path="/dashboard/messages" element={<Messages />} />
             <Route path="/dashboard/payments" element={<Payments />} />
             <Route path="/dashboard/coordinators" element={<Coordinators />} />
-            <Route
-              path="/dashboard/settings"
-              element={
-                <PlaceholderPage
-                  title="Account Settings"
-                  description="Manage your account preferences, privacy settings, and notifications."
-                  icon={<Settings className="w-12 h-12 text-wme-gold" />}
-                />
-              }
-            />
+            <Route path="/dashboard/settings" element={<SettingsPage />} />
             {/* Legal and support pages */}
             <Route
               path="/terms"

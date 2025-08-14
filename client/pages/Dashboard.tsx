@@ -418,10 +418,10 @@ export default function Dashboard() {
                 {recentBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="flex items-center justify-between p-4 border border-border rounded-lg"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-border rounded-lg gap-4"
                   >
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center">
+                      <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
                         <Star className="w-6 h-6 text-wme-gold" />
                       </div>
                       <div>
