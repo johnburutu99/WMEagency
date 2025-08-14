@@ -7,6 +7,7 @@ import {
   ClientSchema,
   type Client,
 } from "../models/Client";
+import { emailService } from "../services/emailService";
 import { globalClients } from "./booking-submission";
 
 // Get all clients (admin endpoint)
@@ -28,7 +29,7 @@ export const getAllClients: RequestHandler = async (req, res) => {
 
     // Include newly submitted bookings from globalClients
     const newBookings = Array.from(globalClients.values());
-    const allClients = [...clients, ...newBookings];
+    const allClients = [...clients, ...newBookings].filter(client => !client.metadata?.isDemo);
 
     // Apply filtering if needed
     let filteredClients = allClients;
@@ -72,6 +73,28 @@ export const getAllClients: RequestHandler = async (req, res) => {
     res.status(500).json({
       success: false,
       error: "Failed to retrieve clients",
+    });
+  }
+};
+
+// Get all demo clients (admin endpoint)
+export const getDemoClients: RequestHandler = async (req, res) => {
+  try {
+    const allClients = await clientDatabase.getAllClients();
+    const demoClients = allClients.filter(client => client.metadata?.isDemo);
+
+    res.json({
+      success: true,
+      data: {
+        clients: demoClients,
+        total: demoClients.length,
+      },
+    });
+  } catch (error) {
+    console.error("Get demo clients error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to retrieve demo clients",
     });
   }
 };
@@ -121,6 +144,9 @@ export const createClient: RequestHandler = async (req, res) => {
     const clientData = CreateClientSchema.parse(req.body);
 
     const newClient = await clientDatabase.createClient(clientData);
+
+    // Send welcome email
+    await emailService.sendWelcomeEmail(newClient.email, newClient.name, newClient.bookingId);
 
     res.status(201).json({
       success: true,

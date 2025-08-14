@@ -28,6 +28,25 @@ export const handleLogin: RequestHandler = async (req, res) => {
   try {
     console.log("Login attempt:", req.body);
 
+    const authorization = req.headers.authorization;
+    if (authorization && authorization.startsWith("Bearer ")) {
+      const token = authorization.split(" ")[1];
+      const jwtSecret = process.env.JWT_SECRET;
+      if (!jwtSecret) throw new Error("JWT secret not set");
+
+      try {
+        const decoded = jwt.verify(token, jwtSecret) as { bookingId: string; isImpersonating: boolean };
+        if (decoded.isImpersonating && decoded.bookingId === req.body.bookingId) {
+          // Impersonation successful, proceed to fetch client data
+          console.log(`Impersonation login for bookingId: ${decoded.bookingId}`);
+        } else {
+          return res.status(401).json({ success: false, error: "Invalid impersonation token" });
+        }
+      } catch (error) {
+        return res.status(401).json({ success: false, error: "Invalid impersonation token" });
+      }
+    }
+
     // Validate request body
     const validation = LoginRequestSchema.safeParse(req.body);
     if (!validation.success) {
@@ -287,6 +306,83 @@ export const handleVerifyAdminSession: RequestHandler = (req, res) => {
     message: "Admin session is valid",
     user: req.user,
   });
+};
+
+// POST /api/auth/admin/logout
+export const handleAdminLogout: RequestHandler = (req, res) => {
+  res.cookie("token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    expires: new Date(0),
+  });
+
+  res.json({
+    success: true,
+    message: "Admin logged out successfully",
+  });
+};
+
+// POST /api/auth/admin/impersonate
+export const handleImpersonateClient: RequestHandler = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.status(400).json({
+        success: false,
+        error: "Booking ID is required",
+      });
+    }
+
+    const result = await authService.authenticateByBookingId(bookingId);
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        error: "Client not found",
+      });
+    }
+
+    const { user } = result;
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!jwtSecret) {
+      console.error("JWT secret not set in .env");
+      return res.status(500).json({
+        success: false,
+        error: "Server configuration error",
+      });
+    }
+
+    const impersonationToken = jwt.sign(
+      {
+        bookingId: user!.bookingId,
+        isImpersonating: true,
+        adminUsername: req.user?.username, // Assuming admin user is on req.user
+      },
+      jwtSecret,
+      { expiresIn: "10m" } // Short-lived token
+    );
+
+    res.json({
+      success: true,
+      data: {
+        impersonationToken,
+        client: {
+          bookingId: user!.bookingId,
+          name: user!.name,
+        },
+      },
+      message: `Impersonation session started for ${user!.name}.`,
+    });
+  } catch (error) {
+    console.error("Impersonate client error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
 };
 
 // GET /api/auth/generate-booking-id (Admin only - for testing)

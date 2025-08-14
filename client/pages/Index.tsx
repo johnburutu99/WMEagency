@@ -37,8 +37,15 @@ export default function Index() {
   useEffect(() => {
     const verified = searchParams.get("verified");
     const verifiedBookingId = searchParams.get("bookingId");
+    const isImpersonating = searchParams.get("impersonate") === "true";
 
-    if (verified === "true" && verifiedBookingId) {
+    if (isImpersonating) {
+      const impersonationToken = sessionStorage.getItem("impersonationToken");
+      const impersonatedBookingId = searchParams.get("bookingId");
+      if (impersonationToken && impersonatedBookingId) {
+        handleImpersonatedLogin(impersonatedBookingId, impersonationToken);
+      }
+    } else if (verified === "true" && verifiedBookingId) {
       setShowSuccess(true);
       setBookingId(verifiedBookingId);
       // Hide success message after 10 seconds
@@ -46,6 +53,24 @@ export default function Index() {
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
+
+  const handleImpersonatedLogin = async (impersonatedBookingId: string, token: string) => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.login(impersonatedBookingId, token);
+      if (response.success && response.data?.client) {
+        localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+        window.location.href = "/dashboard";
+      } else {
+        setError("Impersonation login failed.");
+      }
+    } catch (err) {
+      setError("An error occurred during impersonation login.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const validateBookingId = (id: string) => {
     // Check if it's 8 alphanumeric characters
@@ -419,18 +444,22 @@ export default function Index() {
                         numbers.
                       </p>
                       <div className="space-y-3">
-                        <Button
-                          variant="outline"
-                          className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
-                        >
-                          Contact Your Coordinator
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
-                        >
-                          Request New Booking ID
-                        </Button>
+                        <a href="mailto:inquiries@wmeagencys.com">
+                          <Button
+                            variant="outline"
+                            className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
+                          >
+                            Contact Your Coordinator
+                          </Button>
+                        </a>
+                        <a href="mailto:inquiries@wmeagencys.com?subject=Request%20for%20New%20Booking%20ID">
+                          <Button
+                            variant="outline"
+                            className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
+                          >
+                            Request New Booking ID
+                          </Button>
+                        </a>
                       </div>
                     </div>
                   </TabsContent>

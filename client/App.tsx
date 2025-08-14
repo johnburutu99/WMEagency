@@ -19,6 +19,7 @@ import Coordinators from "./pages/Coordinators";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
+import AdminSettings from "./pages/AdminSettings";
 import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import SettingsPage from "./pages/Settings"; // Renamed to avoid conflict with lucide-react
@@ -44,6 +45,14 @@ export const App = () => (
               element={
                 <AdminProtectedRoute>
                   <Admin />
+                </AdminProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <AdminProtectedRoute>
+                  <AdminSettings />
                 </AdminProtectedRoute>
               }
             />

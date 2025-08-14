@@ -21,6 +21,7 @@ export interface Client {
   status: "active" | "pending" | "completed" | "cancelled";
   contractAmount?: number;
   currency?: string;
+  balance?: number;
   coordinator: {
     name: string;
     email: string;
@@ -43,6 +44,7 @@ export interface CreateClient {
   status?: "active" | "pending" | "completed" | "cancelled";
   contractAmount?: number;
   currency?: string;
+  balance?: number;
   coordinator: {
     name: string;
     email: string;
@@ -99,11 +101,24 @@ class ApiClient {
     return this.request("/auth/admin/verify");
   }
 
+  async adminLogout(): Promise<ApiResponse<{ message: string }>> {
+    return this.request("/auth/admin/logout", {
+      method: "POST",
+    });
+  }
+
   async login(
     bookingId: string,
+    impersonationToken?: string,
   ): Promise<ApiResponse<{ client: Client; message: string }>> {
+    const headers: Record<string, string> = {};
+    if (impersonationToken) {
+      headers["Authorization"] = `Bearer ${impersonationToken}`;
+    }
+
     return this.request("/auth/login", {
       method: "POST",
+      headers,
       body: JSON.stringify({ bookingId }),
     });
   }
@@ -234,6 +249,17 @@ class ApiClient {
 
   async getSystemHealth(): Promise<ApiResponse<any>> {
     return this.request("/admin/health");
+  }
+
+  async getDemoClients(): Promise<ApiResponse<{ clients: Client[]; total: number }>> {
+    return this.request("/admin/demo-clients");
+  }
+
+  async impersonateClient(bookingId: string): Promise<ApiResponse<{ impersonationToken: string }>> {
+    return this.request("/auth/admin/impersonate", {
+      method: "POST",
+      body: JSON.stringify({ bookingId }),
+    });
   }
 
   // Utility methods

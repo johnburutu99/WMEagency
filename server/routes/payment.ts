@@ -31,8 +31,7 @@ export const handleInitiatePaymentOtp: RequestHandler = async (req, res) => {
       return res.status(404).json({ success: false, error: "Client not found or has no email." });
     }
 
-    const otp = otpService.generateOtp(client.email);
-    await emailService.sendOtpEmail(client.email, otp);
+    await otpService.generateOtp(client.email);
 
     res.json({ success: true, message: "OTP has been sent to your registered email." });
 
