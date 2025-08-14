@@ -12,6 +12,7 @@ import {
   handleAdminLogin,
   handleVerifyAdminSession,
   handleAdminLogout,
+  handleImpersonateClient,
 } from "./routes/auth";
 import {
   handleGetMyBookings,
@@ -26,6 +27,7 @@ import {
   deleteClient,
   bulkUpdateClients,
   generateBookingId,
+  getDemoClients,
 } from "./routes/clients";
 import {
   getDashboardStats,
@@ -84,6 +86,7 @@ export function createServer() {
   app.post("/api/auth/admin/login", handleAdminLogin);
   app.post("/api/auth/admin/logout", handleAdminLogout);
   app.get("/api/auth/admin/verify", adminAuthMiddleware, handleVerifyAdminSession);
+  app.post("/api/auth/admin/impersonate", adminAuthMiddleware, handleImpersonateClient);
   app.post("/api/auth/create-booking", handleCreateBooking);
   app.get("/api/auth/verify-session", handleVerifySession);
   app.post("/api/auth/logout", handleLogout);
@@ -109,6 +112,7 @@ export function createServer() {
   app.get("/api/admin/analytics", getClientAnalytics);
   app.get("/api/admin/export", exportClients);
   app.get("/api/admin/health", getSystemHealth);
+  app.get("/api/admin/demo-clients", getDemoClients);
 
   // Booking submission routes
   app.post("/api/booking/submit", handleBookingSubmission);

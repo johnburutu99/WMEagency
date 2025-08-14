@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { emailService } from "./emailService";
 
 interface OtpEntry {
   otp: string;
@@ -9,13 +10,15 @@ interface OtpEntry {
 const otpStore = new Map<string, OtpEntry>();
 
 class OtpService {
-  public generateOtp(identifier: string): string {
+  public async generateOtp(identifier: string): Promise<string> {
     const otp = crypto.randomInt(100000, 999999).toString();
     const expires = Date.now() + 10 * 60 * 1000; // 10 minutes expiry
 
     otpStore.set(identifier, { otp, expires });
 
-    console.log(`Generated OTP for ${identifier}: ${otp}`); // For debugging
+    await emailService.sendOtpEmail(identifier, otp);
+
+    console.log(`Generated and sent OTP for ${identifier}: ${otp}`); // For debugging
     return otp;
   }
 
