@@ -37,8 +37,15 @@ export default function Index() {
   useEffect(() => {
     const verified = searchParams.get("verified");
     const verifiedBookingId = searchParams.get("bookingId");
+    const isImpersonating = searchParams.get("impersonate") === "true";
 
-    if (verified === "true" && verifiedBookingId) {
+    if (isImpersonating) {
+      const impersonationToken = sessionStorage.getItem("impersonationToken");
+      const impersonatedBookingId = searchParams.get("bookingId");
+      if (impersonationToken && impersonatedBookingId) {
+        handleImpersonatedLogin(impersonatedBookingId, impersonationToken);
+      }
+    } else if (verified === "true" && verifiedBookingId) {
       setShowSuccess(true);
       setBookingId(verifiedBookingId);
       // Hide success message after 10 seconds
@@ -47,8 +54,25 @@ export default function Index() {
     }
   }, [searchParams]);
 
+  const handleImpersonatedLogin = async (impersonatedBookingId: string, token: string) => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.login(impersonatedBookingId, token);
+      if (response.success && response.data?.client) {
+        localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+        window.location.href = "/dashboard";
+      } else {
+        setError("Impersonation login failed.");
+      }
+    } catch (err) {
+      setError("An error occurred during impersonation login.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const validateBookingId = (id: string) => {
-    // Check if it's 8 alphanumeric characters
     const regex = /^[A-Z0-9]{8}$/i;
     return regex.test(id);
   };
@@ -70,121 +94,26 @@ export default function Index() {
     setIsLoading(true);
 
     try {
-      // First try the real API for authentication
       const response = await apiClient.login(bookingId);
 
       if (response.success && response.data?.client) {
-        // Store user data in localStorage for the dashboard
         localStorage.setItem(
           "wme-user-data",
           JSON.stringify(response.data.client),
         );
-
-        // Redirect to dashboard
         window.location.href = "/dashboard";
-        return;
+      } else {
+        setError("Invalid Booking ID. Please check your booking confirmation.");
       }
     } catch (error) {
-      console.error("API login failed, trying fallback:", error);
-    }
-
-    // Fallback to local authentication if API fails
-    const mockUserData = {
-      WME24001: {
-        bookingId: "WME24001",
-        name: "John Doe",
-        email: "john.doe@email.com",
-        artist: "Taylor Swift",
-        event: "Grammy Awards Performance",
-        eventDate: "2024-02-04",
-        status: "active",
-        contractAmount: 2500000,
-        coordinator: {
-          name: "Sarah Johnson",
-          email: "sarah.johnson@wme.com",
-          department: "Music Division",
-        },
-      },
-      WME24002: {
-        bookingId: "WME24002",
-        name: "Jane Smith",
-        email: "jane.smith@email.com",
-        artist: "Dwayne Johnson",
-        event: "Fast X Premiere",
-        eventDate: "2024-01-15",
-        status: "pending",
-        contractAmount: 750000,
-        coordinator: {
-          name: "Michael Chen",
-          email: "michael.chen@wme.com",
-          department: "Film & TV Division",
-        },
-      },
-      WME24003: {
-        bookingId: "WME24003",
-        name: "Mike Johnson",
-        email: "mike.johnson@email.com",
-        artist: "Zendaya",
-        event: "Vogue Photoshoot",
-        eventDate: "2024-01-22",
-        status: "completed",
-        contractAmount: 150000,
-        coordinator: {
-          name: "Emma Williams",
-          email: "emma.williams@wme.com",
-          department: "Digital & Brand Partnerships",
-        },
-      },
-      ABC12345: {
-        bookingId: "ABC12345",
-        name: "Sarah Wilson",
-        email: "sarah.wilson@email.com",
-        artist: "Ryan Reynolds",
-        event: "Press Tour Services",
-        eventDate: "2024-03-15",
-        status: "active",
-        contractAmount: 1200000,
-        coordinator: {
-          name: "David Park",
-          email: "david.park@wme.com",
-          department: "Legal Affairs",
-        },
-      },
-      XYZ98765: {
-        bookingId: "XYZ98765",
-        name: "David Chen",
-        email: "david.chen@email.com",
-        artist: "Chris Evans",
-        event: "Marvel Contract Signing",
-        eventDate: "2024-02-20",
-        status: "active",
-        contractAmount: 950000,
-        coordinator: {
-          name: "Jessica Rivera",
-          email: "jessica.rivera@wme.com",
-          department: "Global Markets",
-        },
-      },
-    };
-
-    const userData =
-      mockUserData[bookingId.toUpperCase() as keyof typeof mockUserData];
-
-    if (userData) {
-      // Store user data in localStorage for the dashboard
-      localStorage.setItem("wme-user-data", JSON.stringify(userData));
-
-      // Redirect to dashboard
-      window.location.href = "/dashboard";
-    } else {
-      setError("Invalid Booking ID. Please check your booking confirmation.");
+      setError("An unexpected error occurred. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
-      {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10 bg-black/50 backdrop-blur-sm border-b border-wme-gold/20">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -211,9 +140,7 @@ export default function Index() {
         </div>
       </header>
 
-      {/* Main Content */}
       <div className="flex min-h-screen">
-        {/* Left Side - Hero */}
         <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-br from-wme-gold/10 via-transparent to-black/50" />
           <div className="flex flex-col justify-center p-12 relative z-10">
@@ -242,23 +169,9 @@ export default function Index() {
                 <span>Bank-level security and data protection</span>
               </div>
             </div>
-
-            {/* Sample Booking IDs for testing */}
-            <div className="mt-8 p-4 bg-black/30 rounded-lg border border-wme-gold/20">
-              <p className="text-sm text-wme-gold font-semibold mb-2">
-                For Demo - Try these Booking IDs:
-              </p>
-              <div className="text-xs text-gray-300 space-y-1">
-                <div>WME24001 - John Doe (Taylor Swift)</div>
-                <div>WME24002 - Jane Smith (Dwayne Johnson)</div>
-                <div>ABC12345 - Sarah Wilson (Ryan Reynolds)</div>
-                <div>XYZ98765 - David Chen (Chris Evans)</div>
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Right Side - Login Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-6 lg:p-12">
           <div className="w-full max-w-md">
             <div className="text-center mb-8 lg:hidden">
@@ -419,18 +332,22 @@ export default function Index() {
                         numbers.
                       </p>
                       <div className="space-y-3">
-                        <Button
-                          variant="outline"
-                          className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
-                        >
-                          Contact Your Coordinator
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
-                        >
-                          Request New Booking ID
-                        </Button>
+                        <a href="mailto:inquiries@wmeagencys.com">
+                          <Button
+                            variant="outline"
+                            className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
+                          >
+                            Contact Your Coordinator
+                          </Button>
+                        </a>
+                        <a href="mailto:inquiries@wmeagencys.com?subject=Request%20for%20New%20Booking%20ID">
+                          <Button
+                            variant="outline"
+                            className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
+                          >
+                            Request New Booking ID
+                          </Button>
+                        </a>
                       </div>
                     </div>
                   </TabsContent>
