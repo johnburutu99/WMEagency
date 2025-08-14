@@ -50,7 +50,10 @@ import {
   CheckCircle,
   Loader2,
   LogOut,
-  
+  ShieldCheck,
+  ShieldAlert,
+  UserCog,
+  Settings,
 } from "lucide-react";
 import { apiClient, type Client, type CreateClient } from "../lib/api";
 
@@ -68,6 +71,7 @@ export default function Admin() {
   const [viewingClient, setViewingClient] = useState<Client | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
+  const [demoClients, setDemoClients] = useState<Client[]>([]);
 
   // Form state for creating new client
   const [newClient, setNewClient] = useState<CreateClient>({
@@ -97,7 +101,19 @@ export default function Admin() {
   useEffect(() => {
     loadClients();
     loadStats();
+    loadDemoClients();
   }, [statusFilter, searchTerm]);
+
+  const loadDemoClients = async () => {
+    try {
+      const response = await apiClient.getDemoClients();
+      if (response.success && response.data) {
+        setDemoClients(response.data.clients);
+      }
+    } catch (err) {
+      console.error("Failed to load demo clients:", err);
+    }
+  };
 
   const loadClients = async () => {
     setLoading(true);
@@ -358,7 +374,12 @@ export default function Admin() {
               <LogOut className="w-4 h-4 mr-2" />
               Logout
             </Button>
-
+            <Link to="/admin/settings">
+              <Button variant="outline">
+                <Settings className="w-4 h-4 mr-2" />
+                Settings
+              </Button>
+            </Link>
           </div>
         </div>
 
@@ -832,7 +853,18 @@ export default function Admin() {
                         }
                       />
                     </div>
-               
+                    <div>
+                      <Label htmlFor="edit-balance">Balance</Label>
+                      <Input
+                        id="edit-balance"
+                        type="number"
+                        value={editingClient.balance || 0}
+                        onChange={(e) =>
+                          setEditingClient({ ...editingClient, balance: Number(e.target.value) })
+                        }
+                      />
+                    </div>
+                    <div>
                       <Label htmlFor="edit-status">Status</Label>
                       <Select
                         value={editingClient.status}
@@ -957,13 +989,25 @@ export default function Admin() {
                       <p>${(viewingClient.contractAmount || 0).toLocaleString()}</p>
                     </div>
                     <div>
-
+                      <Label>Balance</Label>
+                      <p>${(viewingClient.balance || 0).toLocaleString()}</p>
+                    </div>
+                    <div>
                       <Label>Status</Label>
                       <p><Badge className={getStatusColor(viewingClient.status)}>{viewingClient.status}</Badge></p>
                     </div>
                   </div>
                   <div>
-
+                    <Label>Verification Status</Label>
+                    <p>
+                      {viewingClient.metadata?.isVerified ? (
+                        <Badge className="bg-green-500/10 text-green-500 border-green-500/20">Verified</Badge>
+                      ) : (
+                        <Badge className="bg-red-500/10 text-red-500 border-red-500/20">Not Verified</Badge>
+                      )}
+                    </p>
+                  </div>
+                  <div>
                     <h4 className="font-semibold">Coordinator Information</h4>
                     <div className="grid grid-cols-2 gap-4 mt-2">
                       <div>
@@ -986,103 +1030,139 @@ export default function Admin() {
           </Dialog>
         </div>
 
-        {/* Client List */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Client Management</CardTitle>
-            <CardDescription>
-              {loading ? "Loading..." : `${clients.length} clients found`}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="w-6 h-6 animate-spin" />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {clients.map((client) => (
-                  <div
-                    key={client.bookingId}
-                    className="p-4 border border-border rounded-lg"
-                  >
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <Star className="w-6 h-6 text-wme-gold" />
-                        </div>
-                        <div>
-                          <h3 className="font-semibold">{client.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            {client.artist} - {client.event}
-                          </p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <Badge className={getStatusColor(client.status)}>
-                              {client.status}
-                            </Badge>
-                            {client.priority && (
-                              <Badge
-                                className={getPriorityColor(client.priority)}
-                              >
-                                {client.priority} priority
-                              </Badge>
-                            )}
-                            <span className="text-xs text-muted-foreground">
-                              ID: {client.bookingId}
-                            </span>
+        {/* Client Lists */}
+        <Tabs defaultValue="live">
+          <TabsList className="mb-4">
+            <TabsTrigger value="live">Live Clients</TabsTrigger>
+            <TabsTrigger value="demo">Demo Clients</TabsTrigger>
+          </TabsList>
+          <TabsContent value="live">
+            <Card>
+              <CardHeader>
+                <CardTitle>Live Client Management</CardTitle>
+                <CardDescription>
+                  {loading ? "Loading..." : `${clients.length} live clients found`}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="w-6 h-6 animate-spin" />
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {clients.map((client) => (
+                      <div
+                        key={client.bookingId}
+                        className="p-4 border border-border rounded-lg"
+                      >
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                          <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                              <Star className="w-6 h-6 text-wme-gold" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold">{client.name}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                {client.artist} - {client.event}
+                              </p>
+                              <div className="flex items-center gap-2 mt-1">
+                                <Badge className={getStatusColor(client.status)}>
+                                  {client.status}
+                                </Badge>
+                                {client.priority && (
+                                  <Badge
+                                    className={getPriorityColor(client.priority)}
+                                  >
+                                    {client.priority} priority
+                                  </Badge>
+                                )}
+                                <span className="text-xs text-muted-foreground">
+                                  ID: {client.bookingId}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                            <div className="text-left sm:text-right sm:mr-4">
+                              <p className="font-semibold">
+                                ${(client.contractAmount || 0).toLocaleString()}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {client.coordinator.name}
+                              </p>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={() => handleViewClick(client)}>
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => handleEditClick(client)}>
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDeleteClient(client.bookingId)}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant={client.metadata?.isVerified ? "secondary" : "destructive"}
+                              size="sm"
+                              onClick={() => handleToggleVerify(client)}
+                            >
+                              {client.metadata?.isVerified ? (
+                                <ShieldCheck className="w-4 h-4" />
+                              ) : (
+                                <ShieldAlert className="w-4 h-4" />
+                              )}
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={() => handleImpersonate(client.bookingId)}>
+                              <UserCog className="w-4 h-4" />
+                            </Button>
                           </div>
                         </div>
-                      </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-                        <div className="text-left sm:text-right sm:mr-4">
-                          <p className="font-semibold">
-                            ${(client.contractAmount || 0).toLocaleString()}
+                        {client.metadata?.isVerified === false && (
+                          <p className="text-xs text-destructive mt-2 flex items-center gap-1">
+                            <ShieldAlert className="w-3 h-3" />
+                            Account not verified.
                           </p>
-                          <p className="text-sm text-muted-foreground">
-                            {client.coordinator.name}
-                          </p>
-                        </div>
-                        <Button variant="outline" size="sm" onClick={() => handleViewClick(client)}>
-                          <Eye className="w-4 h-4" />
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleEditClick(client)}>
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleDeleteClient(client.bookingId)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant={client.metadata?.isVerified ? "secondary" : "destructive"}
-                          size="sm"
-                          onClick={() => handleToggleVerify(client)}
-                        >
-                          {client.metadata?.isVerified ? (
-                            <ShieldCheck className="w-4 h-4" />
-                          ) : (
-                            <ShieldAlert className="w-4 h-4" />
-                          )}
-                        </Button>
-                        <Button variant="outline" size="sm" onClick={() => handleImpersonate(client.bookingId)}>
-                          <UserCog className="w-4 h-4" />
-                        </Button>
+                        )}
                       </div>
-                    </div>
-                    {client.metadata?.isVerified === false && (
-                      <p className="text-xs text-destructive mt-2 flex items-center gap-1">
-                        <ShieldAlert className="w-3 h-3" />
-                        Account not verified.
-                      </p>
-                    )}
+                    ))}
                   </div>
-                ))}
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+          <TabsContent value="demo">
+            <Card>
+              <CardHeader>
+                <CardTitle>Demo Client Accounts</CardTitle>
+                <CardDescription>
+                  {demoClients.length} demo clients found. These are for testing and demonstration purposes.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {demoClients.map((client) => (
+                    <div
+                      key={client.bookingId}
+                      className="p-4 border border-border rounded-lg"
+                    >
+                       <h3 className="font-semibold">{client.name}</h3>
+                       <p className="text-sm text-muted-foreground">
+                         {client.artist} - {client.event}
+                       </p>
+                       <span className="text-xs text-muted-foreground">
+                         ID: {client.bookingId}
+                       </span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

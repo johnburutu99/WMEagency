@@ -251,6 +251,10 @@ class ApiClient {
     return this.request("/admin/health");
   }
 
+  async getDemoClients(): Promise<ApiResponse<{ clients: Client[]; total: number }>> {
+    return this.request("/admin/demo-clients");
+  }
+
   async impersonateClient(bookingId: string): Promise<ApiResponse<{ impersonationToken: string }>> {
     return this.request("/auth/admin/impersonate", {
       method: "POST",

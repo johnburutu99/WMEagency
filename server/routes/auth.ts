@@ -323,6 +323,68 @@ export const handleAdminLogout: RequestHandler = (req, res) => {
   });
 };
 
+// POST /api/auth/admin/impersonate
+export const handleImpersonateClient: RequestHandler = async (req, res) => {
+  try {
+    const { bookingId } = req.body;
+
+    if (!bookingId) {
+      return res.status(400).json({
+        success: false,
+        error: "Booking ID is required",
+      });
+    }
+
+    const result = await authService.authenticateByBookingId(bookingId);
+
+    if (!result.success) {
+      return res.status(404).json({
+        success: false,
+        error: "Client not found",
+      });
+    }
+
+    const { user } = result;
+    const jwtSecret = process.env.JWT_SECRET;
+
+    if (!jwtSecret) {
+      console.error("JWT secret not set in .env");
+      return res.status(500).json({
+        success: false,
+        error: "Server configuration error",
+      });
+    }
+
+    const impersonationToken = jwt.sign(
+      {
+        bookingId: user!.bookingId,
+        isImpersonating: true,
+        adminUsername: req.user?.username, // Assuming admin user is on req.user
+      },
+      jwtSecret,
+      { expiresIn: "10m" } // Short-lived token
+    );
+
+    res.json({
+      success: true,
+      data: {
+        impersonationToken,
+        client: {
+          bookingId: user!.bookingId,
+          name: user!.name,
+        },
+      },
+      message: `Impersonation session started for ${user!.name}.`,
+    });
+  } catch (error) {
+    console.error("Impersonate client error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Internal server error",
+    });
+  }
+};
+
 // GET /api/auth/generate-booking-id (Admin only - for testing)
 export const handleGenerateBookingId: RequestHandler = async (req, res) => {
   try {
