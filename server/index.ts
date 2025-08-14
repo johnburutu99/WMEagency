@@ -11,6 +11,8 @@ import {
   handleGenerateBookingId,
   handleAdminLogin,
   handleVerifyAdminSession,
+  handleAdminLogout,
+  handleImpersonateClient,
 } from "./routes/auth";
 import {
   handleGetMyBookings,
@@ -81,7 +83,9 @@ export function createServer() {
   // Authentication routes
   app.post("/api/auth/login", handleLogin);
   app.post("/api/auth/admin/login", handleAdminLogin);
+  app.post("/api/auth/admin/logout", handleAdminLogout);
   app.get("/api/auth/admin/verify", adminAuthMiddleware, handleVerifyAdminSession);
+  app.post("/api/auth/admin/impersonate", adminAuthMiddleware, handleImpersonateClient);
   app.post("/api/auth/create-booking", handleCreateBooking);
   app.get("/api/auth/verify-session", handleVerifySession);
   app.post("/api/auth/logout", handleLogout);

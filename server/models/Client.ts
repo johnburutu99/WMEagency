@@ -17,6 +17,7 @@ export const ClientSchema = z.object({
     .default("active"),
   contractAmount: z.number().positive().optional(),
   currency: z.string().default("USD"),
+  balance: z.number().default(0),
   coordinator: z.object({
     name: z.string(),
     email: z.string().email(),
@@ -78,6 +79,7 @@ export class ClientDatabase {
         status: "active",
         contractAmount: 2500000,
         currency: "USD",
+        balance: 1000,
         coordinator: {
           name: "Sarah Johnson",
           email: "sarah.johnson@wme.com",
@@ -103,6 +105,7 @@ export class ClientDatabase {
         status: "pending",
         contractAmount: 750000,
         currency: "USD",
+        balance: 0,
         coordinator: {
           name: "Michael Chen",
           email: "michael.chen@wme.com",
@@ -127,6 +130,7 @@ export class ClientDatabase {
         status: "completed",
         contractAmount: 150000,
         currency: "USD",
+        balance: 500,
         coordinator: {
           name: "Emma Williams",
           email: "emma.williams@wme.com",
@@ -151,6 +155,7 @@ export class ClientDatabase {
         status: "active",
         contractAmount: 1200000,
         currency: "USD",
+        balance: 250,
         coordinator: {
           name: "David Park",
           email: "david.park@wme.com",
@@ -175,6 +180,7 @@ export class ClientDatabase {
         status: "active",
         contractAmount: 950000,
         currency: "USD",
+        balance: 750,
         coordinator: {
           name: "Jessica Rivera",
           email: "jessica.rivera@wme.com",
@@ -219,6 +225,7 @@ export class ClientDatabase {
   async createClient(clientData: CreateClient): Promise<Client> {
     const client: Client = {
       ...clientData,
+      balance: clientData.balance || 0,
       metadata: {
         createdAt: new Date(),
         updatedAt: new Date(),

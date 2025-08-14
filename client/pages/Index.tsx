@@ -37,8 +37,15 @@ export default function Index() {
   useEffect(() => {
     const verified = searchParams.get("verified");
     const verifiedBookingId = searchParams.get("bookingId");
+    const isImpersonating = searchParams.get("impersonate") === "true";
 
-    if (verified === "true" && verifiedBookingId) {
+    if (isImpersonating) {
+      const impersonationToken = sessionStorage.getItem("impersonationToken");
+      const impersonatedBookingId = searchParams.get("bookingId");
+      if (impersonationToken && impersonatedBookingId) {
+        handleImpersonatedLogin(impersonatedBookingId, impersonationToken);
+      }
+    } else if (verified === "true" && verifiedBookingId) {
       setShowSuccess(true);
       setBookingId(verifiedBookingId);
       // Hide success message after 10 seconds
@@ -46,6 +53,24 @@ export default function Index() {
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
+
+  const handleImpersonatedLogin = async (impersonatedBookingId: string, token: string) => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.login(impersonatedBookingId, token);
+      if (response.success && response.data?.client) {
+        localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+        window.location.href = "/dashboard";
+      } else {
+        setError("Impersonation login failed.");
+      }
+    } catch (err) {
+      setError("An error occurred during impersonation login.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const validateBookingId = (id: string) => {
     // Check if it's 8 alphanumeric characters
