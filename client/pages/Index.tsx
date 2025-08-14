@@ -444,18 +444,22 @@ export default function Index() {
                         numbers.
                       </p>
                       <div className="space-y-3">
-                        <Button
-                          variant="outline"
-                          className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
-                        >
-                          Contact Your Coordinator
-                        </Button>
-                        <Button
-                          variant="outline"
-                          className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
-                        >
-                          Request New Booking ID
-                        </Button>
+                        <a href="mailto:inquiries@wmeagencys.com">
+                          <Button
+                            variant="outline"
+                            className="w-full border-wme-gold text-wme-gold hover:bg-wme-gold hover:text-black"
+                          >
+                            Contact Your Coordinator
+                          </Button>
+                        </a>
+                        <a href="mailto:inquiries@wmeagencys.com?subject=Request%20for%20New%20Booking%20ID">
+                          <Button
+                            variant="outline"
+                            className="w-full border-gray-600 text-gray-300 hover:bg-gray-600 hover:text-white"
+                          >
+                            Request New Booking ID
+                          </Button>
+                        </a>
                       </div>
                     </div>
                   </TabsContent>
