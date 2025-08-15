@@ -1,4 +1,8 @@
 import { z } from "zod";
+import { promises as fs } from "fs";
+import path from "path";
+
+const dbPath = path.resolve(__dirname, "../../db.json");
 
 // Client data validation schema
 export const ClientSchema = z.object({
@@ -85,11 +89,30 @@ export class ClientDatabase {
   private clients: Map<string, Client> = new Map();
 
   constructor() {
-    // Initialize with sample data
-    this.seedDatabase();
+    this._load();
   }
 
-  private seedDatabase() {
+  private async _load() {
+    try {
+      const data = await fs.readFile(dbPath, "utf-8");
+      const clients = JSON.parse(data);
+      this.clients = new Map(Object.entries(clients));
+    } catch (error) {
+      // If file doesn't exist, seed with initial data
+      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
+        this.seedDatabase();
+      } else {
+        console.error("Failed to load database:", error);
+      }
+    }
+  }
+
+  private async _persist() {
+    const data = JSON.stringify(Object.fromEntries(this.clients), null, 2);
+    await fs.writeFile(dbPath, data, "utf-8");
+  }
+
+  private async seedDatabase() {
     const sampleClients: Client[] = [
       {
         bookingId: "WME24001",
@@ -250,6 +273,7 @@ export class ClientDatabase {
     sampleClients.forEach((client) => {
       this.clients.set(client.bookingId, client);
     });
+    await this._persist();
   }
 
   // Get client by booking ID
@@ -263,6 +287,7 @@ export class ClientDatabase {
         updatedAt: new Date(),
       };
       this.clients.set(bookingId.toUpperCase(), client);
+      await this._persist();
     }
     return client || null;
   }
@@ -296,6 +321,7 @@ export class ClientDatabase {
     }
 
     this.clients.set(validatedClient.bookingId, validatedClient);
+    await this._persist();
     return validatedClient;
   }
 
@@ -322,12 +348,17 @@ export class ClientDatabase {
     // Validate updated data
     const validatedClient = ClientSchema.parse(updatedClient);
     this.clients.set(bookingId.toUpperCase(), validatedClient);
+    await this._persist();
     return validatedClient;
   }
 
   // Delete client
   async deleteClient(bookingId: string): Promise<boolean> {
-    return this.clients.delete(bookingId.toUpperCase());
+    const deleted = this.clients.delete(bookingId.toUpperCase());
+    if (deleted) {
+      await this._persist();
+    }
+    return deleted;
   }
 
   // Search clients

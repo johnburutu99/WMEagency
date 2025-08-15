@@ -126,6 +126,9 @@ export const createClient: RequestHandler = async (req, res) => {
     // Send welcome email
     await emailService.sendWelcomeEmail(newClient.email, newClient.name, newClient.bookingId);
 
+    // Emit WebSocket event
+    (req as any).io.emit("new-client", newClient);
+
     res.status(201).json({
       success: true,
       data: {
