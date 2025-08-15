@@ -13,18 +13,35 @@ import { globalClients } from "./booking-submission";
 // Get all clients (admin endpoint)
 export const getAllClients: RequestHandler = async (req, res) => {
   try {
-    const { status, search } = req.query;
+    const { status, search, date, coordinator } = req.query;
 
     let clients: Client[];
 
+    clients = await clientDatabase.getAllClients();
+
     if (search && typeof search === "string") {
-      clients = await clientDatabase.searchClients(search);
-    } else if (status && typeof status === "string") {
-      clients = await clientDatabase.getClientsByStatus(
-        status as Client["status"],
+      const searchLower = search.toLowerCase();
+      clients = clients.filter(
+        (client) =>
+          client.name.toLowerCase().includes(searchLower) ||
+          client.artist.toLowerCase().includes(searchLower) ||
+          client.event.toLowerCase().includes(searchLower) ||
+          client.bookingId.toLowerCase().includes(searchLower),
       );
-    } else {
-      clients = await clientDatabase.getAllClients();
+    }
+
+    if (status && typeof status === "string") {
+      clients = clients.filter((client) => client.status === status);
+    }
+
+    if (date && typeof date === "string") {
+      clients = clients.filter((client) => client.eventDate === date);
+    }
+
+    if (coordinator && typeof coordinator === "string") {
+      clients = clients.filter(
+        (client) => client.coordinator.name === coordinator,
+      );
     }
 
     // Include newly submitted bookings from globalClients
@@ -128,6 +145,11 @@ export const createClient: RequestHandler = async (req, res) => {
 
     // Emit WebSocket event
     (req as any).io.emit("new-client", newClient);
+    (req as any).io.emit("new-activity", {
+      type: "new-client",
+      message: `New client created: ${newClient.name}`,
+      timestamp: new Date(),
+    });
 
     res.status(201).json({
       success: true,

@@ -159,10 +159,14 @@ class ApiClient {
   async getAllClients(options?: {
     status?: string;
     search?: string;
+    date?: string;
+    coordinator?: string;
   }): Promise<ApiResponse<{ clients: Client[]; total: number }>> {
     const params = new URLSearchParams();
     if (options?.status) params.append("status", options.status);
     if (options?.search) params.append("search", options.search);
+    if (options?.date) params.append("date", options.date);
+    if (options?.coordinator) params.append("coordinator", options.coordinator);
 
     return this.request(`/clients?${params.toString()}`);
   }
