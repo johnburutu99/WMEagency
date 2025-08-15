@@ -35,6 +35,13 @@ import {
   DialogClose,
 } from "../components/ui/dialog";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "../components/ui/popover";
+import { Calendar } from "../components/ui/calendar";
+import { format } from "date-fns";
+import {
   Users,
   Plus,
   Search,
@@ -57,9 +64,11 @@ import {
   Bell,
   BellOff,
   CheckCircle2,
+  Calendar as CalendarIcon,
 } from "lucide-react";
 import { apiClient, type Client, type CreateClient } from "../lib/api";
 import { io } from "socket.io-client";
+import { ActivityFeed } from "../components/ActivityFeed";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -68,6 +77,8 @@ export default function Admin() {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [dateFilter, setDateFilter] = useState<Date | null>(null);
+  const [coordinatorFilter, setCoordinatorFilter] = useState("all");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
@@ -127,6 +138,11 @@ export default function Admin() {
         status:
           statusFilter && statusFilter !== "all" ? statusFilter : undefined,
         search: searchTerm || undefined,
+        date: dateFilter ? dateFilter.toISOString().split("T")[0] : undefined,
+        coordinator:
+          coordinatorFilter && coordinatorFilter !== "all"
+            ? coordinatorFilter
+            : undefined,
       });
 
       if (response.success && response.data) {
@@ -436,6 +452,12 @@ export default function Admin() {
                   Settings
                 </Button>
               </Link>
+              <Link to="/admin/analytics">
+                <Button variant="outline">
+                  <TrendingUp className="w-4 h-4 mr-2" />
+                  Analytics
+                </Button>
+              </Link>
               <Button variant="destructive" onClick={handleLogout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Logout
@@ -509,38 +531,9 @@ export default function Admin() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
           {/* Recent Activity */}
-          <Card className="lg:col-span-2">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Updates and logins from clients.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div
-                    key={activity.bookingId}
-                    className="flex items-center gap-4"
-                  >
-                    <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center">
-                      <Users className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="font-medium">{activity.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.lastLogin ? `Logged in` : `Profile updated`} -{" "}
-                        {new Date(activity.updatedAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <Badge variant="outline" className="ml-auto">
-                      {activity.status}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <div className="lg:col-span-2">
+            <ActivityFeed />
+          </div>
         </div>
 
         {/* Client Lists */}
@@ -585,6 +578,53 @@ export default function Admin() {
                         <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
+                    <Select
+                      value={coordinatorFilter}
+                      onValueChange={setCoordinatorFilter}
+                    >
+                      <SelectTrigger className="w-full sm:w-40">
+                        <SelectValue placeholder="All Coordinators" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Coordinators</SelectItem>
+                        <SelectItem value="Sarah Johnson">
+                          Sarah Johnson
+                        </SelectItem>
+                        <SelectItem value="Michael Chen">
+                          Michael Chen
+                        </SelectItem>
+                        <SelectItem value="Emma Williams">
+                          Emma Williams
+                        </SelectItem>
+                        <SelectItem value="David Park">David Park</SelectItem>
+                        <SelectItem value="Jessica Rivera">
+                          Jessica Rivera
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className="w-full sm:w-auto"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {dateFilter ? (
+                            format(dateFilter, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={dateFilter}
+                          onSelect={setDateFilter}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
                     <Button
                       variant="outline"
                       onClick={() => exportClients("json")}

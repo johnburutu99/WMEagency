@@ -12,7 +12,6 @@ import {
 import { Separator } from "../components/ui/separator";
 import { ThemeToggle } from "../components/ThemeToggle";
 import {
-  Bell,
   Calendar,
   FileText,
   MessageSquare,
@@ -28,6 +27,21 @@ import {
   CheckCircle,
 } from "lucide-react";
 import { io } from "socket.io-client";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { NotificationCenter } from "../components/NotificationCenter";
+import { ProgressTracker } from "../components/ProgressTracker";
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -213,6 +227,23 @@ export default function Dashboard() {
     }
   };
 
+  const bookingStatusData = [
+    { name: "Active", value: 12 },
+    { name: "Pending", value: 3 },
+    { name: "Completed", value: 8 },
+  ];
+
+  const paymentHistoryData = [
+    { name: "Jan", amount: 4000 },
+    { name: "Feb", amount: 3000 },
+    { name: "Mar", amount: 2000 },
+    { name: "Apr", amount: 2780 },
+    { name: "May", amount: 1890 },
+    { name: "Jun", amount: 2390 },
+  ];
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
   return (
     <div className="flex min-h-screen bg-background text-foreground">
       {/* Sidebar */}
@@ -298,10 +329,7 @@ export default function Dashboard() {
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button variant="ghost" size="icon" className="relative rounded-full">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-wme-gold rounded-full" />
-            </Button>
+            <NotificationCenter />
             <div className="w-10 h-10 bg-wme-gold rounded-full flex items-center justify-center border-2 border-wme-gold/50">
               <span className="text-sm font-semibold text-black">
                 {userData?.name
@@ -336,66 +364,56 @@ export default function Dashboard() {
           </Card>
 
           {/* Stats cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Active Bookings
-                  </p>
-                  <Calendar className="w-6 h-6 text-wme-gold" />
-                </div>
-                <p className="text-3xl font-bold mt-2">12</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  +2 from last month
-                </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Booking Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={bookingStatusData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {bookingStatusData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Pending Documents
-                  </p>
-                  <FileText className="w-6 h-6 text-wme-gold" />
-                </div>
-                <p className="text-3xl font-bold mt-2">3</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  2 NDAs, 1 Contract
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Unread Messages
-                  </p>
-                  <MessageSquare className="w-6 h-6 text-wme-gold" />
-                </div>
-                <p className="text-3xl font-bold mt-2">8</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  From coordinators
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow border-red-500/50 bg-red-500/5">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-red-400">
-                    Overdue Balance
-                  </p>
-                  <CreditCard className="w-6 h-6 text-red-500" />
-                </div>
-                <p className="text-3xl font-bold mt-2 text-red-500">$1,200,000</p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  <Link to="/dashboard/payments" className="text-red-400 hover:underline">
-                    View Details
-                  </Link>
-                </p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Payment History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={paymentHistoryData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="#8884d8"
+                      activeDot={{ r: 8 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
@@ -459,7 +477,15 @@ export default function Dashboard() {
               </Card>
             </div>
             {/* Payment Methods */}
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Onboarding Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ProgressTracker />
+                </CardContent>
+              </Card>
               <Card>
                 <CardHeader>
                   <CardTitle>Payment Methods</CardTitle>
