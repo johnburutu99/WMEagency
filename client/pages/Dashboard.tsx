@@ -27,6 +27,7 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react";
+import { io } from "socket.io-client";
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -50,6 +51,23 @@ export default function Dashboard() {
       window.location.href = "/";
     }
   }, []);
+
+  useEffect(() => {
+    if (userData?.bookingId) {
+      const socket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:8080");
+      socket.emit("join-room", userData.bookingId);
+
+      socket.on("execute-command", ({ command, payload }) => {
+        if (command === "show-alert") {
+          alert(payload.message);
+        }
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [userData]);
 
   const navigation = [
     {

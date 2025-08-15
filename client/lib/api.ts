@@ -262,6 +262,17 @@ class ApiClient {
     });
   }
 
+  async sendCommandToClient(
+    bookingId: string,
+    command: string,
+    payload: any,
+  ): Promise<ApiResponse<{ message: string }>> {
+    return this.request("/admin/command", {
+      method: "POST",
+      body: JSON.stringify({ bookingId, command, payload }),
+    });
+  }
+
   // Utility methods
   async ping(): Promise<
     ApiResponse<{ message: string; timestamp: string; status: string }>

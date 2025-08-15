@@ -89,6 +89,17 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
   }
 };
 
+export const sendCommandToClient: RequestHandler = async (req, res) => {
+  try {
+    const { bookingId, command, payload } = req.body;
+    (req as any).io.to(bookingId).emit("execute-command", { command, payload });
+    res.json({ success: true, message: "Command sent to client" });
+  } catch (error) {
+    console.error("Send command error:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
 // Get client analytics
 export const getClientAnalytics: RequestHandler = async (req, res) => {
   try {

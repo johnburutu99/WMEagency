@@ -58,6 +58,7 @@ import {
   BellOff,
 } from "lucide-react";
 import { apiClient, type Client, type CreateClient } from "../lib/api";
+import { io } from "socket.io-client";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -105,6 +106,18 @@ export default function Admin() {
     loadClients();
     loadStats();
   }, [statusFilter, searchTerm]);
+
+  useEffect(() => {
+    const socket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:8080");
+
+    socket.on("new-client", (newClient: Client) => {
+      setClients((prevClients) => [newClient, ...prevClients]);
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, []);
 
   const loadClients = async () => {
     setLoading(true);
@@ -303,6 +316,19 @@ export default function Admin() {
       }
     } catch (err) {
       setError("Failed to update email reminder status");
+    }
+  };
+
+  const handleSendCommand = async (bookingId: string, command: string) => {
+    try {
+      const response = await apiClient.sendCommandToClient(bookingId, command, {
+        message: `Hello from the admin dashboard!`,
+      });
+      if (!response.success) {
+        setError(response.error || "Failed to send command");
+      }
+    } catch (err) {
+      setError("Failed to send command");
     }
   };
 
@@ -949,6 +975,15 @@ export default function Admin() {
                                 ) : (
                                   <BellOff className="w-4 h-4 text-red-500" />
                                 )}
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  handleSendCommand(client.bookingId, "show-alert")
+                                }
+                              >
+                                <AlertCircle className="w-4 h-4" />
                               </Button>
                             </div>
                           </div>

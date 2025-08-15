@@ -33,6 +33,7 @@ import {
   getClientAnalytics,
   exportClients,
   getSystemHealth,
+  sendCommandToClient,
 } from "./routes/admin";
 import { adminAuthMiddleware } from "./middleware/auth";
 import {
@@ -47,11 +48,20 @@ import {
   handleGenerateDepositAddress,
 } from "./routes/payment";
 import { handleProfilePictureUpload } from "./routes/user";
+import http from "http";
+import { SocketService } from "./services/socketService";
 
 export function createServer() {
   const app = express();
+  const server = http.createServer(app);
+  const socketService = new SocketService(server);
+  const io = socketService.getIO();
 
   // Middleware
+  app.use((req, res, next) => {
+    (req as any).io = io;
+    next();
+  });
   app.use(
     cors({
       origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -111,6 +121,7 @@ export function createServer() {
   app.get("/api/admin/analytics", adminAuthMiddleware, getClientAnalytics);
   app.get("/api/admin/export", adminAuthMiddleware, exportClients);
   app.get("/api/admin/health", adminAuthMiddleware, getSystemHealth);
+  app.post("/api/admin/command", adminAuthMiddleware, sendCommandToClient);
 
   // Booking submission routes
   app.post("/api/booking/submit", handleBookingSubmission);
