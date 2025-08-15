@@ -56,6 +56,7 @@ import {
   Home,
   Bell,
   BellOff,
+  CheckCircle2,
 } from "lucide-react";
 import { apiClient, type Client, type CreateClient } from "../lib/api";
 import { io } from "socket.io-client";
@@ -329,6 +330,19 @@ export default function Admin() {
       }
     } catch (err) {
       setError("Failed to send command");
+    }
+  };
+
+  const handleApprovePayment = async (bookingId: string) => {
+    try {
+      const response = await apiClient.approvePayment(bookingId);
+      if (response.success) {
+        loadClients();
+      } else {
+        setError(response.error || "Failed to approve payment");
+      }
+    } catch (err) {
+      setError("Failed to approve payment");
     }
   };
 
@@ -984,6 +998,15 @@ export default function Admin() {
                                 }
                               >
                                 <AlertCircle className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() =>
+                                  handleApprovePayment(client.bookingId)
+                                }
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
                               </Button>
                             </div>
                           </div>

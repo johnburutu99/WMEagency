@@ -34,6 +34,7 @@ import {
   exportClients,
   getSystemHealth,
   sendCommandToClient,
+  approvePayment,
 } from "./routes/admin";
 import { adminAuthMiddleware } from "./middleware/auth";
 import {
@@ -122,6 +123,11 @@ export function createServer() {
   app.get("/api/admin/export", adminAuthMiddleware, exportClients);
   app.get("/api/admin/health", adminAuthMiddleware, getSystemHealth);
   app.post("/api/admin/command", adminAuthMiddleware, sendCommandToClient);
+  app.post(
+    "/api/admin/approve-payment/:bookingId",
+    adminAuthMiddleware,
+    approvePayment,
+  );
 
   // Booking submission routes
   app.post("/api/booking/submit", handleBookingSubmission);

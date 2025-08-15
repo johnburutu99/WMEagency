@@ -273,6 +273,14 @@ class ApiClient {
     });
   }
 
+  async approvePayment(
+    bookingId: string,
+  ): Promise<ApiResponse<{ message: string }>> {
+    return this.request(`/admin/approve-payment/${bookingId}`, {
+      method: "POST",
+    });
+  }
+
   // Utility methods
   async ping(): Promise<
     ApiResponse<{ message: string; timestamp: string; status: string }>

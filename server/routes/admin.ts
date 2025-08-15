@@ -100,6 +100,31 @@ export const sendCommandToClient: RequestHandler = async (req, res) => {
   }
 };
 
+export const approvePayment: RequestHandler = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const client = await clientDatabase.getClient(bookingId);
+    if (!client) {
+      return res.status(404).json({ success: false, error: "Client not found" });
+    }
+    const transactions = client.metadata?.transactions || [];
+    const pendingTx = transactions.find((tx) => tx.status === "pending");
+    if (!pendingTx) {
+      return res
+        .status(404)
+        .json({ success: false, error: "No pending payment found" });
+    }
+    pendingTx.status = "paid";
+    await clientDatabase.updateClient(bookingId, {
+      metadata: { transactions },
+    });
+    res.json({ success: true, message: "Payment approved" });
+  } catch (error) {
+    console.error("Approve payment error:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
 // Get client analytics
 export const getClientAnalytics: RequestHandler = async (req, res) => {
   try {
