@@ -158,6 +158,26 @@ export default function Dashboard() {
 
   const recentBookings = getRecentBookings();
 
+  const paymentMethods = [
+    {
+      id: "pm1",
+      type: "Credit Card",
+      last4: "4242",
+      brand: "Visa",
+      expiryMonth: 12,
+      expiryYear: 2026,
+      isDefault: true,
+    },
+    {
+      id: "pm2",
+      type: "Bank Account",
+      last4: "6789",
+      bankName: "Chase Bank",
+      accountType: "Checking",
+      isDefault: false,
+    },
+  ];
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Confirmed":
@@ -344,73 +364,124 @@ export default function Dashboard() {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-lg transition-shadow">
+            <Card className="hover:shadow-lg transition-shadow border-red-500/50 bg-red-500/5">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    Total Revenue
+                  <p className="text-sm font-medium text-red-400">
+                    Overdue Balance
                   </p>
-                  <TrendingUp className="w-6 h-6 text-wme-gold" />
+                  <CreditCard className="w-6 h-6 text-red-500" />
                 </div>
-                <p className="text-3xl font-bold mt-2">$4.2M</p>
-                <p className="text-xs text-muted-foreground mt-1">This year</p>
+                <p className="text-3xl font-bold mt-2 text-red-500">$1,200,000</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  <Link to="/dashboard/payments" className="text-red-400 hover:underline">
+                    View Details
+                  </Link>
+                </p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Recent bookings */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Recent Bookings</CardTitle>
-                  <CardDescription>
-                    Your latest talent bookings and their status
-                  </CardDescription>
-                </div>
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/dashboard/bookings">
-                    View All
-                    <ChevronRight className="w-4 h-4 ml-2" />
-                  </Link>
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentBookings.map((booking) => (
-                  <div
-                    key={booking.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-border rounded-lg hover:bg-muted transition-colors gap-4"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Star className="w-6 h-6 text-wme-gold" />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{booking.artist}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {booking.event}
-                        </p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          <Clock className="w-3 h-3" />
-                          {booking.date}
-                        </p>
-                      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Recent bookings */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Recent Bookings</CardTitle>
+                      <CardDescription>
+                        Your latest talent bookings and their status
+                      </CardDescription>
                     </div>
-                    <div className="text-right flex-shrink-0">
-                      <p className="font-semibold">{booking.amount}</p>
-                      <Badge
-                        className={`mt-1 ${getStatusColor(booking.status)}`}
-                      >
-                        {booking.status}
-                      </Badge>
-                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/dashboard/bookings">
+                        View All
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentBookings.map((booking) => (
+                      <div
+                        key={booking.id}
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-border rounded-lg hover:bg-muted transition-colors gap-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Star className="w-6 h-6 text-wme-gold" />
+                          </div>
+                          <div>
+                            <p className="font-semibold">{booking.artist}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {booking.event}
+                            </p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                              <Clock className="w-3 h-3" />
+                              {booking.date}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-semibold">{booking.amount}</p>
+                          <Badge
+                            className={`mt-1 ${getStatusColor(
+                              booking.status,
+                            )}`}
+                          >
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            {/* Payment Methods */}
+            <div className="lg:col-span-1">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment Methods</CardTitle>
+                  <CardDescription>
+                    Manage your saved payment options
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {paymentMethods.map((method) => (
+                      <div
+                        key={method.id}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="w-6 h-6 text-wme-gold" />
+                          <div>
+                            <p className="font-semibold">
+                              {method.brand} **** {method.last4}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Expires {method.expiryMonth}/{method.expiryYear}
+                            </p>
+                          </div>
+                        </div>
+                        {method.isDefault && (
+                          <Badge variant="secondary">Default</Badge>
+                        )}
+                      </div>
+                    ))}
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/dashboard/payments?tab=methods">
+                        Manage Payment Methods
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </main>
       </div>
     </div>
