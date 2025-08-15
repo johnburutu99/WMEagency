@@ -282,6 +282,8 @@ export class ClientDatabase {
         updatedAt: new Date(),
         isVerified: true,
         priority: clientData.metadata?.priority || "medium",
+        notifications: { emailReminders: true },
+        paymentMethods: [],
       },
     };
 
