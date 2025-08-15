@@ -92,7 +92,19 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
 // Get client analytics
 export const getClientAnalytics: RequestHandler = async (req, res) => {
   try {
-    const { period = "30d" } = req.query;
+    const querySchema = z.object({
+      period: z.enum(["7d", "30d", "90d"]).default("30d"),
+    });
+
+    const validation = querySchema.safeParse(req.query);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid query parameters",
+        details: validation.error.errors,
+      });
+    }
+    const { period } = validation.data;
     const allClients = await clientDatabase.getAllClients();
 
     // Calculate date range
@@ -160,10 +172,26 @@ export const getClientAnalytics: RequestHandler = async (req, res) => {
   }
 };
 
+import { z } from "zod";
+
 // Export client data
 export const exportClients: RequestHandler = async (req, res) => {
   try {
-    const { format = "json", status } = req.query;
+    const querySchema = z.object({
+      format: z.enum(["json", "csv"]).default("json"),
+      status: z.string().optional(),
+    });
+
+    const validation = querySchema.safeParse(req.query);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid query parameters",
+        details: validation.error.errors,
+      });
+    }
+
+    const { format, status } = validation.data;
 
     let clients = await clientDatabase.getAllClients();
 
@@ -175,8 +203,6 @@ export const exportClients: RequestHandler = async (req, res) => {
     const exportData = clients.map((client) => ({
       bookingId: client.bookingId,
       name: client.name,
-      email: client.email,
-      phone: client.phone,
       artist: client.artist,
       event: client.event,
       eventDate: client.eventDate,
@@ -185,7 +211,6 @@ export const exportClients: RequestHandler = async (req, res) => {
       contractAmount: client.contractAmount,
       currency: client.currency,
       coordinator: client.coordinator.name,
-      coordinatorEmail: client.coordinator.email,
       department: client.coordinator.department,
       priority: client.metadata?.priority,
       createdAt: client.metadata?.createdAt,
@@ -193,6 +218,14 @@ export const exportClients: RequestHandler = async (req, res) => {
     }));
 
     if (format === "csv") {
+      if (exportData.length === 0) {
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="wme-clients-empty-${new Date().toISOString().split("T")[0]}.csv"`,
+        );
+        return res.send("No data to export.");
+      }
       // Convert to CSV
       const headers = Object.keys(exportData[0] || {});
       const csvContent = [

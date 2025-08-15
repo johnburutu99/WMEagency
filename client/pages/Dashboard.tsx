@@ -176,69 +176,14 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border">
-            <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
-                  <Star className="w-5 h-5 text-black" />
-                </div>
-                <div>
-                  <h1 className="font-bold">WME</h1>
-                  <p className="text-xs text-wme-gold">Client Portal</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <nav className="px-4 py-6">
-              <ul className="space-y-2">
-                {navigation.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      to={item.href}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        item.current
-                          ? "bg-wme-gold text-black"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon className="w-4 h-4" />
-                        {item.name}
-                      </div>
-                      {item.badge && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-wme-gold text-black"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:bg-card lg:border-r lg:border-border">
-        <div className="flex h-16 items-center px-6 border-b border-border">
+    <div className="flex min-h-screen bg-background text-foreground">
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+      >
+        <div className="flex h-16 items-center justify-between px-6 border-b border-border">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
               <Star className="w-5 h-5 text-black" />
@@ -248,6 +193,14 @@ export default function Dashboard() {
               <p className="text-xs text-wme-gold">Client Portal</p>
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
         <nav className="px-4 py-6">
           <ul className="space-y-2">
@@ -257,7 +210,7 @@ export default function Dashboard() {
                   to={item.href}
                   className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     item.current
-                      ? "bg-wme-gold text-black"
+                      ? "bg-wme-gold text-black shadow-lg"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
@@ -267,8 +220,12 @@ export default function Dashboard() {
                   </div>
                   {item.badge && (
                     <Badge
-                      variant="secondary"
-                      className="bg-wme-gold/20 text-wme-gold border-wme-gold/30"
+                      variant={item.current ? "default" : "secondary"}
+                      className={`${
+                        item.current
+                          ? "bg-black/20 text-white"
+                          : "bg-wme-gold/20 text-wme-gold"
+                      } `}
                     >
                       {item.badge}
                     </Badge>
@@ -278,12 +235,12 @@ export default function Dashboard() {
             ))}
           </ul>
         </nav>
-      </div>
+      </aside>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+        <header className="flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 sticky top-0 z-40">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -298,21 +255,16 @@ export default function Dashboard() {
               <p className="text-sm text-muted-foreground">
                 Welcome back, {userData?.name || "Client"}
               </p>
-              {userData?.bookingId && (
-                <p className="text-xs text-wme-gold">
-                  Booking ID: {userData.bookingId}
-                </p>
-              )}
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-wme-gold rounded-full" />
+            <Button variant="ghost" size="icon" className="relative rounded-full">
+              <Bell className="w-5 h-5" />
+              <span className="absolute top-1 right-1 w-2 h-2 bg-wme-gold rounded-full" />
             </Button>
-            <div className="w-8 h-8 bg-wme-gold rounded-full flex items-center justify-center">
+            <div className="w-10 h-10 bg-wme-gold rounded-full flex items-center justify-center border-2 border-wme-gold/50">
               <span className="text-sm font-semibold text-black">
                 {userData?.name
                   ? userData.name
@@ -327,72 +279,81 @@ export default function Dashboard() {
         </header>
 
         {/* Dashboard content */}
-        <main className="p-6">
+        <main className="flex-1 p-6 overflow-y-auto">
+          {/* Welcome Banner */}
+          <Card className="mb-8 bg-gradient-to-r from-wme-gold/20 to-wme-gold/5 border border-wme-gold/30">
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl text-foreground">
+                  Welcome, {userData?.name || "Client"}!
+                </CardTitle>
+                <CardDescription className="text-muted-foreground mt-1">
+                  Here's a summary of your account.
+                </CardDescription>
+              </div>
+              <Button>
+                <Link to="/dashboard/bookings">View Bookings</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Stats cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Active Bookings
-                    </p>
-                    <p className="text-2xl font-bold">12</p>
-                  </div>
-                  <Calendar className="w-8 h-8 text-wme-gold" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Active Bookings
+                  </p>
+                  <Calendar className="w-6 h-6 text-wme-gold" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-3xl font-bold mt-2">12</p>
+                <p className="text-xs text-muted-foreground mt-1">
                   +2 from last month
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Pending Documents
-                    </p>
-                    <p className="text-2xl font-bold">3</p>
-                  </div>
-                  <FileText className="w-8 h-8 text-wme-gold" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Pending Documents
+                  </p>
+                  <FileText className="w-6 h-6 text-wme-gold" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-3xl font-bold mt-2">3</p>
+                <p className="text-xs text-muted-foreground mt-1">
                   2 NDAs, 1 Contract
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Unread Messages
-                    </p>
-                    <p className="text-2xl font-bold">8</p>
-                  </div>
-                  <MessageSquare className="w-8 h-8 text-wme-gold" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Unread Messages
+                  </p>
+                  <MessageSquare className="w-6 h-6 text-wme-gold" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
+                <p className="text-3xl font-bold mt-2">8</p>
+                <p className="text-xs text-muted-foreground mt-1">
                   From coordinators
                 </p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-lg transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Total Revenue
-                    </p>
-                    <p className="text-2xl font-bold">$4.2M</p>
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-wme-gold" />
+                  <p className="text-sm font-medium text-muted-foreground">
+                    Total Revenue
+                  </p>
+                  <TrendingUp className="w-6 h-6 text-wme-gold" />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">This year</p>
+                <p className="text-3xl font-bold mt-2">$4.2M</p>
+                <p className="text-xs text-muted-foreground mt-1">This year</p>
               </CardContent>
             </Card>
           </div>
@@ -407,9 +368,11 @@ export default function Dashboard() {
                     Your latest talent bookings and their status
                   </CardDescription>
                 </div>
-                <Button variant="outline" size="sm">
-                  View All
-                  <ChevronRight className="w-4 h-4 ml-2" />
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/dashboard/bookings">
+                    View All
+                    <ChevronRight className="w-4 h-4 ml-2" />
+                  </Link>
                 </Button>
               </div>
             </CardHeader>
@@ -418,7 +381,7 @@ export default function Dashboard() {
                 {recentBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-border rounded-lg gap-4"
+                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-border rounded-lg hover:bg-muted transition-colors gap-4"
                   >
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -435,7 +398,7 @@ export default function Dashboard() {
                         </p>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right flex-shrink-0">
                       <p className="font-semibold">{booking.amount}</p>
                       <Badge
                         className={`mt-1 ${getStatusColor(booking.status)}`}

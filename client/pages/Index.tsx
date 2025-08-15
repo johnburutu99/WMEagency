@@ -484,14 +484,6 @@ export default function Index() {
             </Card>
 
             <div className="mt-6 text-center space-y-2">
-              <Link to="/admin">
-                <Button
-                  variant="link"
-                  className="text-xs text-gray-400 hover:text-wme-gold"
-                >
-                  Admin Access
-                </Button>
-              </Link>
               <p className="text-xs text-gray-500">
                 © 2024 William Morris Endeavor Entertainment. All rights
                 reserved.
