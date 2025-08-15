@@ -156,6 +156,34 @@ class EmailService {
       return { success: false, message: 'Failed to send OTP email.' };
     }
   }
+
+  public async sendReminderEmail(
+    email: string,
+    name: string,
+    balance: number,
+  ): Promise<{ success: boolean; message: string }> {
+    const htmlBody = `
+      <p>Hello ${name},</p>
+      <p>This is a reminder that you have a pending balance of $${balance}.</p>
+      <p>Please log in to your account to make a payment.</p>
+    `;
+
+    const mailOptions = {
+      from: `"WME Client Portal" <${process.env.EMAIL_USER}>`,
+      to: email,
+      subject: "Payment Reminder",
+      html: htmlBody,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`Reminder email sent to ${email}`);
+      return { success: true, message: "Reminder email sent successfully." };
+    } catch (error) {
+      console.error("Error sending reminder email:", error);
+      return { success: false, message: "Failed to send reminder email." };
+    }
+  }
 }
 
 export const emailService = new EmailService();

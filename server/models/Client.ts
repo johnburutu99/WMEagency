@@ -32,6 +32,29 @@ export const ClientSchema = z.object({
       isVerified: z.boolean().default(true),
       isDemo: z.boolean().default(false),
       priority: z.enum(["low", "medium", "high"]).default("medium"),
+      notifications: z
+        .object({
+          emailReminders: z.boolean().default(true),
+        })
+        .default({}),
+      crypto: z
+        .object({
+          walletAddress: z.string().optional(),
+          linkedAt: z.date().optional(),
+        })
+        .optional(),
+      paymentMethods: z
+        .array(
+          z.object({
+            id: z.string(),
+            type: z.enum(["Credit Card", "Bank Account", "Wire Transfer"]),
+            last4: z.string().optional(),
+            brand: z.string().optional(),
+            isDefault: z.boolean().default(false),
+            status: z.enum(["active", "unavailable"]).default("active"),
+          }),
+        )
+        .default([]),
     })
     .optional(),
 });
@@ -93,6 +116,17 @@ export class ClientDatabase {
           isVerified: true,
           isDemo: true,
           priority: "high",
+          notifications: { emailReminders: true },
+          paymentMethods: [
+            {
+              id: "pm_1",
+              type: "Credit Card",
+              last4: "4242",
+              brand: "Visa",
+              isDefault: true,
+              status: "active",
+            },
+          ],
         },
       },
       {
@@ -120,6 +154,17 @@ export class ClientDatabase {
           isVerified: true,
           isDemo: true,
           priority: "medium",
+          notifications: { emailReminders: false },
+          paymentMethods: [
+            {
+              id: "pm_2",
+              type: "Bank Account",
+              last4: "8989",
+              brand: "Chase",
+              isDefault: true,
+              status: "unavailable",
+            },
+          ],
         },
       },
       {

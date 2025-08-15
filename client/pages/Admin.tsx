@@ -54,6 +54,8 @@ import {
   UserCog,
   Settings,
   Home,
+  Bell,
+  BellOff,
 } from "lucide-react";
 import { apiClient, type Client, type CreateClient } from "../lib/api";
 
@@ -294,6 +296,26 @@ export default function Admin() {
       }
     } catch (err) {
       setError("Failed to start impersonation session");
+    }
+  };
+
+  const handleToggleEmailReminders = async (client: Client) => {
+    try {
+      const response = await apiClient.updateClient(client.bookingId, {
+        metadata: {
+          notifications: {
+            emailReminders: !client.metadata?.notifications?.emailReminders,
+          },
+        },
+      });
+
+      if (response.success) {
+        loadClients();
+      } else {
+        setError(response.error || "Failed to update email reminder status");
+      }
+    } catch (err) {
+      setError("Failed to update email reminder status");
     }
   };
 
@@ -926,6 +948,21 @@ export default function Admin() {
                                 }
                               >
                                 <UserCog className="w-4 h-4" />
+                              </Button>
+                              <Button
+                                variant={
+                                  client.metadata?.notifications?.emailReminders
+                                    ? "secondary"
+                                    : "outline"
+                                }
+                                size="sm"
+                                onClick={() => handleToggleEmailReminders(client)}
+                              >
+                                {client.metadata?.notifications?.emailReminders ? (
+                                  <Bell className="w-4 h-4 text-green-500" />
+                                ) : (
+                                  <BellOff className="w-4 h-4 text-red-500" />
+                                )}
                               </Button>
                             </div>
                           </div>

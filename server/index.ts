@@ -45,6 +45,7 @@ import {
 import {
   handleInitiatePaymentOtp,
   handleVerifyPaymentOtp,
+  handleGenerateDepositAddress,
 } from "./routes/payment";
 import { handleProfilePictureUpload } from "./routes/user";
 
@@ -122,6 +123,11 @@ export function createServer() {
   // Payment routes
   app.post("/api/payment/initiate-otp", handleInitiatePaymentOtp);
   app.post("/api/payment/verify-otp", handleVerifyPaymentOtp);
+  app.get(
+    "/api/payment/deposit-address",
+    adminAuthMiddleware,
+    handleGenerateDepositAddress,
+  );
 
   // User routes
   app.post("/api/user/profile-picture", handleProfilePictureUpload);
