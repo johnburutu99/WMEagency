@@ -21,7 +21,11 @@ export const adminAuthMiddleware: RequestHandler = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "");
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not set");
+    }
+    const decoded = jwt.verify(token, secret);
 
     if (typeof decoded === "object" && decoded.isAdmin) {
       req.user = { isAdmin: true };

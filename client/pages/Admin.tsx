@@ -75,7 +75,6 @@ export default function Admin() {
   const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
-  const [demoClients, setDemoClients] = useState<Client[]>([]);
 
   // Form state for creating new client
   const [newClient, setNewClient] = useState<CreateClient>({
@@ -105,19 +104,7 @@ export default function Admin() {
   useEffect(() => {
     loadClients();
     loadStats();
-    loadDemoClients();
   }, [statusFilter, searchTerm]);
-
-  const loadDemoClients = async () => {
-    try {
-      const response = await apiClient.getDemoClients();
-      if (response.success && response.data) {
-        setDemoClients(response.data.clients);
-      }
-    } catch (err) {
-      console.error("Failed to load demo clients:", err);
-    }
-  };
 
   const loadClients = async () => {
     setLoading(true);
@@ -520,7 +507,6 @@ export default function Admin() {
         <Tabs defaultValue="live">
           <TabsList className="mb-4">
             <TabsTrigger value="live">Live Clients</TabsTrigger>
-            <TabsTrigger value="demo">Demo Clients</TabsTrigger>
           </TabsList>
           <TabsContent value="live">
             <Card>
@@ -971,35 +957,6 @@ export default function Admin() {
                     ))}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="demo">
-            <Card>
-              <CardHeader>
-                <CardTitle>Demo Client Accounts</CardTitle>
-                <CardDescription>
-                  {demoClients.length} demo clients found. These are for
-                  testing and demonstration purposes.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {demoClients.map((client) => (
-                    <div
-                      key={client.bookingId}
-                      className="p-4 border border-border rounded-lg"
-                    >
-                      <h3 className="font-semibold">{client.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        {client.artist} - {client.event}
-                      </p>
-                      <span className="text-xs text-muted-foreground">
-                        ID: {client.bookingId}
-                      </span>
-                    </div>
-                  ))}
-                </div>
               </CardContent>
             </Card>
           </TabsContent>
