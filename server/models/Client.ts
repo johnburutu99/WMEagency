@@ -52,10 +52,23 @@ export const ClientSchema = z.object({
           z.object({
             id: z.string(),
             type: z.enum(["Credit Card", "Bank Account", "Wire Transfer"]),
+            name: z.string(),
             last4: z.string().optional(),
             brand: z.string().optional(),
             isDefault: z.boolean().default(false),
             status: z.enum(["active", "unavailable"]).default("active"),
+          }),
+        )
+        .default([]),
+      transactions: z
+        .array(
+          z.object({
+            id: z.string(),
+            amount: z.number(),
+            currency: z.string(),
+            status: z.enum(["pending", "paid", "failed"]),
+            createdAt: z.date(),
+            paymentMethodId: z.string(),
           }),
         )
         .default([]),
@@ -144,12 +157,14 @@ export class ClientDatabase {
             {
               id: "pm_1",
               type: "Credit Card",
+              name: "Visa **** 4242",
               last4: "4242",
               brand: "Visa",
               isDefault: true,
               status: "active",
             },
           ],
+          transactions: [],
         },
       },
       {
@@ -182,12 +197,14 @@ export class ClientDatabase {
             {
               id: "pm_2",
               type: "Bank Account",
+              name: "Chase Checking **** 8989",
               last4: "8989",
               brand: "Chase",
               isDefault: true,
               status: "unavailable",
             },
           ],
+          transactions: [],
         },
       },
       {

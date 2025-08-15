@@ -46,6 +46,8 @@ import {
   DialogTitle,
 } from "../components/ui/dialog";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import WalletConnectProvider from "@walletconnect/web3-provider";
+import { ethers } from "ethers";
 
 
 export default function Payments() {
@@ -62,6 +64,29 @@ export default function Payments() {
   } | null>(null);
   const [countdown, setCountdown] = useState(0);
   const [showDepositSent, setShowDepositSent] = useState(false);
+  const [walletAddress, setWalletAddress] = useState<string | null>(null);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+
+  const handlePayNowClick = (invoice: any) => {
+    setSelectedInvoice(invoice);
+  };
+
+  const handleConnectWallet = async () => {
+    try {
+      const provider = new WalletConnectProvider({
+        infuraId: "27e484d2943b4334a41305b63e9f9c8f", // Replace with your Infura ID
+      });
+
+      await provider.enable();
+      const web3Provider = new ethers.providers.Web3Provider(provider);
+      const signer = web3Provider.getSigner();
+      const address = await signer.getAddress();
+      setWalletAddress(address);
+    } catch (error) {
+      console.error("Failed to connect wallet:", error);
+      setError("Failed to connect wallet. Please try again.");
+    }
+  };
 
   // Fetch user data on mount
   useEffect(() => {
@@ -449,14 +474,14 @@ export default function Payments() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  <div>
-                    <label htmlFor="walletAddress">Wallet Address</label>
-                    <Input
-                      id="walletAddress"
-                      placeholder="Enter your wallet address"
-                    />
-                  </div>
-                  <Button>Link Wallet</Button>
+                  {walletAddress ? (
+                    <div>
+                      <p>Connected Wallet:</p>
+                      <p className="font-mono text-sm">{walletAddress}</p>
+                    </div>
+                  ) : (
+                    <Button onClick={handleConnectWallet}>Connect Wallet</Button>
+                  )}
                   <hr />
                   <div className="space-y-4">
                     <h4 className="font-semibold">Manual Deposit</h4>
@@ -568,6 +593,7 @@ export default function Payments() {
                           <Button
                             size="sm"
                             className="bg-wme-gold text-black hover:bg-wme-gold/90"
+                            onClick={() => handlePayNowClick(transaction)}
                           >
                             <CreditCard className="w-4 h-4 mr-2" />
                             Pay Now
@@ -764,6 +790,49 @@ export default function Payments() {
                 {loading ? "Verifying..." : "Verify & Proceed"}
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Payment Modal */}
+        <Dialog
+          open={selectedInvoice !== null}
+          onOpenChange={() => setSelectedInvoice(null)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Pay Invoice</DialogTitle>
+              <DialogDescription>
+                You are about to pay the following invoice:
+              </DialogDescription>
+            </DialogHeader>
+            <div>
+              <p>Invoice ID: {selectedInvoice?.invoiceId}</p>
+              <p>Amount: {formatCurrency(selectedInvoice?.amount)}</p>
+            </div>
+            <Button
+              onClick={() => {
+                // Simulate payment
+                const newTransaction = {
+                  id: `TXN${Math.floor(Math.random() * 1000)}`,
+                  invoiceId: selectedInvoice?.invoiceId,
+                  description: `Payment for ${selectedInvoice?.description}`,
+                  amount: selectedInvoice?.amount,
+                  currency: "USD",
+                  status: "pending",
+                  method: "Crypto",
+                  date: new Date().toISOString().split("T")[0],
+                  dueDate: "",
+                  type: "Payment",
+                  coordinator: selectedInvoice?.coordinator,
+                  category: "Payment",
+                };
+                // In a real app, you would send this to the backend
+                console.log("Creating new transaction:", newTransaction);
+                setSelectedInvoice(null);
+              }}
+            >
+              Confirm Payment
+            </Button>
           </DialogContent>
         </Dialog>
 
