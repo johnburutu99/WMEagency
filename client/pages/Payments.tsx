@@ -56,6 +56,12 @@ export default function Payments() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [userData, setUserData] = useState<any>(null); // Assuming user data is fetched/available
+  const [depositInfo, setDepositInfo] = useState<{
+    address: string;
+    nonce: string;
+  } | null>(null);
+  const [countdown, setCountdown] = useState(0);
+  const [showDepositSent, setShowDepositSent] = useState(false);
 
   // Fetch user data on mount
   useEffect(() => {
@@ -85,6 +91,38 @@ export default function Payments() {
       setLoading(false);
     }
   };
+
+  const handleFetchDepositAddress = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.generateDepositAddress();
+      if (response.success) {
+        setDepositInfo(response.data);
+        setCountdown(1200); // 20 minutes
+        setShowDepositSent(false);
+      } else {
+        setError(response.error || "Failed to fetch deposit address.");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+        if (countdown === 120) {
+          // 2 minutes remaining
+          setShowDepositSent(true);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
 
   const handleOtpSubmit = async () => {
     if (!userData?.bookingId || otp.length !== 6) {
@@ -191,6 +229,7 @@ export default function Payments() {
       expiryMonth: 12,
       expiryYear: 2026,
       isDefault: true,
+      status: "active",
     },
     {
       id: "pm2",
@@ -199,6 +238,7 @@ export default function Payments() {
       bankName: "Chase Bank",
       accountType: "Checking",
       isDefault: false,
+      status: "unavailable",
     },
     {
       id: "pm3",
@@ -206,6 +246,7 @@ export default function Payments() {
       accountName: "WME Client Account",
       routingNumber: "021000021",
       isDefault: false,
+      status: "unavailable",
     },
   ];
 
@@ -395,7 +436,64 @@ export default function Payments() {
             <TabsTrigger value="invoices">Invoices</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="methods">Payment Methods</TabsTrigger>
+            <TabsTrigger value="crypto">Crypto Wallet</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="crypto">
+            <Card>
+              <CardHeader>
+                <CardTitle>Crypto Wallet</CardTitle>
+                <CardDescription>
+                  Link your crypto wallet and make deposits.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <label htmlFor="walletAddress">Wallet Address</label>
+                    <Input
+                      id="walletAddress"
+                      placeholder="Enter your wallet address"
+                    />
+                  </div>
+                  <Button>Link Wallet</Button>
+                  <hr />
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Manual Deposit</h4>
+                    <Button onClick={handleFetchDepositAddress}>
+                      Generate Deposit Address
+                    </Button>
+                    {depositInfo && (
+                      <div className="space-y-4">
+                        <div>
+                          <label>Deposit Address</label>
+                          <p className="font-mono text-sm">
+                            {depositInfo.address}
+                          </p>
+                        </div>
+                        <div>
+                          <label>Nonce</label>
+                          <p className="font-mono text-sm">
+                            {depositInfo.nonce}
+                          </p>
+                        </div>
+                        <div>
+                          <label>Time Remaining</label>
+                          <p>
+                            {Math.floor(countdown / 60)}:
+                            {(countdown % 60).toString().padStart(2, "0")}
+                          </p>
+                        </div>
+                        {showDepositSent && (
+                          <Button>Deposit Sent</Button>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="transactions" className="space-y-4">
             {filteredTransactions.map((transaction) => (
@@ -618,14 +716,20 @@ export default function Payments() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {!method.isDefault && (
-                          <Button variant="outline" size="sm">
-                            Set as Default
-                          </Button>
+                        {method.status === "unavailable" ? (
+                          <Badge variant="destructive">Unavailable</Badge>
+                        ) : (
+                          <>
+                            {!method.isDefault && (
+                              <Button variant="outline" size="sm">
+                                Set as Default
+                              </Button>
+                            )}
+                            <Button variant="outline" size="sm">
+                              Edit
+                            </Button>
+                          </>
                         )}
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
                       </div>
                     </div>
                   </CardContent>
