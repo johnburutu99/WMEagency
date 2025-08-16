@@ -22,13 +22,14 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
       buffer: "buffer",
+      util: "util",
     },
   },
   define: {
     global: "globalThis",
   },
   optimizeDeps: {
-    include: ["buffer"],
+    include: ["buffer", "util"],
     esbuildOptions: {
       define: {
         global: "globalThis",
