@@ -2,13 +2,23 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/placeholder.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello world project</title>
+    <title>WME Client Portal</title>
+    <script>
+      // Buffer polyfill must be loaded before any modules
+      if (typeof globalThis.Buffer === 'undefined') {
+        // Import buffer asynchronously and set it up
+        import('buffer').then(({ Buffer }) => {
+          globalThis.Buffer = Buffer;
+          window.Buffer = Buffer;
+          globalThis.global = globalThis;
+        });
+      }
+    </script>
   </head>
-
   <body>
     <div id="root"></div>
-
-    <script type="module" src="/client/App.tsx"></script>
+    <script type="module" src="/client/main.tsx"></script>
   </body>
 </html>
