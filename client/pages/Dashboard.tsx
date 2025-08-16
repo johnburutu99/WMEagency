@@ -373,11 +373,26 @@ export default function Dashboard() {
           <Card className="mb-8 bg-gradient-to-r from-wme-gold/20 to-wme-gold/5 border border-wme-gold/30">
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <CardTitle className="text-2xl text-foreground">
-                  Welcome, {userData?.name || "Client"}!
-                </CardTitle>
+                <div className="flex items-center gap-3 mb-2">
+                  <CardTitle className="text-2xl text-foreground">
+                    Welcome, {userData?.name || "Client"}!
+                  </CardTitle>
+                  {isAdminImpersonating && (
+                    <Badge className="bg-wme-gold/20 text-wme-gold border-wme-gold/30">
+                      Impersonation Mode
+                    </Badge>
+                  )}
+                  {isAdminViewOnly && (
+                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                      Read-Only Access
+                    </Badge>
+                  )}
+                </div>
                 <CardDescription className="text-muted-foreground mt-1">
-                  Here's a summary of your account.
+                  {isAdminImpersonating || isAdminViewOnly
+                    ? "This dashboard is being accessed by an administrator."
+                    : "Here's a summary of your account."
+                  }
                 </CardDescription>
               </div>
               <Button>
