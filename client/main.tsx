@@ -1,4 +1,4 @@
-import './polyfills';
+import './polyfills-entry';
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
 
