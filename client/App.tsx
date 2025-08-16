@@ -65,6 +65,14 @@ export const App = () => (
                 </AdminProtectedRoute>
               }
             />
+            <Route
+              path="/admin/client/:bookingId"
+              element={
+                <AdminProtectedRoute>
+                  <AdminClientDashboard />
+                </AdminProtectedRoute>
+              }
+            />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/verify-identity" element={<VerifyIdentityPage />} />
             <Route path="/dashboard/bookings" element={<Bookings />} />
