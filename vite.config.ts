@@ -25,10 +25,16 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     global: "globalThis",
-    Buffer: ["buffer", "Buffer"],
   },
   optimizeDeps: {
     include: ["buffer"],
+  },
+  resolve: {
+    alias: {
+      "@": path.resolve(__dirname, "./client"),
+      "@shared": path.resolve(__dirname, "./shared"),
+      buffer: "buffer",
+    },
   },
 }));
 
