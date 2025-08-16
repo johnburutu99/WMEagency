@@ -6,15 +6,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WME Client Portal</title>
     <script>
-      // Buffer polyfill must be loaded before any modules
-      if (typeof globalThis.Buffer === 'undefined') {
-        // Import buffer asynchronously and set it up
-        import('buffer').then(({ Buffer }) => {
-          globalThis.Buffer = Buffer;
-          window.Buffer = Buffer;
-          globalThis.global = globalThis;
-        });
-      }
+      // Set up polyfills before any module loading
+      globalThis.global = globalThis;
+      window.global = globalThis;
     </script>
   </head>
   <body>
