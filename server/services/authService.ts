@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { clientDatabase, Client } from "../models/Client";
-import { generateBookingId as generateNewBookingId } from "./cryptoService";
+import { generateBookingId } from "./cryptoService";
 
 // Re-export the Client type as UserData for compatibility with existing code.
 // Ideally, we would refactor the codebase to use the `Client` type directly.
@@ -77,7 +77,7 @@ export class AuthService {
   ): Promise<{ success: boolean; booking?: UserData; error?: string }> {
     try {
       const newClientData = {
-        bookingId: generateNewBookingId(),
+        bookingId: await generateBookingId(),
         name: data.clientName,
         email: data.clientEmail,
         artist: data.artist,
@@ -134,8 +134,8 @@ export class AuthService {
   }
 
   // Generate a new booking ID (useful for testing)
-  generateNewBookingId(): string {
-    return generateNewBookingId();
+  generateNewBookingId(): Promise<string> {
+    return generateBookingId();
   }
 }
 

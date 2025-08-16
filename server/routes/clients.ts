@@ -329,33 +329,14 @@ export const bulkUpdateClients: RequestHandler = async (req, res) => {
   }
 };
 
+import { generateBookingId as generateUniqueBookingId } from "../services/cryptoService";
+
+// ... (other handlers)
+
 // Generate new booking ID
 export const generateBookingId: RequestHandler = async (req, res) => {
   try {
-    let bookingId: string;
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    do {
-      // Generate random 8-character booking ID
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      bookingId = "";
-      for (let i = 0; i < 8; i++) {
-        bookingId += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      attempts++;
-    } while (
-      (await clientDatabase.verifyBookingId(bookingId)) &&
-      attempts < maxAttempts
-    );
-
-    if (attempts >= maxAttempts) {
-      return res.status(500).json({
-        success: false,
-        error: "Unable to generate unique booking ID",
-      });
-    }
-
+    const bookingId = await generateUniqueBookingId();
     res.json({
       success: true,
       data: { bookingId },

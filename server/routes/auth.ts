@@ -374,7 +374,7 @@ export const handleImpersonateClient: RequestHandler = async (req, res) => {
 // GET /api/auth/generate-booking-id (Admin only - for testing)
 export const handleGenerateBookingId: RequestHandler = async (req, res) => {
   try {
-    const newBookingId = authService.generateNewBookingId();
+    const newBookingId = await authService.generateNewBookingId();
 
     res.json({
       success: true,
