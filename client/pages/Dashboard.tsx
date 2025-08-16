@@ -328,9 +328,24 @@ export default function Dashboard() {
               <Menu className="w-4 h-4" />
             </Button>
             <div>
-              <h1 className="text-lg font-semibold">Dashboard</h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-lg font-semibold">Dashboard</h1>
+                {isAdminImpersonating && (
+                  <Badge className="bg-wme-gold/20 text-wme-gold border-wme-gold/30">
+                    Admin Control Session
+                  </Badge>
+                )}
+                {isAdminViewOnly && (
+                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
+                    Admin View Only
+                  </Badge>
+                )}
+              </div>
               <p className="text-sm text-muted-foreground">
                 Welcome back, {userData?.name || "Client"}
+                {(isAdminImpersonating || isAdminViewOnly) && (
+                  <span className="ml-2 text-wme-gold">• Accessed by Admin</span>
+                )}
               </p>
             </div>
           </div>
