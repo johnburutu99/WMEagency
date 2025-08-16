@@ -42,6 +42,7 @@ import {
 } from "recharts";
 import { NotificationCenter } from "../components/NotificationCenter";
 import { ProgressTracker } from "../components/ProgressTracker";
+import { AdminFloatingToolbar } from "../components/AdminFloatingToolbar";
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
