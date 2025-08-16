@@ -4,7 +4,7 @@ import { z } from "zod";
 
 // Request validation schemas
 const UpdateBookingStatusSchema = z.object({
-  status: z.enum(["confirmed", "pending", "completed", "cancelled"]),
+  status: z.enum(["active", "pending", "completed", "cancelled"]),
 });
 
 // GET /api/bookings/my-bookings
@@ -38,11 +38,11 @@ export const handleGetMyBookings: RequestHandler = async (req, res) => {
       event: user.event,
       eventDate: user.eventDate,
       status: user.status,
-      coordinatorId: user.coordinatorId,
+      coordinatorId: user.coordinator.name,
       timeline: getBookingProgress(user.status),
       amount: getAmountForArtist(user.artist),
       location: getLocationForEvent(user.event),
-      coordinator: getCoordinatorInfo(user.coordinatorId),
+      coordinator: getCoordinatorInfo(user.coordinator.name),
     };
 
     res.json({
@@ -92,16 +92,16 @@ export const handleGetBookingDetails: RequestHandler = async (req, res) => {
       event: user.event,
       eventDate: user.eventDate,
       status: user.status,
-      coordinatorId: user.coordinatorId,
+      coordinatorId: user.coordinator.name,
       timeline: getBookingProgress(user.status),
       amount: getAmountForArtist(user.artist),
       location: getLocationForEvent(user.event),
-      coordinator: getCoordinatorInfo(user.coordinatorId),
+      coordinator: getCoordinatorInfo(user.coordinator.name),
       documents: getBookingDocuments(user.bookingId),
       payments: getPaymentHistory(user.bookingId),
-      messages: getRecentMessages(user.coordinatorId),
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
+      messages: getRecentMessages(user.coordinator.name),
+      createdAt: user.metadata?.createdAt,
+      updatedAt: user.metadata?.updatedAt,
     };
 
     res.json({
@@ -129,7 +129,7 @@ export const handleUpdateBookingStatus: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid status update data",
-        details: validation.error.errors,
+        details: validation.error.issues,
       });
     }
 
@@ -183,7 +183,7 @@ export const handleUpdateBookingStatus: RequestHandler = async (req, res) => {
 function getBookingProgress(status: string): number {
   const progressMap: { [key: string]: number } = {
     pending: 25,
-    confirmed: 75,
+    active: 75,
     completed: 100,
     cancelled: 0,
   };

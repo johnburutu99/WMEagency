@@ -53,7 +53,7 @@ export const handleLogin: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid request format",
-        details: validation.error.errors,
+        details: validation.error.issues,
       });
     }
 
@@ -111,7 +111,7 @@ export const handleCreateBooking: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid booking data",
-        details: validation.error.errors,
+        details: validation.error.issues,
       });
     }
 
@@ -234,7 +234,7 @@ export const handleAdminLogin: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid request format",
-        details: validation.error.errors,
+        details: validation.error.issues,
       });
     }
 

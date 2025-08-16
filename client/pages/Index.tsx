@@ -59,8 +59,8 @@ export default function Index() {
     setError("");
     try {
       const response = await apiClient.login(impersonatedBookingId, token);
-      if (response.success && response.data?.client) {
-        localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+      if (response.success && response.client) {
+        localStorage.setItem("wme-user-data", JSON.stringify(response.client));
         window.location.href = "/dashboard";
       } else {
         setError("Impersonation login failed.");
@@ -96,11 +96,11 @@ export default function Index() {
 
     try {
       const response = await apiClient.login(bookingId);
-      if (response.success && response.data?.user) {
+      if (response.success && response.client) {
         // Store user data in localStorage for the dashboard
         localStorage.setItem(
           "wme-user-data",
-          JSON.stringify(response.data.user),
+          JSON.stringify(response.client),
         );
         // Redirect to dashboard
         window.location.href = "/dashboard";

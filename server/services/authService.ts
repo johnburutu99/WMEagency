@@ -83,6 +83,9 @@ export class AuthService {
         artist: data.artist,
         event: data.event,
         eventDate: data.eventDate,
+        status: "pending" as const,
+        balance: 0,
+        currency: "USD",
         coordinator: {
           // This is a placeholder. In a real app, you'd look up the coordinator.
           name: "Default Coordinator",

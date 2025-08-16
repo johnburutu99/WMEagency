@@ -40,7 +40,7 @@ export const ClientSchema = z.object({
         .object({
           emailReminders: z.boolean().default(true),
         })
-        .default({}),
+        .default({ emailReminders: true }),
       crypto: z
         .object({
           walletAddress: z.string().optional(),
@@ -238,6 +238,9 @@ export class ClientDatabase {
           isVerified: true,
           isDemo: true,
           priority: "low",
+          notifications: { emailReminders: true },
+          paymentMethods: [],
+          transactions: [],
         },
       },
       {
@@ -264,6 +267,9 @@ export class ClientDatabase {
           isVerified: true,
           isDemo: true,
           priority: "high",
+          notifications: { emailReminders: true },
+          paymentMethods: [],
+          transactions: [],
         },
       },
       {
@@ -290,6 +296,9 @@ export class ClientDatabase {
           isVerified: true,
           isDemo: true,
           priority: "medium",
+          notifications: { emailReminders: true },
+          paymentMethods: [],
+          transactions: [],
         },
       },
     ];
@@ -330,9 +339,11 @@ export class ClientDatabase {
         createdAt: new Date(),
         updatedAt: new Date(),
         isVerified: true,
+        isDemo: false,
         priority: clientData.metadata?.priority || "medium",
         notifications: { emailReminders: true },
         paymentMethods: [],
+        transactions: [],
       },
     };
 
