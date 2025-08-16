@@ -982,8 +982,7 @@ export default function Admin() {
                                 <Edit className="w-4 h-4" />
                               </Button>
                               <Button
-                                variant="destructive"
-                                outline
+                                variant="outline"
                                 size="sm"
                                 onClick={() =>
                                   confirmDeleteClient(client.bookingId)
