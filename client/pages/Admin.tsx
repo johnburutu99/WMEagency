@@ -69,6 +69,7 @@ import {
 import { apiClient, type Client, type CreateClient } from "../lib/api";
 import { io } from "socket.io-client";
 import { ActivityFeed } from "../components/ActivityFeed";
+import { AdminClientDashboard } from "../components/AdminClientDashboard";
 
 export default function Admin() {
   const navigate = useNavigate();
@@ -534,6 +535,14 @@ export default function Admin() {
           <div className="lg:col-span-2">
             <ActivityFeed />
           </div>
+        </div>
+
+        {/* Client Dashboard Access Hub */}
+        <div className="mb-8">
+          <AdminClientDashboard onClientSelect={(client) => {
+            // Handle client selection for quick access
+            console.log('Selected client:', client);
+          }} />
         </div>
 
         {/* Client Lists */}
