@@ -21,6 +21,7 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
+      buffer: "buffer",
     },
   },
   define: {
@@ -32,13 +33,6 @@ export default defineConfig(({ mode }) => ({
       define: {
         global: "globalThis",
       },
-    },
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./client"),
-      "@shared": path.resolve(__dirname, "./shared"),
-      buffer: "buffer",
     },
   },
 }));
