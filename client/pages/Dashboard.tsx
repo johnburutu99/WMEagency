@@ -46,6 +46,14 @@ import { ProgressTracker } from "../components/ProgressTracker";
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
+  const [isAdminViewOnly, setIsAdminViewOnly] = useState(false);
+
+  // Check admin access modes
+  useEffect(() => {
+    setIsAdminImpersonating(localStorage.getItem("wme-admin-impersonating") === "true");
+    setIsAdminViewOnly(localStorage.getItem("wme-admin-view-only") === "true");
+  }, []);
 
   // Load user data from localStorage
   const [userData, setUserData] = useState<any>(null);
