@@ -66,12 +66,32 @@ export default function Index() {
       const response = await apiClient.login(impersonatedBookingId, token);
       if (response.success && response.data?.client) {
         localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+        localStorage.setItem("wme-admin-impersonating", "true");
         window.location.href = "/dashboard";
       } else {
         setError("Impersonation login failed.");
       }
     } catch (err) {
       setError("An error occurred during impersonation login.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAdminDirectAccess = async (clientBookingId: string) => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.getClient(clientBookingId);
+      if (response.success && response.data?.client) {
+        localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+        localStorage.setItem("wme-admin-view-only", "true");
+        window.location.href = "/dashboard";
+      } else {
+        setError("Client not found or access denied.");
+      }
+    } catch (err) {
+      setError("An error occurred while accessing client dashboard.");
     } finally {
       setIsLoading(false);
     }
