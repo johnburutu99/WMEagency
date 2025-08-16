@@ -21,6 +21,7 @@ import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminSettings from "./pages/AdminSettings";
 import Analytics from "./pages/Analytics";
+import AdminClientDashboard from "./pages/AdminClientDashboard";
 import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import SettingsPage from "./pages/Settings"; // Renamed to avoid conflict with lucide-react
