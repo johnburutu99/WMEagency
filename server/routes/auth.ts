@@ -62,19 +62,8 @@ export const handleLogin: RequestHandler = async (req, res) => {
     // Simulate processing delay (remove in production)
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
-    // Authenticate user - first try existing database, then check new bookings
-    let result = await authService.authenticateByBookingId(bookingId);
-
-    // If not found in existing database, check new bookings
-    if (!result.success) {
-      const newBookingClient = globalClients.get(bookingId);
-      if (newBookingClient) {
-        result = {
-          success: true,
-          user: newBookingClient,
-        };
-      }
-    }
+    // Authenticate user
+    const result = await authService.authenticateByBookingId(bookingId);
 
     if (!result.success) {
       return res.status(401).json({
@@ -86,14 +75,13 @@ export const handleLogin: RequestHandler = async (req, res) => {
     // Return user data (excluding sensitive information)
     const { user } = result;
     const userResponse = {
-      id: user!.id,
       bookingId: user!.bookingId,
       name: user!.name,
       artist: user!.artist,
       event: user!.event,
       eventDate: user!.eventDate,
       status: user!.status,
-      coordinatorId: user!.coordinatorId,
+      coordinator: user!.coordinator,
     };
 
     console.log("Login successful for:", userResponse.name);
@@ -142,15 +130,14 @@ export const handleCreateBooking: RequestHandler = async (req, res) => {
     // Return booking confirmation
     const { booking } = result;
     const bookingResponse = {
-      id: booking!.id,
       bookingId: booking!.bookingId,
       name: booking!.name,
       artist: booking!.artist,
       event: booking!.event,
       eventDate: booking!.eventDate,
       status: booking!.status,
-      coordinatorId: booking!.coordinatorId,
-      createdAt: booking!.createdAt,
+      coordinator: booking!.coordinator,
+      createdAt: booking!.metadata?.createdAt,
     };
 
     console.log("Booking created successfully:", bookingResponse.bookingId);
@@ -195,14 +182,13 @@ export const handleVerifySession: RequestHandler = async (req, res) => {
 
     const { user } = result;
     const userResponse = {
-      id: user!.id,
       bookingId: user!.bookingId,
       name: user!.name,
       artist: user!.artist,
       event: user!.event,
       eventDate: user!.eventDate,
       status: user!.status,
-      coordinatorId: user!.coordinatorId,
+      coordinator: user!.coordinator,
     };
 
     res.json({
