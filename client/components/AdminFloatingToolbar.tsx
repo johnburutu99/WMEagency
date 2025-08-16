@@ -7,11 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "./ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Badge } from "./ui/badge";
 import {
   Settings,
@@ -42,11 +38,11 @@ interface AdminFloatingToolbarProps {
 export function AdminFloatingToolbar({
   isImpersonating = false,
   isViewOnly = false,
-  clientData
+  clientData,
 }: AdminFloatingToolbarProps) {
   const [isVisible, setIsVisible] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  
+
   if (!isImpersonating && !isViewOnly) {
     return null;
   }
@@ -100,10 +96,10 @@ export function AdminFloatingToolbar({
               <div className="flex items-center gap-2">
                 <Shield className="w-3 h-3 text-gray-400" />
                 <CardTitle className="text-xs text-gray-300">Admin</CardTitle>
-                <Badge 
+                <Badge
                   className={
-                    isImpersonating 
-                      ? "bg-wme-gold/20 text-wme-gold border-wme-gold/30 text-xs px-1" 
+                    isImpersonating
+                      ? "bg-wme-gold/20 text-wme-gold border-wme-gold/30 text-xs px-1"
                       : "bg-blue-500/20 text-blue-400 border-blue-500/30 text-xs px-1"
                   }
                 >
@@ -117,7 +113,11 @@ export function AdminFloatingToolbar({
                   onClick={() => setIsExpanded(!isExpanded)}
                   className="h-5 w-5 p-0 text-gray-400 hover:text-white"
                 >
-                  {isExpanded ? <ChevronDown className="w-3 h-3" /> : <ChevronUp className="w-3 h-3" />}
+                  {isExpanded ? (
+                    <ChevronDown className="w-3 h-3" />
+                  ) : (
+                    <ChevronUp className="w-3 h-3" />
+                  )}
                 </Button>
                 <Button
                   variant="ghost"
@@ -130,7 +130,7 @@ export function AdminFloatingToolbar({
               </div>
             </div>
           </CardHeader>
-          
+
           {isExpanded && (
             <CardContent className="pt-0 space-y-2">
               <div className="grid grid-cols-3 gap-1">
@@ -162,7 +162,7 @@ export function AdminFloatingToolbar({
                   Exit
                 </Button>
               </div>
-              
+
               {isImpersonating && (
                 <div className="grid grid-cols-2 gap-1">
                   <Button
@@ -185,7 +185,7 @@ export function AdminFloatingToolbar({
                   </Button>
                 </div>
               )}
-              
+
               {/* Session info */}
               <div className="border-t border-gray-700 pt-1 mt-1">
                 <div className="flex justify-between text-xs">

@@ -55,7 +55,9 @@ interface AdminClientDashboardProps {
   onClientSelect?: (client: Client) => void;
 }
 
-export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardProps) {
+export function AdminClientDashboard({
+  onClientSelect,
+}: AdminClientDashboardProps) {
   const [clients, setClients] = useState<Client[]>([]);
   const [filteredClients, setFilteredClients] = useState<Client[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +65,9 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
   const [statusFilter, setStatusFilter] = useState("all");
   const [priorityFilter, setPriorityFilter] = useState("all");
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
-  const [activeConnections, setActiveConnections] = useState<Set<string>>(new Set());
+  const [activeConnections, setActiveConnections] = useState<Set<string>>(
+    new Set(),
+  );
 
   useEffect(() => {
     loadClients();
@@ -94,7 +98,7 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
     // This would check which clients are currently connected
     // For now, we'll simulate some active connections
     const simulatedActive = new Set(
-      clients.slice(0, Math.floor(Math.random() * 3)).map(c => c.bookingId)
+      clients.slice(0, Math.floor(Math.random() * 3)).map((c) => c.bookingId),
     );
     setActiveConnections(simulatedActive);
   };
@@ -103,31 +107,40 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
     let filtered = clients;
 
     if (searchTerm) {
-      filtered = filtered.filter(client =>
-        client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.event.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        client.bookingId.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(
+        (client) =>
+          client.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          client.artist.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          client.event.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          client.bookingId.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
 
     if (statusFilter !== "all") {
-      filtered = filtered.filter(client => client.status === statusFilter);
+      filtered = filtered.filter((client) => client.status === statusFilter);
     }
 
     if (priorityFilter !== "all") {
-      filtered = filtered.filter(client => client.priority === priorityFilter);
+      filtered = filtered.filter(
+        (client) => client.priority === priorityFilter,
+      );
     }
 
     setFilteredClients(filtered);
   };
 
-  const handleAccessDashboard = async (client: Client, mode: "view" | "impersonate" = "view") => {
+  const handleAccessDashboard = async (
+    client: Client,
+    mode: "view" | "impersonate" = "view",
+  ) => {
     if (mode === "impersonate") {
       try {
         const response = await apiClient.impersonateClient(client.bookingId);
         if (response.success && response.data) {
-          sessionStorage.setItem("impersonationToken", response.data.impersonationToken);
+          sessionStorage.setItem(
+            "impersonationToken",
+            response.data.impersonationToken,
+          );
           const impersonateUrl = `/?impersonate=true&bookingId=${client.bookingId}`;
           window.open(impersonateUrl, "_blank");
           toast.success(`Impersonating ${client.name}'s session`);
@@ -203,7 +216,8 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
             Client Dashboard Access Hub
           </CardTitle>
           <CardDescription>
-            Seamlessly access and manage all client dashboards from a central location
+            Seamlessly access and manage all client dashboards from a central
+            location
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -263,7 +277,9 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                 <Globe className="w-4 h-4 text-green-500" />
                 <span className="text-sm text-gray-300">Online</span>
               </div>
-              <p className="text-xl font-bold text-white">{activeConnections.size}</p>
+              <p className="text-xl font-bold text-white">
+                {activeConnections.size}
+              </p>
             </div>
             <div className="bg-black/30 rounded-lg p-3">
               <div className="flex items-center gap-2">
@@ -271,7 +287,7 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                 <span className="text-sm text-gray-300">Active</span>
               </div>
               <p className="text-xl font-bold text-white">
-                {clients.filter(c => c.status === "active").length}
+                {clients.filter((c) => c.status === "active").length}
               </p>
             </div>
             <div className="bg-black/30 rounded-lg p-3">
@@ -280,7 +296,7 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                 <span className="text-sm text-gray-300">High Priority</span>
               </div>
               <p className="text-xl font-bold text-white">
-                {clients.filter(c => c.priority === "high").length}
+                {clients.filter((c) => c.priority === "high").length}
               </p>
             </div>
           </div>
@@ -292,7 +308,8 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
         <CardHeader>
           <CardTitle className="text-white">Client Dashboards</CardTitle>
           <CardDescription>
-            Click on any client to access their dashboard with full admin privileges
+            Click on any client to access their dashboard with full admin
+            privileges
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -318,7 +335,9 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                         )}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-white">{client.name}</h3>
+                        <h3 className="font-semibold text-white">
+                          {client.name}
+                        </h3>
                         <p className="text-sm text-gray-400">
                           {client.artist} • {client.event}
                         </p>
@@ -327,7 +346,9 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                             {client.status}
                           </Badge>
                           {client.priority && (
-                            <Badge className={getPriorityColor(client.priority)}>
+                            <Badge
+                              className={getPriorityColor(client.priority)}
+                            >
                               {client.priority}
                             </Badge>
                           )}
@@ -357,7 +378,9 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => handleAccessDashboard(client, "impersonate")}
+                        onClick={() =>
+                          handleAccessDashboard(client, "impersonate")
+                        }
                         className="bg-wme-gold/10 border-wme-gold/30 text-wme-gold hover:bg-wme-gold/20"
                       >
                         <UserCog className="w-4 h-4 mr-1" />
@@ -375,9 +398,12 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                         </DialogTrigger>
                         <DialogContent className="bg-black/90 border-wme-gold/20">
                           <DialogHeader>
-                            <DialogTitle className="text-white">Access Options for {client.name}</DialogTitle>
+                            <DialogTitle className="text-white">
+                              Access Options for {client.name}
+                            </DialogTitle>
                             <DialogDescription>
-                              Choose how you want to access this client's dashboard
+                              Choose how you want to access this client's
+                              dashboard
                             </DialogDescription>
                           </DialogHeader>
                           <div className="space-y-4">
@@ -389,29 +415,42 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                               <Eye className="w-4 h-4 mr-2" />
                               <div className="text-left">
                                 <div>View Dashboard (Read-Only)</div>
-                                <div className="text-xs opacity-70">See client data without making changes</div>
+                                <div className="text-xs opacity-70">
+                                  See client data without making changes
+                                </div>
                               </div>
                             </Button>
                             <Button
                               variant="outline"
                               className="w-full justify-start bg-wme-gold/10 border-wme-gold/30 text-wme-gold hover:bg-wme-gold/20"
-                              onClick={() => handleAccessDashboard(client, "impersonate")}
+                              onClick={() =>
+                                handleAccessDashboard(client, "impersonate")
+                              }
                             >
                               <UserCog className="w-4 h-4 mr-2" />
                               <div className="text-left">
                                 <div>Control Session (Full Access)</div>
-                                <div className="text-xs opacity-70">Access as the client with full permissions</div>
+                                <div className="text-xs opacity-70">
+                                  Access as the client with full permissions
+                                </div>
                               </div>
                             </Button>
                             <Button
                               variant="outline"
                               className="w-full justify-start bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20"
-                              onClick={() => window.open(`/admin/client/${client.bookingId}`, "_blank")}
+                              onClick={() =>
+                                window.open(
+                                  `/admin/client/${client.bookingId}`,
+                                  "_blank",
+                                )
+                              }
                             >
                               <Settings className="w-4 h-4 mr-2" />
                               <div className="text-left">
                                 <div>Admin Panel View</div>
-                                <div className="text-xs opacity-70">Dedicated admin interface for this client</div>
+                                <div className="text-xs opacity-70">
+                                  Dedicated admin interface for this client
+                                </div>
                               </div>
                             </Button>
                           </div>
@@ -426,11 +465,15 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
                 <div className="text-center py-8 text-gray-400">
                   <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
                   <p>No clients found matching your criteria</p>
-                  <Button variant="outline" onClick={() => {
-                    setSearchTerm("");
-                    setStatusFilter("all");
-                    setPriorityFilter("all");
-                  }} className="mt-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setStatusFilter("all");
+                      setPriorityFilter("all");
+                    }}
+                    className="mt-4"
+                  >
                     Clear Filters
                   </Button>
                 </div>
@@ -450,12 +493,16 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
             <Button
               variant="outline"
               className="h-auto p-4 flex-col items-start space-y-2"
-              onClick={() => toast.success("Broadcasting message to all clients")}
+              onClick={() =>
+                toast.success("Broadcasting message to all clients")
+              }
             >
               <Bell className="w-5 h-5 text-blue-400" />
               <div className="text-left">
                 <div className="font-semibold">Broadcast</div>
-                <div className="text-xs opacity-70">Send message to all clients</div>
+                <div className="text-xs opacity-70">
+                  Send message to all clients
+                </div>
               </div>
             </Button>
             <Button
@@ -466,7 +513,9 @@ export function AdminClientDashboard({ onClientSelect }: AdminClientDashboardPro
               <Activity className="w-5 h-5 text-green-400" />
               <div className="text-left">
                 <div className="font-semibold">Export All</div>
-                <div className="text-xs opacity-70">Download client database</div>
+                <div className="text-xs opacity-70">
+                  Download client database
+                </div>
               </div>
             </Button>
             <Button

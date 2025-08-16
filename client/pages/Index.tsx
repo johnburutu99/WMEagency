@@ -59,13 +59,19 @@ export default function Index() {
     }
   }, [searchParams]);
 
-  const handleImpersonatedLogin = async (impersonatedBookingId: string, token: string) => {
+  const handleImpersonatedLogin = async (
+    impersonatedBookingId: string,
+    token: string,
+  ) => {
     setIsLoading(true);
     setError("");
     try {
       const response = await apiClient.login(impersonatedBookingId, token);
       if (response.success && response.data?.client) {
-        localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+        localStorage.setItem(
+          "wme-user-data",
+          JSON.stringify(response.data.client),
+        );
         localStorage.setItem("wme-admin-impersonating", "true");
         window.location.href = "/dashboard";
       } else {
@@ -84,7 +90,10 @@ export default function Index() {
     try {
       const response = await apiClient.getClient(clientBookingId);
       if (response.success && response.data?.client) {
-        localStorage.setItem("wme-user-data", JSON.stringify(response.data.client));
+        localStorage.setItem(
+          "wme-user-data",
+          JSON.stringify(response.data.client),
+        );
         localStorage.setItem("wme-admin-view-only", "true");
         window.location.href = "/dashboard";
       } else {
@@ -137,8 +146,7 @@ export default function Index() {
       console.error("Login API call failed:", err);
       // Handle network errors or other exceptions
       const errorMessage =
-        err.response?.data?.error ||
-        "Login failed. Please try again later.";
+        err.response?.data?.error || "Login failed. Please try again later.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);

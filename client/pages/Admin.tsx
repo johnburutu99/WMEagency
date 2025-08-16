@@ -121,7 +121,9 @@ export default function Admin() {
   }, [statusFilter, searchTerm]);
 
   useEffect(() => {
-    const socket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:8080");
+    const socket = io(
+      import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+    );
 
     socket.on("new-client", (newClient: Client) => {
       setClients((prevClients) => [newClient, ...prevClients]);
@@ -539,10 +541,12 @@ export default function Admin() {
 
         {/* Client Dashboard Access Hub */}
         <div className="mb-8">
-          <AdminClientDashboard onClientSelect={(client) => {
-            // Handle client selection for quick access
-            console.log('Selected client:', client);
-          }} />
+          <AdminClientDashboard
+            onClientSelect={(client) => {
+              // Handle client selection for quick access
+              console.log("Selected client:", client);
+            }}
+          />
         </div>
 
         {/* Client Lists */}
@@ -966,10 +970,7 @@ export default function Admin() {
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                             <div className="text-left sm:text-right sm:mr-4">
                               <p className="font-semibold">
-                                $
-                                {(
-                                  client.contractAmount || 0
-                                ).toLocaleString()}
+                                ${(client.contractAmount || 0).toLocaleString()}
                               </p>
                               <p className="text-sm text-muted-foreground">
                                 {client.coordinator.name}
@@ -1031,9 +1032,12 @@ export default function Admin() {
                                     : "outline"
                                 }
                                 size="sm"
-                                onClick={() => handleToggleEmailReminders(client)}
+                                onClick={() =>
+                                  handleToggleEmailReminders(client)
+                                }
                               >
-                                {client.metadata?.notifications?.emailReminders ? (
+                                {client.metadata?.notifications
+                                  ?.emailReminders ? (
                                   <Bell className="w-4 h-4 text-green-500" />
                                 ) : (
                                   <BellOff className="w-4 h-4 text-red-500" />
@@ -1043,7 +1047,10 @@ export default function Admin() {
                                 variant="outline"
                                 size="sm"
                                 onClick={() =>
-                                  handleSendCommand(client.bookingId, "show-alert")
+                                  handleSendCommand(
+                                    client.bookingId,
+                                    "show-alert",
+                                  )
                                 }
                               >
                                 <AlertCircle className="w-4 h-4" />
@@ -1169,9 +1176,7 @@ export default function Admin() {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="edit-contractAmount">
-                      Contract Amount
-                    </Label>
+                    <Label htmlFor="edit-contractAmount">Contract Amount</Label>
                     <Input
                       id="edit-contractAmount"
                       type="number"
@@ -1243,9 +1248,7 @@ export default function Admin() {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="edit-coordEmail">
-                        Coordinator Email
-                      </Label>
+                      <Label htmlFor="edit-coordEmail">Coordinator Email</Label>
                       <Input
                         id="edit-coordEmail"
                         type="email"

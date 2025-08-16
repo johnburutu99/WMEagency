@@ -9,12 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import {
@@ -67,7 +62,7 @@ export default function AdminClientDashboard() {
 
   const loadClient = async () => {
     if (!bookingId) return;
-    
+
     setLoading(true);
     try {
       const response = await apiClient.getClient(bookingId);
@@ -91,12 +86,18 @@ export default function AdminClientDashboard() {
 
   const handleImpersonate = async () => {
     if (!client) return;
-    
+
     try {
       const response = await apiClient.impersonateClient(client.bookingId);
       if (response.success && response.data) {
-        sessionStorage.setItem("impersonationToken", response.data.impersonationToken);
-        window.open(`/?impersonate=true&bookingId=${client.bookingId}`, "_blank");
+        sessionStorage.setItem(
+          "impersonationToken",
+          response.data.impersonationToken,
+        );
+        window.open(
+          `/?impersonate=true&bookingId=${client.bookingId}`,
+          "_blank",
+        );
         toast.success(`Now impersonating ${client.name}'s session`);
       }
     } catch (error) {
@@ -117,7 +118,7 @@ export default function AdminClientDashboard() {
 
   const handleSendCommand = async (command: string) => {
     if (!client) return;
-    
+
     try {
       await apiClient.sendCommandToClient(client.bookingId, command, {
         timestamp: new Date().toISOString(),
@@ -173,7 +174,9 @@ export default function AdminClientDashboard() {
             <CardTitle className="text-red-500">Error</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-muted-foreground mb-4">{error || "Client not found"}</p>
+            <p className="text-muted-foreground mb-4">
+              {error || "Client not found"}
+            </p>
             <Button onClick={() => navigate("/admin")} variant="outline">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Admin
@@ -202,7 +205,7 @@ export default function AdminClientDashboard() {
               </Button>
             </Link>
           </div>
-          
+
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
               <div className="flex items-center gap-3 mb-2">
@@ -210,8 +213,12 @@ export default function AdminClientDashboard() {
                   <Star className="w-6 h-6 text-wme-gold" />
                 </div>
                 <div>
-                  <h1 className="text-3xl font-bold text-foreground">{client.name}</h1>
-                  <p className="text-muted-foreground">{client.artist} • {client.event}</p>
+                  <h1 className="text-3xl font-bold text-foreground">
+                    {client.name}
+                  </h1>
+                  <p className="text-muted-foreground">
+                    {client.artist} • {client.event}
+                  </p>
                 </div>
                 {isOnline && (
                   <div className="relative">
@@ -256,11 +263,19 @@ export default function AdminClientDashboard() {
                 <Eye className="w-4 h-4 mr-2" />
                 View Dashboard
               </Button>
-              <Button onClick={handleImpersonate} className="bg-wme-gold text-black hover:bg-wme-gold/90">
+              <Button
+                onClick={handleImpersonate}
+                className="bg-wme-gold text-black hover:bg-wme-gold/90"
+              >
                 <UserCog className="w-4 h-4 mr-2" />
                 Control Session
               </Button>
-              <Button variant="outline" onClick={() => window.open(`/?bookingId=${client.bookingId}`, "_blank")}>
+              <Button
+                variant="outline"
+                onClick={() =>
+                  window.open(`/?bookingId=${client.bookingId}`, "_blank")
+                }
+              >
                 <ExternalLink className="w-4 h-4 mr-2" />
                 Open Portal
               </Button>
@@ -292,7 +307,9 @@ export default function AdminClientDashboard() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-4">
                       <div>
-                        <label className="text-sm font-medium text-muted-foreground">Personal</label>
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Personal
+                        </label>
                         <div className="mt-1 space-y-2">
                           <div className="flex items-center gap-2">
                             <User className="w-4 h-4 text-muted-foreground" />
@@ -313,7 +330,9 @@ export default function AdminClientDashboard() {
                     </div>
                     <div className="space-y-4">
                       <div>
-                        <label className="text-sm font-medium text-muted-foreground">Event Details</label>
+                        <label className="text-sm font-medium text-muted-foreground">
+                          Event Details
+                        </label>
                         <div className="mt-1 space-y-2">
                           <div className="flex items-center gap-2">
                             <Star className="w-4 h-4 text-muted-foreground" />
@@ -343,7 +362,9 @@ export default function AdminClientDashboard() {
                   <Separator />
 
                   <div>
-                    <label className="text-sm font-medium text-muted-foreground">Coordinator</label>
+                    <label className="text-sm font-medium text-muted-foreground">
+                      Coordinator
+                    </label>
                     <div className="mt-1 space-y-2">
                       <div className="flex items-center gap-2">
                         <User className="w-4 h-4 text-muted-foreground" />
@@ -373,19 +394,25 @@ export default function AdminClientDashboard() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Contract Amount</label>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Contract Amount
+                      </label>
                       <p className="text-2xl font-bold">
                         ${(client.contractAmount || 0).toLocaleString()}
                       </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Current Balance</label>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Current Balance
+                      </label>
                       <p className="text-xl font-semibold">
                         ${(client.balance || 0).toLocaleString()}
                       </p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-muted-foreground">Currency</label>
+                      <label className="text-sm font-medium text-muted-foreground">
+                        Currency
+                      </label>
                       <p>{client.currency || "USD"}</p>
                     </div>
                   </CardContent>
@@ -421,9 +448,7 @@ export default function AdminClientDashboard() {
                           Enabled
                         </Badge>
                       ) : (
-                        <Badge variant="outline">
-                          Disabled
-                        </Badge>
+                        <Badge variant="outline">Disabled</Badge>
                       )}
                     </div>
                     <div className="flex items-center justify-between">
@@ -433,9 +458,7 @@ export default function AdminClientDashboard() {
                           Online
                         </Badge>
                       ) : (
-                        <Badge variant="outline">
-                          Offline
-                        </Badge>
+                        <Badge variant="outline">Offline</Badge>
                       )}
                     </div>
                   </CardContent>
@@ -462,7 +485,9 @@ export default function AdminClientDashboard() {
                     <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                     <div className="flex-1">
                       <p className="font-medium">Client logged in</p>
-                      <p className="text-sm text-muted-foreground">2 hours ago</p>
+                      <p className="text-sm text-muted-foreground">
+                        2 hours ago
+                      </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 p-3 rounded-lg bg-muted/30">
@@ -476,7 +501,9 @@ export default function AdminClientDashboard() {
                     <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                     <div className="flex-1">
                       <p className="font-medium">Email notification sent</p>
-                      <p className="text-sm text-muted-foreground">2 days ago</p>
+                      <p className="text-sm text-muted-foreground">
+                        2 days ago
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -495,7 +522,9 @@ export default function AdminClientDashboard() {
               <CardContent>
                 <div className="text-center py-8">
                   <CreditCard className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Payment history and management will be displayed here</p>
+                  <p className="text-muted-foreground">
+                    Payment history and management will be displayed here
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -512,7 +541,9 @@ export default function AdminClientDashboard() {
               <CardContent>
                 <div className="text-center py-8">
                   <FileText className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">Client documents and files will be displayed here</p>
+                  <p className="text-muted-foreground">
+                    Client documents and files will be displayed here
+                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -537,7 +568,9 @@ export default function AdminClientDashboard() {
                   </Button>
                   <div className="text-center py-8">
                     <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">Communication history will be displayed here</p>
+                    <p className="text-muted-foreground">
+                      Communication history will be displayed here
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -565,7 +598,9 @@ export default function AdminClientDashboard() {
                     <RefreshCw className="w-5 h-5" />
                     <div>
                       <div className="font-semibold">Refresh Dashboard</div>
-                      <div className="text-xs opacity-70">Force client dashboard reload</div>
+                      <div className="text-xs opacity-70">
+                        Force client dashboard reload
+                      </div>
                     </div>
                   </Button>
                   <Button
@@ -576,7 +611,9 @@ export default function AdminClientDashboard() {
                     <Bell className="w-5 h-5" />
                     <div>
                       <div className="font-semibold">Send Notification</div>
-                      <div className="text-xs opacity-70">Show notification to client</div>
+                      <div className="text-xs opacity-70">
+                        Show notification to client
+                      </div>
                     </div>
                   </Button>
                   <Button
@@ -587,7 +624,9 @@ export default function AdminClientDashboard() {
                     <Download className="w-5 h-5" />
                     <div>
                       <div className="font-semibold">Update Data</div>
-                      <div className="text-xs opacity-70">Sync latest client data</div>
+                      <div className="text-xs opacity-70">
+                        Sync latest client data
+                      </div>
                     </div>
                   </Button>
                   <Button
@@ -598,7 +637,9 @@ export default function AdminClientDashboard() {
                     <AlertCircle className="w-5 h-5" />
                     <div>
                       <div className="font-semibold">Maintenance Notice</div>
-                      <div className="text-xs opacity-70">Display maintenance message</div>
+                      <div className="text-xs opacity-70">
+                        Display maintenance message
+                      </div>
                     </div>
                   </Button>
                 </div>

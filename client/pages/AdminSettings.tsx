@@ -6,12 +6,7 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -165,7 +160,9 @@ export default function AdminSettings() {
 
   const handleExportData = async (format: string) => {
     try {
-      const response = await fetch(`/api/admin/export-clients?format=${format}`);
+      const response = await fetch(
+        `/api/admin/export-clients?format=${format}`,
+      );
       if (response.ok) {
         const blob = await response.blob();
         const url = window.URL.createObjectURL(blob);
@@ -239,7 +236,9 @@ export default function AdminSettings() {
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">Clients</span>
-                  <span className="text-sm text-white">{systemHealth.database.clients}</span>
+                  <span className="text-sm text-white">
+                    {systemHealth.database.clients}
+                  </span>
                 </div>
               </div>
               <div className="space-y-2">
@@ -262,7 +261,8 @@ export default function AdminSettings() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm text-gray-400">Running</span>
                   <span className="text-sm text-white">
-                    {Math.floor(systemHealth.uptime / 3600)}h {Math.floor((systemHealth.uptime % 3600) / 60)}m
+                    {Math.floor(systemHealth.uptime / 3600)}h{" "}
+                    {Math.floor((systemHealth.uptime % 3600) / 60)}m
                   </span>
                 </div>
               </div>
@@ -312,7 +312,9 @@ export default function AdminSettings() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card className="bg-black/20 border-wme-gold/20">
               <CardHeader>
-                <CardTitle className="text-white">Database Configuration</CardTitle>
+                <CardTitle className="text-white">
+                  Database Configuration
+                </CardTitle>
                 <CardDescription>
                   Manage database connection and backup settings
                 </CardDescription>
@@ -431,8 +433,9 @@ export default function AdminSettings() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Reset Database</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will permanently delete all client data and reset the database to its initial state.
-                            This action cannot be undone.
+                            This will permanently delete all client data and
+                            reset the database to its initial state. This action
+                            cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -462,7 +465,9 @@ export default function AdminSettings() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">General Settings</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    General Settings
+                  </h3>
                   <div className="flex items-center justify-between">
                     <Label className="text-gray-300">Maintenance Mode</Label>
                     <Switch
@@ -488,29 +493,41 @@ export default function AdminSettings() {
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label className="text-gray-300">Allow New Registrations</Label>
+                    <Label className="text-gray-300">
+                      Allow New Registrations
+                    </Label>
                     <Switch
                       checked={settings.system.allowRegistration}
                       onCheckedChange={(checked) =>
                         setSettings((prev) => ({
                           ...prev,
-                          system: { ...prev.system, allowRegistration: checked },
+                          system: {
+                            ...prev.system,
+                            allowRegistration: checked,
+                          },
                         }))
                       }
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Performance Settings</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Performance Settings
+                  </h3>
                   <div className="space-y-2">
-                    <Label className="text-gray-300">API Rate Limit (per hour)</Label>
+                    <Label className="text-gray-300">
+                      API Rate Limit (per hour)
+                    </Label>
                     <Input
                       type="number"
                       value={settings.system.apiRateLimit}
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          system: { ...prev.system, apiRateLimit: parseInt(e.target.value) },
+                          system: {
+                            ...prev.system,
+                            apiRateLimit: parseInt(e.target.value),
+                          },
                         }))
                       }
                       className="bg-black/30 border-gray-600"
@@ -524,7 +541,10 @@ export default function AdminSettings() {
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          system: { ...prev.system, maxFileSize: parseInt(e.target.value) },
+                          system: {
+                            ...prev.system,
+                            maxFileSize: parseInt(e.target.value),
+                          },
                         }))
                       }
                       className="bg-black/30 border-gray-600"
@@ -556,7 +576,9 @@ export default function AdminSettings() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">SMTP Settings</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    SMTP Settings
+                  </h3>
                   <div className="space-y-2">
                     <Label className="text-gray-300">SMTP Host</Label>
                     <Input
@@ -605,7 +627,10 @@ export default function AdminSettings() {
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          email: { ...prev.email, smtpPassword: e.target.value },
+                          email: {
+                            ...prev.email,
+                            smtpPassword: e.target.value,
+                          },
                         }))
                       }
                       className="bg-black/30 border-gray-600"
@@ -625,7 +650,9 @@ export default function AdminSettings() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Email Identity</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Email Identity
+                  </h3>
                   <div className="space-y-2">
                     <Label className="text-gray-300">From Email</Label>
                     <Input
@@ -683,7 +710,9 @@ export default function AdminSettings() {
         <TabsContent value="security">
           <Card className="bg-black/20 border-wme-gold/20">
             <CardHeader>
-              <CardTitle className="text-white">Security Configuration</CardTitle>
+              <CardTitle className="text-white">
+                Security Configuration
+              </CardTitle>
               <CardDescription>
                 Configure authentication, sessions, and security policies
               </CardDescription>
@@ -691,16 +720,23 @@ export default function AdminSettings() {
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Authentication</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Authentication
+                  </h3>
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Session Timeout (hours)</Label>
+                    <Label className="text-gray-300">
+                      Session Timeout (hours)
+                    </Label>
                     <Input
                       type="number"
                       value={settings.security.sessionTimeout}
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          security: { ...prev.security, sessionTimeout: parseInt(e.target.value) },
+                          security: {
+                            ...prev.security,
+                            sessionTimeout: parseInt(e.target.value),
+                          },
                         }))
                       }
                       className="bg-black/30 border-gray-600"
@@ -714,36 +750,51 @@ export default function AdminSettings() {
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          security: { ...prev.security, maxLoginAttempts: parseInt(e.target.value) },
+                          security: {
+                            ...prev.security,
+                            maxLoginAttempts: parseInt(e.target.value),
+                          },
                         }))
                       }
                       className="bg-black/30 border-gray-600"
                     />
                   </div>
                   <div className="flex items-center justify-between">
-                    <Label className="text-gray-300">Require Two-Factor Auth</Label>
+                    <Label className="text-gray-300">
+                      Require Two-Factor Auth
+                    </Label>
                     <Switch
                       checked={settings.security.requireTwoFactor}
                       onCheckedChange={(checked) =>
                         setSettings((prev) => ({
                           ...prev,
-                          security: { ...prev.security, requireTwoFactor: checked },
+                          security: {
+                            ...prev.security,
+                            requireTwoFactor: checked,
+                          },
                         }))
                       }
                     />
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Password Policy</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Password Policy
+                  </h3>
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Minimum Password Length</Label>
+                    <Label className="text-gray-300">
+                      Minimum Password Length
+                    </Label>
                     <Input
                       type="number"
                       value={settings.security.passwordMinLength}
                       onChange={(e) =>
                         setSettings((prev) => ({
                           ...prev,
-                          security: { ...prev.security, passwordMinLength: parseInt(e.target.value) },
+                          security: {
+                            ...prev.security,
+                            passwordMinLength: parseInt(e.target.value),
+                          },
                         }))
                       }
                       className="bg-black/30 border-gray-600"
@@ -758,7 +809,10 @@ export default function AdminSettings() {
                         onChange={(e) =>
                           setSettings((prev) => ({
                             ...prev,
-                            security: { ...prev.security, jwtSecret: e.target.value },
+                            security: {
+                              ...prev.security,
+                              jwtSecret: e.target.value,
+                            },
                           }))
                         }
                         className="bg-black/30 border-gray-600"
@@ -794,9 +848,12 @@ export default function AdminSettings() {
             <CardContent>
               <div className="text-center py-8">
                 <Users className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">User Management</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  User Management
+                </h3>
                 <p className="text-gray-400 mb-4">
-                  This feature will allow you to manage admin users, roles, and permissions.
+                  This feature will allow you to manage admin users, roles, and
+                  permissions.
                 </p>
                 <Button variant="outline">
                   <Users className="w-4 h-4 mr-2" />
@@ -847,9 +904,13 @@ export default function AdminSettings() {
                   </div>
                 </div>
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-white">Legal Pages</h3>
+                  <h3 className="text-lg font-semibold text-white">
+                    Legal Pages
+                  </h3>
                   <div className="space-y-2">
-                    <Label className="text-gray-300">Terms of Service URL</Label>
+                    <Label className="text-gray-300">
+                      Terms of Service URL
+                    </Label>
                     <Input
                       value={settings.app.termsUrl}
                       onChange={(e) =>
@@ -899,9 +960,12 @@ export default function AdminSettings() {
             <CardContent>
               <div className="text-center py-8">
                 <Plug className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">Integration Hub</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  Integration Hub
+                </h3>
                 <p className="text-gray-400 mb-4">
-                  Connect with external services like payment processors, CRM systems, and notification services.
+                  Connect with external services like payment processors, CRM
+                  systems, and notification services.
                 </p>
                 <Button variant="outline">
                   <Plug className="w-4 h-4 mr-2" />
@@ -923,9 +987,12 @@ export default function AdminSettings() {
             <CardContent>
               <div className="text-center py-8">
                 <Eye className="w-16 h-16 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-semibold text-white mb-2">System Monitoring</h3>
+                <h3 className="text-lg font-semibold text-white mb-2">
+                  System Monitoring
+                </h3>
                 <p className="text-gray-400 mb-4">
-                  Monitor system performance, view audit logs, and track user activity.
+                  Monitor system performance, view audit logs, and track user
+                  activity.
                 </p>
                 <Button variant="outline">
                   <Activity className="w-4 h-4 mr-2" />

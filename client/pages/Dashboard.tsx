@@ -51,7 +51,9 @@ export default function Dashboard() {
 
   // Check admin access modes
   useEffect(() => {
-    setIsAdminImpersonating(localStorage.getItem("wme-admin-impersonating") === "true");
+    setIsAdminImpersonating(
+      localStorage.getItem("wme-admin-impersonating") === "true",
+    );
     setIsAdminViewOnly(localStorage.getItem("wme-admin-view-only") === "true");
   }, []);
 
@@ -76,7 +78,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (userData?.bookingId) {
-      const socket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:8080");
+      const socket = io(
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+      );
       socket.emit("join-room", userData.bookingId);
 
       socket.on("execute-command", ({ command, payload }) => {
@@ -471,9 +475,7 @@ export default function Dashboard() {
                         <div className="text-right flex-shrink-0">
                           <p className="font-semibold">{booking.amount}</p>
                           <Badge
-                            className={`mt-1 ${getStatusColor(
-                              booking.status,
-                            )}`}
+                            className={`mt-1 ${getStatusColor(booking.status)}`}
                           >
                             {booking.status}
                           </Badge>
@@ -536,7 +538,6 @@ export default function Dashboard() {
           </div>
         </main>
       </div>
-
     </div>
   );
 }
