@@ -23,6 +23,9 @@ export default defineConfig(({ mode }) => ({
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
+  define: {
+    global: "globalThis",
+  },
 }));
 
 function expressPlugin(): Plugin {
