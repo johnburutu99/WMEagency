@@ -409,9 +409,19 @@ export default function Dashboard() {
                   }
                 </CardDescription>
               </div>
-              <Button>
-                <Link to="/dashboard/bookings">View Bookings</Link>
-              </Button>
+              <div className="flex gap-2">
+                {(isAdminImpersonating || isAdminViewOnly) && (
+                  <Button
+                    variant="outline"
+                    onClick={() => window.open(`/admin/client/${userData?.bookingId}`, "_blank")}
+                  >
+                    Admin Panel
+                  </Button>
+                )}
+                <Button>
+                  <Link to="/dashboard/bookings">View Bookings</Link>
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
