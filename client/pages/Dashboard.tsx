@@ -329,43 +329,14 @@ export default function Dashboard() {
               <Menu className="w-4 h-4" />
             </Button>
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-lg font-semibold">Dashboard</h1>
-                {isAdminImpersonating && (
-                  <Badge className="bg-wme-gold/20 text-wme-gold border-wme-gold/30">
-                    Admin Control Session
-                  </Badge>
-                )}
-                {isAdminViewOnly && (
-                  <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                    Admin View Only
-                  </Badge>
-                )}
-              </div>
+              <h1 className="text-lg font-semibold">Dashboard</h1>
               <p className="text-sm text-muted-foreground">
                 Welcome back, {userData?.name || "Client"}
-                {(isAdminImpersonating || isAdminViewOnly) && (
-                  <span className="ml-2 text-wme-gold">• Accessed by Admin</span>
-                )}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            {(isAdminImpersonating || isAdminViewOnly) && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  localStorage.removeItem("wme-admin-impersonating");
-                  localStorage.removeItem("wme-admin-view-only");
-                  window.open("/admin", "_blank");
-                }}
-                className="bg-wme-gold/10 border-wme-gold/30 text-wme-gold hover:bg-wme-gold/20"
-              >
-                ← Back to Admin
-              </Button>
-            )}
             <ThemeToggle />
             <NotificationCenter />
             <div className="w-10 h-10 bg-wme-gold rounded-full flex items-center justify-center border-2 border-wme-gold/50">
@@ -388,41 +359,16 @@ export default function Dashboard() {
           <Card className="mb-8 bg-gradient-to-r from-wme-gold/20 to-wme-gold/5 border border-wme-gold/30">
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <CardTitle className="text-2xl text-foreground">
-                    Welcome, {userData?.name || "Client"}!
-                  </CardTitle>
-                  {isAdminImpersonating && (
-                    <Badge className="bg-wme-gold/20 text-wme-gold border-wme-gold/30">
-                      Impersonation Mode
-                    </Badge>
-                  )}
-                  {isAdminViewOnly && (
-                    <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">
-                      Read-Only Access
-                    </Badge>
-                  )}
-                </div>
+                <CardTitle className="text-2xl text-foreground">
+                  Welcome, {userData?.name || "Client"}!
+                </CardTitle>
                 <CardDescription className="text-muted-foreground mt-1">
-                  {isAdminImpersonating || isAdminViewOnly
-                    ? "This dashboard is being accessed by an administrator."
-                    : "Here's a summary of your account."
-                  }
+                  Here's a summary of your account.
                 </CardDescription>
               </div>
-              <div className="flex gap-2">
-                {(isAdminImpersonating || isAdminViewOnly) && (
-                  <Button
-                    variant="outline"
-                    onClick={() => window.open(`/admin/client/${userData?.bookingId}`, "_blank")}
-                  >
-                    Admin Panel
-                  </Button>
-                )}
-                <Button>
-                  <Link to="/dashboard/bookings">View Bookings</Link>
-                </Button>
-              </div>
+              <Button>
+                <Link to="/dashboard/bookings">View Bookings</Link>
+              </Button>
             </CardContent>
           </Card>
 
