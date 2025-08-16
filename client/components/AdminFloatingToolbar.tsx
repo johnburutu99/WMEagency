@@ -44,6 +44,7 @@ export function AdminFloatingToolbar({
   clientData
 }: AdminFloatingToolbarProps) {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
   
   if (!isImpersonating && !isViewOnly) {
     return null;
