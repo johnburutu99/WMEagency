@@ -591,6 +591,16 @@ export default function Dashboard() {
           </div>
         </main>
       </div>
+
+      {/* Admin Floating Toolbar */}
+      <AdminFloatingToolbar
+        isImpersonating={isAdminImpersonating}
+        isViewOnly={isAdminViewOnly}
+        clientData={userData ? {
+          bookingId: userData.bookingId,
+          name: userData.name
+        } : undefined}
+      />
     </div>
   );
 }
