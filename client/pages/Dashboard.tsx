@@ -42,7 +42,6 @@ import {
 } from "recharts";
 import { NotificationCenter } from "../components/NotificationCenter";
 import { ProgressTracker } from "../components/ProgressTracker";
-import { AdminFloatingToolbar } from "../components/AdminFloatingToolbar";
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -538,15 +537,6 @@ export default function Dashboard() {
         </main>
       </div>
 
-      {/* Admin Floating Toolbar */}
-      <AdminFloatingToolbar
-        isImpersonating={isAdminImpersonating}
-        isViewOnly={isAdminViewOnly}
-        clientData={userData ? {
-          bookingId: userData.bookingId,
-          name: userData.name
-        } : undefined}
-      />
     </div>
   );
 }
