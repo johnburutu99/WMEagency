@@ -95,114 +95,27 @@ export default function Index() {
     setIsLoading(true);
 
     try {
-      // First try the real API for authentication
       const response = await apiClient.login(bookingId);
-
-      if (response.success && response.data?.client) {
+      if (response.success && response.data?.user) {
         // Store user data in localStorage for the dashboard
         localStorage.setItem(
           "wme-user-data",
-          JSON.stringify(response.data.client),
+          JSON.stringify(response.data.user),
         );
-
         // Redirect to dashboard
         window.location.href = "/dashboard";
-        return;
+      } else {
+        // Use the error message from the API response
+        setError(response.error || "An unknown error occurred.");
       }
-    } catch (error) {
-      console.error("API login failed, trying fallback:", error);
-    }
-
-    // Fallback to local authentication if API fails
-    const mockUserData = {
-      WME24001: {
-        bookingId: "WME24001",
-        name: "John Doe",
-        email: "john.doe@email.com",
-        artist: "Taylor Swift",
-        event: "Grammy Awards Performance",
-        eventDate: "2024-02-04",
-        status: "active",
-        contractAmount: 2500000,
-        coordinator: {
-          name: "Sarah Johnson",
-          email: "sarah.johnson@wme.com",
-          department: "Music Division",
-        },
-      },
-      WME24002: {
-        bookingId: "WME24002",
-        name: "Jane Smith",
-        email: "jane.smith@email.com",
-        artist: "Dwayne Johnson",
-        event: "Fast X Premiere",
-        eventDate: "2024-01-15",
-        status: "pending",
-        contractAmount: 750000,
-        coordinator: {
-          name: "Michael Chen",
-          email: "michael.chen@wme.com",
-          department: "Film & TV Division",
-        },
-      },
-      WME24003: {
-        bookingId: "WME24003",
-        name: "Mike Johnson",
-        email: "mike.johnson@email.com",
-        artist: "Zendaya",
-        event: "Vogue Photoshoot",
-        eventDate: "2024-01-22",
-        status: "completed",
-        contractAmount: 150000,
-        coordinator: {
-          name: "Emma Williams",
-          email: "emma.williams@wme.com",
-          department: "Digital & Brand Partnerships",
-        },
-      },
-      ABC12345: {
-        bookingId: "ABC12345",
-        name: "Sarah Wilson",
-        email: "sarah.wilson@email.com",
-        artist: "Ryan Reynolds",
-        event: "Press Tour Services",
-        eventDate: "2024-03-15",
-        status: "active",
-        contractAmount: 1200000,
-        coordinator: {
-          name: "David Park",
-          email: "david.park@wme.com",
-          department: "Legal Affairs",
-        },
-      },
-      XYZ98765: {
-        bookingId: "XYZ98765",
-        name: "David Chen",
-        email: "david.chen@email.com",
-        artist: "Chris Evans",
-        event: "Marvel Contract Signing",
-        eventDate: "2024-02-20",
-        status: "active",
-        contractAmount: 950000,
-        coordinator: {
-          name: "Jessica Rivera",
-          email: "jessica.rivera@wme.com",
-          department: "Global Markets",
-        },
-      },
-    };
-
-    const userData =
-      mockUserData[bookingId.toUpperCase() as keyof typeof mockUserData];
-
-    if (userData) {
-      // Store user data in localStorage for the dashboard
-      localStorage.setItem("wme-user-data", JSON.stringify(userData));
-
-      // Redirect to dashboard
-      window.location.href = "/dashboard";
-    } else {
-      setError("Invalid Booking ID. Please check your booking confirmation.");
+    } catch (err: any) {
+      console.error("Login API call failed:", err);
+      // Handle network errors or other exceptions
+      const errorMessage =
+        err.response?.data?.error ||
+        "Login failed. Please try again later.";
+      setError(errorMessage);
+    } finally {
       setIsLoading(false);
     }
   };

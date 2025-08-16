@@ -108,7 +108,14 @@ export class ClientDatabase {
   private async _load() {
     try {
       const data = await fs.readFile(dbPath, "utf-8");
-      const clients = JSON.parse(data);
+      // Use a reviver to restore Date objects from ISO strings
+      const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
+      const clients = JSON.parse(data, (key, value) => {
+        if (typeof value === "string" && dateRegex.test(value)) {
+          return new Date(value);
+        }
+        return value;
+      });
       this.clients = new Map(Object.entries(clients));
     } catch (error) {
       // If file doesn't exist, seed with initial data
