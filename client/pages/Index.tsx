@@ -38,6 +38,7 @@ export default function Index() {
     const verified = searchParams.get("verified");
     const verifiedBookingId = searchParams.get("bookingId");
     const isImpersonating = searchParams.get("impersonate") === "true";
+    const adminAccess = searchParams.get("adminAccess") === "true";
 
     if (isImpersonating) {
       const impersonationToken = sessionStorage.getItem("impersonationToken");
@@ -45,6 +46,10 @@ export default function Index() {
       if (impersonationToken && impersonatedBookingId) {
         handleImpersonatedLogin(impersonatedBookingId, impersonationToken);
       }
+    } else if (adminAccess && verifiedBookingId) {
+      // Handle direct admin access to client dashboard
+      setBookingId(verifiedBookingId);
+      handleAdminDirectAccess(verifiedBookingId);
     } else if (verified === "true" && verifiedBookingId) {
       setShowSuccess(true);
       setBookingId(verifiedBookingId);
