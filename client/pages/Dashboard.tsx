@@ -351,6 +351,20 @@ export default function Dashboard() {
           </div>
 
           <div className="flex items-center gap-3">
+            {(isAdminImpersonating || isAdminViewOnly) && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  localStorage.removeItem("wme-admin-impersonating");
+                  localStorage.removeItem("wme-admin-view-only");
+                  window.open("/admin", "_blank");
+                }}
+                className="bg-wme-gold/10 border-wme-gold/30 text-wme-gold hover:bg-wme-gold/20"
+              >
+                ← Back to Admin
+              </Button>
+            )}
             <ThemeToggle />
             <NotificationCenter />
             <div className="w-10 h-10 bg-wme-gold rounded-full flex items-center justify-center border-2 border-wme-gold/50">
