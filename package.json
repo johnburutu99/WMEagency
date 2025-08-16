@@ -24,6 +24,7 @@
     "@tensorflow/tfjs": "^4.22.0",
     "@types/nodemailer": "^6.4.17",
     "@walletconnect/web3-provider": "^1.8.0",
+    "buffer": "^6.0.3",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.0",
     "ethers": "^6.15.0",
@@ -31,12 +32,15 @@
     "face-api.js": "^0.22.2",
     "jsonwebtoken": "^9.0.2",
     "nodemailer": "^7.0.5",
+    "process": "^0.11.10",
     "qrcode.react": "^4.2.0",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "util": "^0.12.5",
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
     "@eslint/js": "^9.32.0",
     "@hookform/resolvers": "^3.9.0",
     "@radix-ui/react-accordion": "^1.2.0",

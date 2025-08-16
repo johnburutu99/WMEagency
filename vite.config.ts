@@ -21,6 +21,21 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
+      buffer: "buffer",
+      util: "util",
+      process: "process/browser",
+    },
+  },
+  define: {
+    global: "globalThis",
+    "process.env": {},
+  },
+  optimizeDeps: {
+    include: ["buffer", "util", "process"],
+    esbuildOptions: {
+      define: {
+        global: "globalThis",
+      },
     },
   },
 }));

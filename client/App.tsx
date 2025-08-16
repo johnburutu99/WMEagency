@@ -25,7 +25,6 @@ import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import SettingsPage from "./pages/Settings"; // Renamed to avoid conflict with lucide-react
 import VerifyIdentityPage from "./pages/VerifyIdentity";
-import { Settings } from "lucide-react";
 
 const queryClient = new QueryClient();
 
