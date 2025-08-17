@@ -51,6 +51,11 @@ import {
 import { handleProfilePictureUpload } from "./routes/user";
 import http from "http";
 import { SocketService } from "./services/socketService";
+import {
+  createInvoice,
+  listInvoices,
+  getInvoice,
+} from "./routes/invoice.js";
 
 export function createServer() {
   const app = express();
@@ -166,11 +171,6 @@ export function createServer() {
   app.post("/api/user/profile-picture", handleProfilePictureUpload);
 
   // Invoice routes
-  const {
-    createInvoice,
-    listInvoices,
-    getInvoice,
-  } = require("./routes/invoice");
   app.post("/api/invoice", createInvoice);
   app.get("/api/invoices", listInvoices);
   app.get("/api/invoice/:id", getInvoice);

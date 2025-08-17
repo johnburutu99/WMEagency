@@ -34,6 +34,7 @@
     "express": "^5.1.0",
     "face-api.js": "^0.22.2",
     "jsonwebtoken": "^9.0.2",
+    "node-fetch": "^3.3.2",
     "nodemailer": "^7.0.5",
     "process": "^0.11.10",
     "qrcode.react": "^4.2.0",
