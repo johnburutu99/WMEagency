@@ -55,7 +55,7 @@ import {
   createInvoice,
   listInvoices,
   getInvoice,
-} from "./routes/invoice.js";
+} from "./routes/invoice";
 
 export function createServer() {
   const app = express();
