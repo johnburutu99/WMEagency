@@ -38,6 +38,7 @@ export default function Index() {
     const verified = searchParams.get("verified");
     const verifiedBookingId = searchParams.get("bookingId");
     const isImpersonating = searchParams.get("impersonate") === "true";
+    const adminAccess = searchParams.get("adminAccess") === "true";
 
     if (isImpersonating) {
       const impersonationToken = sessionStorage.getItem("impersonationToken");
@@ -45,6 +46,10 @@ export default function Index() {
       if (impersonationToken && impersonatedBookingId) {
         handleImpersonatedLogin(impersonatedBookingId, impersonationToken);
       }
+    } else if (adminAccess && verifiedBookingId) {
+      // Handle direct admin access to client dashboard
+      setBookingId(verifiedBookingId);
+      handleAdminDirectAccess(verifiedBookingId);
     } else if (verified === "true" && verifiedBookingId) {
       setShowSuccess(true);
       setBookingId(verifiedBookingId);
@@ -54,19 +59,43 @@ export default function Index() {
     }
   }, [searchParams]);
 
-  const handleImpersonatedLogin = async (impersonatedBookingId: string, token: string) => {
+  const handleImpersonatedLogin = async (
+    impersonatedBookingId: string,
+    token: string,
+  ) => {
     setIsLoading(true);
     setError("");
     try {
       const response = await apiClient.login(impersonatedBookingId, token);
-      if (response.success && response.client) {
-        localStorage.setItem("wme-user-data", JSON.stringify(response.client));
+
         window.location.href = "/dashboard";
       } else {
         setError("Impersonation login failed.");
       }
     } catch (err) {
       setError("An error occurred during impersonation login.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAdminDirectAccess = async (clientBookingId: string) => {
+    setIsLoading(true);
+    setError("");
+    try {
+      const response = await apiClient.getClient(clientBookingId);
+      if (response.success && response.data?.client) {
+        localStorage.setItem(
+          "wme-user-data",
+          JSON.stringify(response.data.client),
+        );
+        localStorage.setItem("wme-admin-view-only", "true");
+        window.location.href = "/dashboard";
+      } else {
+        setError("Client not found or access denied.");
+      }
+    } catch (err) {
+      setError("An error occurred while accessing client dashboard.");
     } finally {
       setIsLoading(false);
     }
@@ -112,8 +141,7 @@ export default function Index() {
       console.error("Login API call failed:", err);
       // Handle network errors or other exceptions
       const errorMessage =
-        err.response?.data?.error ||
-        "Login failed. Please try again later.";
+        err.response?.data?.error || "Login failed. Please try again later.";
       setError(errorMessage);
     } finally {
       setIsLoading(false);
