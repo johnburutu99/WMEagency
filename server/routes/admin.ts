@@ -116,7 +116,7 @@ export const approvePayment: RequestHandler = async (req, res) => {
     }
     pendingTx.status = "paid";
     await clientDatabase.updateClient(bookingId, {
-      metadata: { transactions },
+      metadata: { ...client.metadata, transactions },
     });
     res.json({ success: true, message: "Payment approved" });
   } catch (error) {
@@ -137,7 +137,7 @@ export const getClientAnalytics: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid query parameters",
-        details: validation.error.errors,
+        details: validation.error.issues,
       });
     }
     const { period } = validation.data;
@@ -223,7 +223,7 @@ export const exportClients: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid query parameters",
-        details: validation.error.errors,
+        details: validation.error.issues,
       });
     }
 

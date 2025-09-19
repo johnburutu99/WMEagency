@@ -163,7 +163,7 @@ export const createClient: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid client data",
-        details: error.errors,
+        details: error.issues,
       });
     }
 
@@ -220,7 +220,7 @@ export const updateClient: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid update data",
-        details: error.errors,
+        details: error.issues,
       });
     }
 
@@ -317,7 +317,7 @@ export const bulkUpdateClients: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid update data",
-        details: error.errors,
+        details: error.issues,
       });
     }
 

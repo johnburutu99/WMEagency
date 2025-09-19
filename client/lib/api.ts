@@ -5,6 +5,8 @@ const API_BASE_URL = "/api";
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
+  user?: { isAdmin: boolean; username?: string };
+  client?: Client;
   error?: string;
   details?: any;
 }
@@ -30,6 +32,7 @@ export interface Client {
   };
   lastLogin?: string;
   priority?: "low" | "medium" | "high";
+  metadata?: any;
 }
 
 export interface CreateClient {
@@ -90,18 +93,18 @@ class ApiClient {
   async adminLogin(credentials: {
     username?: string;
     password?: string;
-  }): Promise<ApiResponse<{ message: string }>> {
+  }): Promise<ApiResponse> {
     return this.request("/auth/admin/login", {
       method: "POST",
       body: JSON.stringify(credentials),
     });
   }
 
-  async verifyAdminSession(): Promise<ApiResponse<{ user: { isAdmin: boolean } }>> {
+  async verifyAdminSession(): Promise<ApiResponse> {
     return this.request("/auth/admin/verify");
   }
 
-  async adminLogout(): Promise<ApiResponse<{ message: string }>> {
+  async adminLogout(): Promise<ApiResponse> {
     return this.request("/auth/admin/logout", {
       method: "POST",
     });
@@ -110,7 +113,7 @@ class ApiClient {
   async login(
     bookingId: string,
     impersonationToken?: string,
-  ): Promise<ApiResponse<{ client: Client; message: string }>> {
+  ): Promise<ApiResponse> {
     const headers: Record<string, string> = {};
     if (impersonationToken) {
       headers["Authorization"] = `Bearer ${impersonationToken}`;
@@ -152,6 +155,23 @@ class ApiClient {
     return this.request("/payment/verify-otp", {
       method: "POST",
       body: JSON.stringify({ bookingId, otp }),
+    });
+  }
+
+  async verifyEmail(data: {
+    email?: string | null;
+    otpCode: string;
+  }): Promise<ApiResponse> {
+    return this.request("/booking/verify-email", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async resendOtp(data: { email?: string | null }): Promise<ApiResponse> {
+    return this.request("/booking/resend-otp", {
+      method: "POST",
+      body: JSON.stringify(data),
     });
   }
 
