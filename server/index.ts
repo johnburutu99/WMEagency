@@ -27,6 +27,7 @@ import {
   deleteClient,
   bulkUpdateClients,
   generateBookingId,
+  getDemoClients,
 } from "./routes/clients";
 import {
   getDashboardStats,
@@ -123,16 +124,6 @@ export function createServer() {
   app.get("/api/booking-id/generate", generateBookingId);
 
   // Admin routes
-  app.get("/api/admin/dashboard", adminAuthMiddleware, getDashboardStats);
-  app.get("/api/admin/analytics", adminAuthMiddleware, getClientAnalytics);
-  app.get("/api/admin/export", adminAuthMiddleware, exportClients);
-  app.get("/api/admin/health", adminAuthMiddleware, getSystemHealth);
-  app.post("/api/admin/command", adminAuthMiddleware, sendCommandToClient);
-  app.post(
-    "/api/admin/approve-payment/:bookingId",
-    adminAuthMiddleware,
-    approvePayment,
-  );
 
   // Booking submission routes
   app.post("/api/booking/submit", handleBookingSubmission);

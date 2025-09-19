@@ -60,11 +60,6 @@ import {
   ShieldAlert,
   UserCog,
   Settings,
-  Home,
-  Bell,
-  BellOff,
-  CheckCircle2,
-  Calendar as CalendarIcon,
 } from "lucide-react";
 import { apiClient, type Client, type CreateClient } from "../lib/api";
 import { io } from "socket.io-client";
@@ -85,10 +80,6 @@ export default function Admin() {
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [showViewDialog, setShowViewDialog] = useState(false);
   const [viewingClient, setViewingClient] = useState<Client | null>(null);
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [deletingClientId, setDeletingClientId] = useState<string | null>(null);
-  const [stats, setStats] = useState<any>(null);
-  const [recentActivity, setRecentActivity] = useState<any[]>([]);
 
   // Form state for creating new client
   const [newClient, setNewClient] = useState<CreateClient>({
@@ -118,21 +109,9 @@ export default function Admin() {
   useEffect(() => {
     loadClients();
     loadStats();
+    loadDemoClients();
   }, [statusFilter, searchTerm]);
 
-  useEffect(() => {
-    const socket = io(
-      import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
-    );
-
-    socket.on("new-client", (newClient: Client) => {
-      setClients((prevClients) => [newClient, ...prevClients]);
-    });
-
-    return () => {
-      socket.disconnect();
-    };
-  }, []);
 
   const loadClients = async () => {
     setLoading(true);
@@ -266,10 +245,6 @@ export default function Admin() {
     if (!editingClient) return;
 
     try {
-      const response = await apiClient.updateClient(
-        editingClient.bookingId,
-        editingClient,
-      );
 
       if (response.success) {
         setShowEditDialog(false);
@@ -306,62 +281,13 @@ export default function Admin() {
     try {
       const response = await apiClient.impersonateClient(bookingId);
       if (response.success && response.data) {
-        sessionStorage.setItem(
-          "impersonationToken",
-          response.data.impersonationToken,
-        );
+
         window.open(`/?impersonate=true&bookingId=${bookingId}`, "_blank");
       } else {
         setError(response.error || "Failed to start impersonation session");
       }
     } catch (err) {
       setError("Failed to start impersonation session");
-    }
-  };
-
-  const handleToggleEmailReminders = async (client: Client) => {
-    try {
-      const response = await apiClient.updateClient(client.bookingId, {
-        metadata: {
-          notifications: {
-            emailReminders: !client.metadata?.notifications?.emailReminders,
-          },
-        },
-      });
-
-      if (response.success) {
-        loadClients();
-      } else {
-        setError(response.error || "Failed to update email reminder status");
-      }
-    } catch (err) {
-      setError("Failed to update email reminder status");
-    }
-  };
-
-  const handleSendCommand = async (bookingId: string, command: string) => {
-    try {
-      const response = await apiClient.sendCommandToClient(bookingId, command, {
-        message: `Hello from the admin dashboard!`,
-      });
-      if (!response.success) {
-        setError(response.error || "Failed to send command");
-      }
-    } catch (err) {
-      setError("Failed to send command");
-    }
-  };
-
-  const handleApprovePayment = async (bookingId: string) => {
-    try {
-      const response = await apiClient.approvePayment(bookingId);
-      if (response.success) {
-        loadClients();
-      } else {
-        setError(response.error || "Failed to approve payment");
-      }
-    } catch (err) {
-      setError("Failed to approve payment");
     }
   };
 
@@ -412,7 +338,6 @@ export default function Admin() {
           a.download = `wme-clients-${new Date().toISOString().split("T")[0]}.json`;
           a.click();
         }
-        // CSV download is handled by the server
       }
     } catch (err) {
       setError("Failed to export clients");
@@ -429,43 +354,6 @@ export default function Admin() {
   };
 
   return (
-    <div className="min-h-screen bg-muted/40">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <header className="bg-background rounded-lg shadow-md p-6 mb-8">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                WME Admin Dashboard
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Manage client bookings and profile data
-              </p>
-            </div>
-            <div className="flex items-center gap-3 flex-wrap">
-              <Link to="/">
-                <Button variant="outline">
-                  <Home className="w-4 h-4 mr-2" />
-                  Portal Home
-                </Button>
-              </Link>
-              <Link to="/admin/settings">
-                <Button variant="outline">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Settings
-                </Button>
-              </Link>
-              <Link to="/admin/analytics">
-                <Button variant="outline">
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  Analytics
-                </Button>
-              </Link>
-              <Button variant="destructive" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
-            </div>
           </div>
         </header>
 
@@ -478,7 +366,6 @@ export default function Admin() {
           </div>
         )}
 
-        {/* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card>
@@ -533,9 +420,7 @@ export default function Admin() {
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-          {/* Recent Activity */}
-          <div className="lg:col-span-2">
-            <ActivityFeed />
+
           </div>
         </div>
 
@@ -1189,21 +1074,11 @@ export default function Admin() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="edit-balance">Balance</Label>
-                    <Input
-                      id="edit-balance"
-                      type="number"
-                      value={editingClient.balance || 0}
-                      onChange={(e) =>
-                        setEditingClient({
-                          ...editingClient,
-                          balance: Number(e.target.value),
-                        })
+
                       }
                     />
                   </div>
                   <div>
-                    <Label htmlFor="edit-status">Status</Label>
                     <Select
                       value={editingClient.status}
                       onValueChange={(value) =>
@@ -1300,129 +1175,6 @@ export default function Admin() {
                   </Button>
                 </div>
               </form>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* View Client Dialog */}
-        <Dialog open={showViewDialog} onOpenChange={setShowViewDialog}>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>View Client Details</DialogTitle>
-              <DialogDescription>
-                Read-only view of client information.
-              </DialogDescription>
-            </DialogHeader>
-            {viewingClient && (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Booking ID</Label>
-                    <p className="font-mono text-sm">
-                      {viewingClient.bookingId}
-                    </p>
-                  </div>
-                  <div>
-                    <Label>Client Name</Label>
-                    <p>{viewingClient.name}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Email</Label>
-                    <p>{viewingClient.email}</p>
-                  </div>
-                  <div>
-                    <Label>Phone</Label>
-                    <p>{viewingClient.phone || "N/A"}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Artist/Talent</Label>
-                    <p>{viewingClient.artist}</p>
-                  </div>
-                  <div>
-                    <Label>Event</Label>
-                    <p>{viewingClient.event}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>Contract Amount</Label>
-                    <p>
-                      ${(viewingClient.contractAmount || 0).toLocaleString()}
-                    </p>
-                  </div>
-                  <div>
-                    <Label>Balance</Label>
-                    <p>${(viewingClient.balance || 0).toLocaleString()}</p>
-                  </div>
-                  <div>
-                    <Label>Status</Label>
-                    <p>
-                      <Badge className={getStatusColor(viewingClient.status)}>
-                        {viewingClient.status}
-                      </Badge>
-                    </p>
-                  </div>
-                </div>
-                <div>
-                  <Label>Verification Status</Label>
-                  <p>
-                    {viewingClient.metadata?.isVerified ? (
-                      <Badge className="bg-green-500/10 text-green-500 border-green-500/20">
-                        Verified
-                      </Badge>
-                    ) : (
-                      <Badge className="bg-red-500/10 text-red-500 border-red-500/20">
-                        Not Verified
-                      </Badge>
-                    )}
-                  </p>
-                </div>
-                <div>
-                  <h4 className="font-semibold">Coordinator Information</h4>
-                  <div className="grid grid-cols-2 gap-4 mt-2">
-                    <div>
-                      <Label>Name</Label>
-                      <p>{viewingClient.coordinator.name}</p>
-                    </div>
-                    <div>
-                      <Label>Email</Label>
-                      <p>{viewingClient.coordinator.email}</p>
-                    </div>
-                    <div>
-                      <Label>Department</Label>
-                      <p>{viewingClient.coordinator.department}</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </DialogContent>
-        </Dialog>
-
-        {/* Delete Confirmation Dialog */}
-        <Dialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Are you sure?</DialogTitle>
-              <DialogDescription>
-                This action cannot be undone. This will permanently delete the
-                client and their associated data.
-              </DialogDescription>
-            </DialogHeader>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button variant="destructive" onClick={handleDeleteClient}>
-                Delete
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
     </div>
   );

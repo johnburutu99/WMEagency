@@ -38,7 +38,6 @@ export default function Index() {
     const verified = searchParams.get("verified");
     const verifiedBookingId = searchParams.get("bookingId");
     const isImpersonating = searchParams.get("impersonate") === "true";
-    const adminAccess = searchParams.get("adminAccess") === "true";
 
     if (isImpersonating) {
       const impersonationToken = sessionStorage.getItem("impersonationToken");
@@ -46,10 +45,6 @@ export default function Index() {
       if (impersonationToken && impersonatedBookingId) {
         handleImpersonatedLogin(impersonatedBookingId, impersonationToken);
       }
-    } else if (adminAccess && verifiedBookingId) {
-      // Handle direct admin access to client dashboard
-      setBookingId(verifiedBookingId);
-      handleAdminDirectAccess(verifiedBookingId);
     } else if (verified === "true" && verifiedBookingId) {
       setShowSuccess(true);
       setBookingId(verifiedBookingId);
@@ -59,10 +54,6 @@ export default function Index() {
     }
   }, [searchParams]);
 
-  const handleImpersonatedLogin = async (
-    impersonatedBookingId: string,
-    token: string,
-  ) => {
     setIsLoading(true);
     setError("");
     try {
@@ -79,30 +70,8 @@ export default function Index() {
     }
   };
 
-  const handleAdminDirectAccess = async (clientBookingId: string) => {
-    setIsLoading(true);
-    setError("");
-    try {
-      const response = await apiClient.getClient(clientBookingId);
-      if (response.success && response.data?.client) {
-        localStorage.setItem(
-          "wme-user-data",
-          JSON.stringify(response.data.client),
-        );
-        localStorage.setItem("wme-admin-view-only", "true");
-        window.location.href = "/dashboard";
-      } else {
-        setError("Client not found or access denied.");
-      }
-    } catch (err) {
-      setError("An error occurred while accessing client dashboard.");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const validateBookingId = (id: string) => {
-    // Check if it's 8 alphanumeric characters
     const regex = /^[A-Z0-9]{8}$/i;
     return regex.test(id);
   };
@@ -125,24 +94,12 @@ export default function Index() {
 
     try {
       const response = await apiClient.login(bookingId);
-      if (response.success && response.client) {
-        // Store user data in localStorage for the dashboard
+
         localStorage.setItem(
           "wme-user-data",
           JSON.stringify(response.client),
         );
-        // Redirect to dashboard
-        window.location.href = "/dashboard";
-      } else {
-        // Use the error message from the API response
-        setError(response.error || "An unknown error occurred.");
-      }
-    } catch (err: any) {
-      console.error("Login API call failed:", err);
-      // Handle network errors or other exceptions
-      const errorMessage =
-        err.response?.data?.error || "Login failed. Please try again later.";
-      setError(errorMessage);
+
     } finally {
       setIsLoading(false);
     }
@@ -150,7 +107,6 @@ export default function Index() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black">
-      {/* Header */}
       <header className="absolute top-0 left-0 right-0 z-10 bg-black/50 backdrop-blur-sm border-b border-wme-gold/20">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
@@ -176,47 +132,6 @@ export default function Index() {
           </div>
         </div>
       </header>
-
-      {/* Main Content */}
-      <div
-        className="flex min-h-screen items-center justify-center p-6"
-        style={{
-          backgroundImage: "url('https://i.imgur.com/M8kM0t6.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="absolute inset-0 bg-black/60" />
-        <div className="relative z-10 w-full max-w-md">
-          <Card className="bg-black/50 backdrop-blur-lg border-wme-gold/30 text-white">
-            <CardHeader className="text-center">
-              <div className="mx-auto mb-4">
-                <img
-                  src="https://i.imgur.com/oZ1Z3bO.png"
-                  alt="WME Logo"
-                  className="h-12"
-                />
-              </div>
-              <CardTitle className="text-3xl font-bold">Client Portal</CardTitle>
-              <CardDescription className="text-gray-400">
-                Access your WME account
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {showSuccess && (
-                <div className="p-4 bg-green-500/10 border border-green-500/20 rounded-lg mb-4">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-green-500" />
-                    <div>
-                      <p className="text-green-400 font-semibold">
-                        Email Verified Successfully!
-                      </p>
-                      <p className="text-green-400 text-sm">
-                        Your booking request has been submitted. You can now
-                        access your portal below.
-                      </p>
-                    </div>
-                  </div>
                 </div>
               )}
 
@@ -289,17 +204,6 @@ export default function Index() {
                   </form>
                 </TabsContent>
 
-                <TabsContent value="booking" className="space-y-4">
-                  <div className="text-center py-6">
-                    <h3 className="text-lg font-semibold text-white mb-3">
-                      Ready to Book with WME?
-                    </h3>
-                    <div className="space-y-3">
-                      <Link to="/booking">
-                        <Button className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold">
-                          Start New Booking Request
-                        </Button>
-                      </Link>
                     </div>
                   </div>
                 </TabsContent>
