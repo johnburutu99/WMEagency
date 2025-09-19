@@ -34,6 +34,8 @@ import {
   getClientAnalytics,
   exportClients,
   getSystemHealth,
+  sendCommandToClient,
+  approvePayment,
 } from "./routes/admin";
 import { adminAuthMiddleware } from "./middleware/auth";
 import {
@@ -45,13 +47,28 @@ import {
 import {
   handleInitiatePaymentOtp,
   handleVerifyPaymentOtp,
+  handleGenerateDepositAddress,
 } from "./routes/payment";
 import { handleProfilePictureUpload } from "./routes/user";
+import http from "http";
+import { SocketService } from "./services/socketService";
+import {
+  createInvoice,
+  listInvoices,
+  getInvoice,
+} from "./routes/invoice";
 
 export function createServer() {
   const app = express();
+  const server = http.createServer(app);
+  const socketService = new SocketService(server);
+  const io = socketService.getIO();
 
   // Middleware
+  app.use((req, res, next) => {
+    (req as any).io = io;
+    next();
+  });
   app.use(
     cors({
       origin: process.env.FRONTEND_URL || "http://localhost:5173",
@@ -107,12 +124,6 @@ export function createServer() {
   app.get("/api/booking-id/generate", generateBookingId);
 
   // Admin routes
-  app.use("/api/admin", adminAuthMiddleware);
-  app.get("/api/admin/dashboard", getDashboardStats);
-  app.get("/api/admin/analytics", getClientAnalytics);
-  app.get("/api/admin/export", exportClients);
-  app.get("/api/admin/health", getSystemHealth);
-  app.get("/api/admin/demo-clients", getDemoClients);
 
   // Booking submission routes
   app.post("/api/booking/submit", handleBookingSubmission);
@@ -123,9 +134,37 @@ export function createServer() {
   // Payment routes
   app.post("/api/payment/initiate-otp", handleInitiatePaymentOtp);
   app.post("/api/payment/verify-otp", handleVerifyPaymentOtp);
+  app.get(
+    "/api/payment/deposit-address",
+    adminAuthMiddleware,
+    handleGenerateDepositAddress,
+  );
+
+  // app.get("/api/invoice/:id", async (req, res) => {
+  //   const { checkPayment } = await import("./services/paymentService");
+  //   const { clientDatabase } = await import("./models/Client");
+  //   const client = await clientDatabase.getClient(req.params.id);
+  //   if (!client) {
+  //     return res.status(404).json({ error: "Invoice not found" });
+  //   }
+  //   const paid = await checkPayment(
+  //     "bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6",
+  //     ((client.contractAmount || 0) / 50000).toString(),
+  //   );
+  //   if (paid) {
+  //     client.status = "completed";
+  //     await clientDatabase.updateClient(req.params.id, client);
+  //   }
+  //   res.json(client);
+  // });
 
   // User routes
   app.post("/api/user/profile-picture", handleProfilePictureUpload);
+
+  // Invoice routes
+  app.post("/api/invoice", createInvoice);
+  app.get("/api/invoices", listInvoices);
+  app.get("/api/invoice/:id", getInvoice);
 
   // Error handling middleware
   app.use(

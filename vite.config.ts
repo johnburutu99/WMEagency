@@ -6,7 +6,7 @@ import { createServer } from "./server";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   server: {
-    host: "::",
+    host: "127.0.0.1",
     port: 8080,
     fs: {
       allow: ["./client", "./shared"],
@@ -15,12 +15,35 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: "dist/spa",
+    chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ["react", "react-dom"],
+        },
+      },
+    },
   },
   plugins: [react(), expressPlugin()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
       "@shared": path.resolve(__dirname, "./shared"),
+      buffer: "buffer",
+      util: "util",
+      process: "process/browser",
+    },
+  },
+  define: {
+    global: "globalThis",
+    "process.env": {},
+  },
+  optimizeDeps: {
+    include: ["buffer", "util", "process"],
+    esbuildOptions: {
+      define: {
+        global: "globalThis",
+      },
     },
   },
 }));

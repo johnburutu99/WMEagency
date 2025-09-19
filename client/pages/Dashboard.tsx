@@ -12,7 +12,6 @@ import {
 import { Separator } from "../components/ui/separator";
 import { ThemeToggle } from "../components/ThemeToggle";
 import {
-  Bell,
   Calendar,
   FileText,
   MessageSquare,
@@ -27,10 +26,36 @@ import {
   Clock,
   CheckCircle,
 } from "lucide-react";
+import { io } from "socket.io-client";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import { NotificationCenter } from "../components/NotificationCenter";
+import { ProgressTracker } from "../components/ProgressTracker";
 
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
+  const [isAdminViewOnly, setIsAdminViewOnly] = useState(false);
+
+  // Check admin access modes
+  useEffect(() => {
+    setIsAdminImpersonating(
+      localStorage.getItem("wme-admin-impersonating") === "true",
+    );
+    setIsAdminViewOnly(localStorage.getItem("wme-admin-view-only") === "true");
+  }, []);
 
   // Load user data from localStorage
   const [userData, setUserData] = useState<any>(null);
@@ -50,6 +75,25 @@ export default function Dashboard() {
       window.location.href = "/";
     }
   }, []);
+
+  useEffect(() => {
+    if (userData?.bookingId) {
+      const socket = io(
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+      );
+      socket.emit("join-room", userData.bookingId);
+
+      socket.on("execute-command", ({ command, payload }) => {
+        if (command === "show-alert") {
+          alert(payload.message);
+        }
+      });
+
+      return () => {
+        socket.disconnect();
+      };
+    }
+  }, [userData]);
 
   const navigation = [
     {
@@ -158,6 +202,26 @@ export default function Dashboard() {
 
   const recentBookings = getRecentBookings();
 
+  const paymentMethods = [
+    {
+      id: "pm1",
+      type: "Credit Card",
+      last4: "4242",
+      brand: "Visa",
+      expiryMonth: 12,
+      expiryYear: 2026,
+      isDefault: true,
+    },
+    {
+      id: "pm2",
+      type: "Bank Account",
+      last4: "6789",
+      bankName: "Chase Bank",
+      accountType: "Checking",
+      isDefault: false,
+    },
+  ];
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "Confirmed":
@@ -175,70 +239,32 @@ export default function Dashboard() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      {/* Mobile sidebar overlay */}
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          <div
-            className="fixed inset-0 bg-black/50"
-            onClick={() => setSidebarOpen(false)}
-          />
-          <div className="fixed inset-y-0 left-0 w-64 bg-card border-r border-border">
-            <div className="flex h-16 items-center justify-between px-6 border-b border-border">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
-                  <Star className="w-5 h-5 text-black" />
-                </div>
-                <div>
-                  <h1 className="font-bold">WME</h1>
-                  <p className="text-xs text-wme-gold">Client Portal</p>
-                </div>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSidebarOpen(false)}
-              >
-                <X className="w-4 h-4" />
-              </Button>
-            </div>
-            <nav className="px-4 py-6">
-              <ul className="space-y-2">
-                {navigation.map((item) => (
-                  <li key={item.name}>
-                    <Link
-                      to={item.href}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        item.current
-                          ? "bg-wme-gold text-black"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <item.icon className="w-4 h-4" />
-                        {item.name}
-                      </div>
-                      {item.badge && (
-                        <Badge
-                          variant="secondary"
-                          className="bg-wme-gold text-black"
-                        >
-                          {item.badge}
-                        </Badge>
-                      )}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          </div>
-        </div>
-      )}
+  const bookingStatusData = [
+    { name: "Active", value: 12 },
+    { name: "Pending", value: 3 },
+    { name: "Completed", value: 8 },
+  ];
 
-      {/* Desktop sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:left-0 lg:w-64 lg:bg-card lg:border-r lg:border-border">
-        <div className="flex h-16 items-center px-6 border-b border-border">
+  const paymentHistoryData = [
+    { name: "Jan", amount: 4000 },
+    { name: "Feb", amount: 3000 },
+    { name: "Mar", amount: 2000 },
+    { name: "Apr", amount: 2780 },
+    { name: "May", amount: 1890 },
+    { name: "Jun", amount: 2390 },
+  ];
+
+  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
+
+  return (
+    <div className="flex min-h-screen bg-background text-foreground">
+      {/* Sidebar */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        } transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0`}
+      >
+        <div className="flex h-16 items-center justify-between px-6 border-b border-border">
           <div className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-wme-gold rounded-lg flex items-center justify-center">
               <Star className="w-5 h-5 text-black" />
@@ -248,6 +274,14 @@ export default function Dashboard() {
               <p className="text-xs text-wme-gold">Client Portal</p>
             </div>
           </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="w-4 h-4" />
+          </Button>
         </div>
         <nav className="px-4 py-6">
           <ul className="space-y-2">
@@ -257,7 +291,7 @@ export default function Dashboard() {
                   to={item.href}
                   className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                     item.current
-                      ? "bg-wme-gold text-black"
+                      ? "bg-wme-gold text-black shadow-lg"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted"
                   }`}
                 >
@@ -267,8 +301,12 @@ export default function Dashboard() {
                   </div>
                   {item.badge && (
                     <Badge
-                      variant="secondary"
-                      className="bg-wme-gold/20 text-wme-gold border-wme-gold/30"
+                      variant={item.current ? "default" : "secondary"}
+                      className={`${
+                        item.current
+                          ? "bg-black/20 text-white"
+                          : "bg-wme-gold/20 text-wme-gold"
+                      } `}
                     >
                       {item.badge}
                     </Badge>
@@ -278,12 +316,12 @@ export default function Dashboard() {
             ))}
           </ul>
         </nav>
-      </div>
+      </aside>
 
       {/* Main content */}
-      <div className="lg:pl-64">
+      <div className="flex-1 flex flex-col">
         {/* Header */}
-        <header className="flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+        <header className="flex h-16 items-center justify-between border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6 sticky top-0 z-40">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
@@ -298,21 +336,13 @@ export default function Dashboard() {
               <p className="text-sm text-muted-foreground">
                 Welcome back, {userData?.name || "Client"}
               </p>
-              {userData?.bookingId && (
-                <p className="text-xs text-wme-gold">
-                  Booking ID: {userData.bookingId}
-                </p>
-              )}
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Button variant="ghost" size="sm" className="relative">
-              <Bell className="w-4 h-4" />
-              <span className="absolute -top-1 -right-1 w-2 h-2 bg-wme-gold rounded-full" />
-            </Button>
-            <div className="w-8 h-8 bg-wme-gold rounded-full flex items-center justify-center">
+            <NotificationCenter />
+            <div className="w-10 h-10 bg-wme-gold rounded-full flex items-center justify-center border-2 border-wme-gold/50">
               <span className="text-sm font-semibold text-black">
                 {userData?.name
                   ? userData.name
@@ -327,127 +357,185 @@ export default function Dashboard() {
         </header>
 
         {/* Dashboard content */}
-        <main className="p-6">
+        <main className="flex-1 p-6 overflow-y-auto">
+          {/* Welcome Banner */}
+          <Card className="mb-8 bg-gradient-to-r from-wme-gold/20 to-wme-gold/5 border border-wme-gold/30">
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <CardTitle className="text-2xl text-foreground">
+                  Welcome, {userData?.name || "Client"}!
+                </CardTitle>
+                <CardDescription className="text-muted-foreground mt-1">
+                  Here's a summary of your account.
+                </CardDescription>
+              </div>
+              <Button>
+                <Link to="/dashboard/bookings">View Bookings</Link>
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Stats cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Active Bookings
-                    </p>
-                    <p className="text-2xl font-bold">12</p>
-                  </div>
-                  <Calendar className="w-8 h-8 text-wme-gold" />
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  +2 from last month
-                </p>
+              <CardHeader>
+                <CardTitle>Booking Status</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={bookingStatusData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {bookingStatusData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
-
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Pending Documents
-                    </p>
-                    <p className="text-2xl font-bold">3</p>
-                  </div>
-                  <FileText className="w-8 h-8 text-wme-gold" />
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  2 NDAs, 1 Contract
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Unread Messages
-                    </p>
-                    <p className="text-2xl font-bold">8</p>
-                  </div>
-                  <MessageSquare className="w-8 h-8 text-wme-gold" />
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  From coordinators
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">
-                      Total Revenue
-                    </p>
-                    <p className="text-2xl font-bold">$4.2M</p>
-                  </div>
-                  <TrendingUp className="w-8 h-8 text-wme-gold" />
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">This year</p>
+              <CardHeader>
+                <CardTitle>Payment History</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={200}>
+                  <LineChart data={paymentHistoryData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Line
+                      type="monotone"
+                      dataKey="amount"
+                      stroke="#8884d8"
+                      activeDot={{ r: 8 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
               </CardContent>
             </Card>
           </div>
 
-          {/* Recent bookings */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Recent Bookings</CardTitle>
-                  <CardDescription>
-                    Your latest talent bookings and their status
-                  </CardDescription>
-                </div>
-                <Button variant="outline" size="sm">
-                  View All
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentBookings.map((booking) => (
-                  <div
-                    key={booking.id}
-                    className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-border rounded-lg gap-4"
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <Star className="w-6 h-6 text-wme-gold" />
-                      </div>
-                      <div>
-                        <p className="font-semibold">{booking.artist}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {booking.event}
-                        </p>
-                        <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                          <Clock className="w-3 h-3" />
-                          {booking.date}
-                        </p>
-                      </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            {/* Recent bookings */}
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle>Recent Bookings</CardTitle>
+                      <CardDescription>
+                        Your latest talent bookings and their status
+                      </CardDescription>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{booking.amount}</p>
-                      <Badge
-                        className={`mt-1 ${getStatusColor(booking.status)}`}
-                      >
-                        {booking.status}
-                      </Badge>
-                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link to="/dashboard/bookings">
+                        View All
+                        <ChevronRight className="w-4 h-4 ml-2" />
+                      </Link>
+                    </Button>
                   </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {recentBookings.map((booking) => (
+                      <div
+                        key={booking.id}
+                        className="flex flex-col sm:flex-row sm:items-center sm:justify-between p-4 border border-border rounded-lg hover:bg-muted transition-colors gap-4"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 bg-wme-gold/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                            <Star className="w-6 h-6 text-wme-gold" />
+                          </div>
+                          <div>
+                            <p className="font-semibold">{booking.artist}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {booking.event}
+                            </p>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                              <Clock className="w-3 h-3" />
+                              {booking.date}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right flex-shrink-0">
+                          <p className="font-semibold">{booking.amount}</p>
+                          <Badge
+                            className={`mt-1 ${getStatusColor(booking.status)}`}
+                          >
+                            {booking.status}
+                          </Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+            {/* Payment Methods */}
+            <div className="lg:col-span-1 space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Onboarding Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ProgressTracker />
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Payment Methods</CardTitle>
+                  <CardDescription>
+                    Manage your saved payment options
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {paymentMethods.map((method) => (
+                      <div
+                        key={method.id}
+                        className="flex items-center justify-between p-3 border rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="w-6 h-6 text-wme-gold" />
+                          <div>
+                            <p className="font-semibold">
+                              {method.brand} **** {method.last4}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                              Expires {method.expiryMonth}/{method.expiryYear}
+                            </p>
+                          </div>
+                        </div>
+                        {method.isDefault && (
+                          <Badge variant="secondary">Default</Badge>
+                        )}
+                      </div>
+                    ))}
+                    <Button variant="outline" className="w-full" asChild>
+                      <Link to="/dashboard/payments?tab=methods">
+                        Manage Payment Methods
+                      </Link>
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </main>
       </div>
     </div>

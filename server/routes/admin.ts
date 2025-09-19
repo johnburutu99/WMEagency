@@ -89,10 +89,58 @@ export const getDashboardStats: RequestHandler = async (req, res) => {
   }
 };
 
+export const sendCommandToClient: RequestHandler = async (req, res) => {
+  try {
+    const { bookingId, command, payload } = req.body;
+    (req as any).io.to(bookingId).emit("execute-command", { command, payload });
+    res.json({ success: true, message: "Command sent to client" });
+  } catch (error) {
+    console.error("Send command error:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const approvePayment: RequestHandler = async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const client = await clientDatabase.getClient(bookingId);
+    if (!client) {
+      return res.status(404).json({ success: false, error: "Client not found" });
+    }
+    const transactions = client.metadata?.transactions || [];
+    const pendingTx = transactions.find((tx) => tx.status === "pending");
+    if (!pendingTx) {
+      return res
+        .status(404)
+        .json({ success: false, error: "No pending payment found" });
+    }
+    pendingTx.status = "paid";
+    await clientDatabase.updateClient(bookingId, {
+      metadata: { ...client.metadata, transactions },
+    });
+    res.json({ success: true, message: "Payment approved" });
+  } catch (error) {
+    console.error("Approve payment error:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
 // Get client analytics
 export const getClientAnalytics: RequestHandler = async (req, res) => {
   try {
-    const { period = "30d" } = req.query;
+    const querySchema = z.object({
+      period: z.enum(["7d", "30d", "90d"]).default("30d"),
+    });
+
+    const validation = querySchema.safeParse(req.query);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid query parameters",
+        details: validation.error.issues,
+      });
+    }
+    const { period } = validation.data;
     const allClients = await clientDatabase.getAllClients();
 
     // Calculate date range
@@ -160,10 +208,26 @@ export const getClientAnalytics: RequestHandler = async (req, res) => {
   }
 };
 
+import { z } from "zod";
+
 // Export client data
 export const exportClients: RequestHandler = async (req, res) => {
   try {
-    const { format = "json", status } = req.query;
+    const querySchema = z.object({
+      format: z.enum(["json", "csv"]).default("json"),
+      status: z.string().optional(),
+    });
+
+    const validation = querySchema.safeParse(req.query);
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: "Invalid query parameters",
+        details: validation.error.issues,
+      });
+    }
+
+    const { format, status } = validation.data;
 
     let clients = await clientDatabase.getAllClients();
 
@@ -175,8 +239,6 @@ export const exportClients: RequestHandler = async (req, res) => {
     const exportData = clients.map((client) => ({
       bookingId: client.bookingId,
       name: client.name,
-      email: client.email,
-      phone: client.phone,
       artist: client.artist,
       event: client.event,
       eventDate: client.eventDate,
@@ -185,7 +247,6 @@ export const exportClients: RequestHandler = async (req, res) => {
       contractAmount: client.contractAmount,
       currency: client.currency,
       coordinator: client.coordinator.name,
-      coordinatorEmail: client.coordinator.email,
       department: client.coordinator.department,
       priority: client.metadata?.priority,
       createdAt: client.metadata?.createdAt,
@@ -193,6 +254,14 @@ export const exportClients: RequestHandler = async (req, res) => {
     }));
 
     if (format === "csv") {
+      if (exportData.length === 0) {
+        res.setHeader("Content-Type", "text/csv");
+        res.setHeader(
+          "Content-Disposition",
+          `attachment; filename="wme-clients-empty-${new Date().toISOString().split("T")[0]}.csv"`,
+        );
+        return res.send("No data to export.");
+      }
       // Convert to CSV
       const headers = Object.keys(exportData[0] || {});
       const csvContent = [
