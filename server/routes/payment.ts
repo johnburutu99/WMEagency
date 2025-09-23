@@ -3,6 +3,7 @@ import { z } from "zod";
 import { otpService } from "../services/otpService";
 import { emailService } from "../services/emailService";
 import { clientDatabase } from "../models/Client";
+import { cryptoService } from "../services/cryptoService";
 
 // Schema for initiating OTP request
 const InitiateOtpSchema = z.object({
@@ -37,6 +38,16 @@ export const handleInitiatePaymentOtp: RequestHandler = async (req, res) => {
 
   } catch (error) {
     console.error("Initiate OTP error:", error);
+    res.status(500).json({ success: false, error: "Internal server error" });
+  }
+};
+
+export const handleGenerateDepositAddress: RequestHandler = async (req, res) => {
+  try {
+    const { address, nonce } = cryptoService.generateDepositAddress();
+    res.json({ success: true, data: { address, nonce } });
+  } catch (error) {
+    console.error("Generate deposit address error:", error);
     res.status(500).json({ success: false, error: "Internal server error" });
   }
 };

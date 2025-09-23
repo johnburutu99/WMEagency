@@ -13,18 +13,35 @@ import { globalClients } from "./booking-submission";
 // Get all clients (admin endpoint)
 export const getAllClients: RequestHandler = async (req, res) => {
   try {
-    const { status, search } = req.query;
+    const { status, search, date, coordinator } = req.query;
 
     let clients: Client[];
 
+    clients = await clientDatabase.getAllClients();
+
     if (search && typeof search === "string") {
-      clients = await clientDatabase.searchClients(search);
-    } else if (status && typeof status === "string") {
-      clients = await clientDatabase.getClientsByStatus(
-        status as Client["status"],
+      const searchLower = search.toLowerCase();
+      clients = clients.filter(
+        (client) =>
+          client.name.toLowerCase().includes(searchLower) ||
+          client.artist.toLowerCase().includes(searchLower) ||
+          client.event.toLowerCase().includes(searchLower) ||
+          client.bookingId.toLowerCase().includes(searchLower),
       );
-    } else {
-      clients = await clientDatabase.getAllClients();
+    }
+
+    if (status && typeof status === "string") {
+      clients = clients.filter((client) => client.status === status);
+    }
+
+    if (date && typeof date === "string") {
+      clients = clients.filter((client) => client.eventDate === date);
+    }
+
+    if (coordinator && typeof coordinator === "string") {
+      clients = clients.filter(
+        (client) => client.coordinator.name === coordinator,
+      );
     }
 
     // Include newly submitted bookings from globalClients
@@ -160,7 +177,7 @@ export const createClient: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid client data",
-        details: error.errors,
+        details: error.issues,
       });
     }
 
@@ -217,7 +234,7 @@ export const updateClient: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid update data",
-        details: error.errors,
+        details: error.issues,
       });
     }
 
@@ -314,7 +331,7 @@ export const bulkUpdateClients: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         error: "Invalid update data",
-        details: error.errors,
+        details: error.issues,
       });
     }
 
@@ -326,33 +343,14 @@ export const bulkUpdateClients: RequestHandler = async (req, res) => {
   }
 };
 
+import { generateBookingId as generateUniqueBookingId } from "../services/cryptoService";
+
+// ... (other handlers)
+
 // Generate new booking ID
 export const generateBookingId: RequestHandler = async (req, res) => {
   try {
-    let bookingId: string;
-    let attempts = 0;
-    const maxAttempts = 10;
-
-    do {
-      // Generate random 8-character booking ID
-      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      bookingId = "";
-      for (let i = 0; i < 8; i++) {
-        bookingId += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      attempts++;
-    } while (
-      (await clientDatabase.verifyBookingId(bookingId)) &&
-      attempts < maxAttempts
-    );
-
-    if (attempts >= maxAttempts) {
-      return res.status(500).json({
-        success: false,
-        error: "Unable to generate unique booking ID",
-      });
-    }
-
+    const bookingId = await generateUniqueBookingId();
     res.json({
       success: true,
       data: { bookingId },

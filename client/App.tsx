@@ -20,11 +20,11 @@ import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import AdminSettings from "./pages/AdminSettings";
+
 import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import SettingsPage from "./pages/Settings"; // Renamed to avoid conflict with lucide-react
 import VerifyIdentityPage from "./pages/VerifyIdentity";
-import { Settings } from "lucide-react";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +56,7 @@ export const App = () => (
                 </AdminProtectedRoute>
               }
             />
+
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/verify-identity" element={<VerifyIdentityPage />} />
             <Route path="/dashboard/bookings" element={<Bookings />} />

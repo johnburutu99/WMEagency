@@ -5,6 +5,8 @@ const API_BASE_URL = "/api";
 interface ApiResponse<T = any> {
   success: boolean;
   data?: T;
+  user?: { isAdmin: boolean; username?: string };
+  client?: Client;
   error?: string;
   details?: any;
 }
@@ -30,6 +32,7 @@ export interface Client {
   };
   lastLogin?: string;
   priority?: "low" | "medium" | "high";
+  metadata?: any;
 }
 
 export interface CreateClient {
@@ -90,18 +93,17 @@ class ApiClient {
   async adminLogin(credentials: {
     username?: string;
     password?: string;
-  }): Promise<ApiResponse<{ message: string }>> {
+  }): Promise<ApiResponse> {
     return this.request("/auth/admin/login", {
       method: "POST",
       body: JSON.stringify(credentials),
     });
   }
 
-  async verifyAdminSession(): Promise<ApiResponse<{ user: { isAdmin: boolean } }>> {
+  async verifyAdminSession(): Promise<ApiResponse> {
     return this.request("/auth/admin/verify");
   }
 
-  async adminLogout(): Promise<ApiResponse<{ message: string }>> {
     return this.request("/auth/admin/logout", {
       method: "POST",
     });
@@ -110,7 +112,7 @@ class ApiClient {
   async login(
     bookingId: string,
     impersonationToken?: string,
-  ): Promise<ApiResponse<{ client: Client; message: string }>> {
+
     const headers: Record<string, string> = {};
     if (impersonationToken) {
       headers["Authorization"] = `Bearer ${impersonationToken}`;
@@ -155,14 +157,35 @@ class ApiClient {
     });
   }
 
+  async verifyEmail(data: {
+    email?: string | null;
+    otpCode: string;
+  }): Promise<ApiResponse> {
+    return this.request("/booking/verify-email", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async resendOtp(data: { email?: string | null }): Promise<ApiResponse> {
+    return this.request("/booking/resend-otp", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
   // Client management
   async getAllClients(options?: {
     status?: string;
     search?: string;
+    date?: string;
+    coordinator?: string;
   }): Promise<ApiResponse<{ clients: Client[]; total: number }>> {
     const params = new URLSearchParams();
     if (options?.status) params.append("status", options.status);
     if (options?.search) params.append("search", options.search);
+    if (options?.date) params.append("date", options.date);
+    if (options?.coordinator) params.append("coordinator", options.coordinator);
 
     return this.request(`/clients?${params.toString()}`);
   }

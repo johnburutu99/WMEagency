@@ -1,4 +1,5 @@
-import { useState } from "react";
+// @ts-nocheck
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -45,10 +46,33 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../components/ui/dialog";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import {
+  InputOTP,
+  InputOTPGroup,
+  InputOTPSlot,
+} from "@/components/ui/input-otp";
+import { createAppKit } from "@reown/appkit/react";
+import { mainnet, arbitrum } from "@reown/appkit/networks";
+import { EthersAdapter } from "@reown/appkit-adapter-ethers";
+import { useAppKit, useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
+import { ethers } from "ethers";
+import { baseSepoliaETH, pay } from "@reown/appkit-pay";
+import { Label } from "@/components/ui/label";
+import { Separator } from "@/components/ui/separator";
 
+const projectId = "465889017775500c0351ae463d8769b2";
 
 export default function Payments() {
+  useEffect(() => {
+    createAppKit({
+      adapters: [new EthersAdapter()],
+      networks: [mainnet, arbitrum],
+      projectId,
+      features: {
+        analytics: true,
+      },
+    });
+  }, []);
   const [searchTerm, setSearchTerm] = useState("");
   const [showOtpDialog, setShowOtpDialog] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -56,6 +80,27 @@ export default function Payments() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [userData, setUserData] = useState<any>(null); // Assuming user data is fetched/available
+  const [depositInfo, setDepositInfo] = useState<{
+    address: string;
+    nonce: string;
+  } | null>(null);
+  const [countdown, setCountdown] = useState(0);
+  const [showDepositSent, setShowDepositSent] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<any>(null);
+  const { open } = useAppKit();
+  const { address: walletAddress, isConnected } = useAppKitAccount();
+  const { walletProvider } = useAppKitProvider();
+  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
+
+  useEffect(() => {
+    if (isConnected && walletProvider) {
+      setProvider(new ethers.BrowserProvider(walletProvider as any));
+    }
+  }, [isConnected, walletProvider]);
+
+  const handlePayNowClick = (invoice: any) => {
+    setSelectedInvoice(invoice);
+  };
 
   // Fetch user data on mount
   useEffect(() => {
@@ -86,6 +131,38 @@ export default function Payments() {
     }
   };
 
+  const handleFetchDepositAddress = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      // const response = await apiClient.generateDepositAddress();
+      // if (response.success) {
+      //   setDepositInfo(response.data);
+      //   setCountdown(1200); // 20 minutes
+      //   setShowDepositSent(false);
+      // } else {
+      //   setError(response.error || "Failed to fetch deposit address.");
+      // }
+    } catch (err) {
+      setError("An unexpected error occurred.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+        if (countdown === 120) {
+          // 2 minutes remaining
+          setShowDepositSent(true);
+        }
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [countdown]);
+
   const handleOtpSubmit = async () => {
     if (!userData?.bookingId || otp.length !== 6) {
       setError("Please enter a valid 6-digit OTP.");
@@ -94,7 +171,10 @@ export default function Payments() {
     setLoading(true);
     setError("");
     try {
-      const response = await apiClient.verifyPaymentOtp(userData.bookingId, otp);
+      const response = await apiClient.verifyPaymentOtp(
+        userData.bookingId,
+        otp,
+      );
       if (response.success) {
         setShowOtpDialog(false);
         setShowPaymentDialog(true);
@@ -191,6 +271,7 @@ export default function Payments() {
       expiryMonth: 12,
       expiryYear: 2026,
       isDefault: true,
+      status: "active",
     },
     {
       id: "pm2",
@@ -199,6 +280,7 @@ export default function Payments() {
       bankName: "Chase Bank",
       accountType: "Checking",
       isDefault: false,
+      status: "unavailable",
     },
     {
       id: "pm3",
@@ -206,6 +288,7 @@ export default function Payments() {
       accountName: "WME Client Account",
       routingNumber: "021000021",
       isDefault: false,
+      status: "unavailable",
     },
   ];
 
@@ -395,7 +478,62 @@ export default function Payments() {
             <TabsTrigger value="invoices">Invoices</TabsTrigger>
             <TabsTrigger value="payments">Payments</TabsTrigger>
             <TabsTrigger value="methods">Payment Methods</TabsTrigger>
+            <TabsTrigger value="crypto">Crypto Wallet</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="crypto">
+            <Card>
+              <CardHeader>
+                <CardTitle>Crypto Wallet</CardTitle>
+                <CardDescription>
+                  Link your crypto wallet and make deposits.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {walletAddress ? (
+                    <div>
+                      <p>Connected Wallet:</p>
+                      <p className="font-mono text-sm">{walletAddress}</p>
+                    </div>
+                  ) : (
+                    <Button onClick={() => open()}>Connect Wallet</Button>
+                  )}
+                  <hr />
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Manual Deposit</h4>
+                    <Button onClick={handleFetchDepositAddress}>
+                      Generate Deposit Address
+                    </Button>
+                    {depositInfo && (
+                      <div className="space-y-4">
+                        <div>
+                          <label>Deposit Address</label>
+                          <p className="font-mono text-sm">
+                            {depositInfo.address}
+                          </p>
+                        </div>
+                        <div>
+                          <label>Nonce</label>
+                          <p className="font-mono text-sm">
+                            {depositInfo.nonce}
+                          </p>
+                        </div>
+                        <div>
+                          <label>Time Remaining</label>
+                          <p>
+                            {Math.floor(countdown / 60)}:
+                            {(countdown % 60).toString().padStart(2, "0")}
+                          </p>
+                        </div>
+                        {showDepositSent && <Button>Deposit Sent</Button>}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="transactions" className="space-y-4">
             {filteredTransactions.map((transaction) => (
@@ -470,6 +608,7 @@ export default function Payments() {
                           <Button
                             size="sm"
                             className="bg-wme-gold text-black hover:bg-wme-gold/90"
+                            onClick={() => handlePayNowClick(transaction)}
                           >
                             <CreditCard className="w-4 h-4 mr-2" />
                             Pay Now
@@ -618,14 +757,20 @@ export default function Payments() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        {!method.isDefault && (
-                          <Button variant="outline" size="sm">
-                            Set as Default
-                          </Button>
+                        {method.status === "unavailable" ? (
+                          <Badge variant="destructive">Unavailable</Badge>
+                        ) : (
+                          <>
+                            {!method.isDefault && (
+                              <Button variant="outline" size="sm">
+                                Set as Default
+                              </Button>
+                            )}
+                            <Button variant="outline" size="sm">
+                              Edit
+                            </Button>
+                          </>
                         )}
-                        <Button variant="outline" size="sm">
-                          Edit
-                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -645,7 +790,11 @@ export default function Payments() {
               </DialogDescription>
             </DialogHeader>
             <div className="flex flex-col items-center gap-4 py-4">
-              <InputOTP maxLength={6} value={otp} onChange={(value) => setOtp(value)}>
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={(value) => setOtp(value)}
+              >
                 <InputOTPGroup>
                   <InputOTPSlot index={0} />
                   <InputOTPSlot index={1} />
@@ -656,10 +805,54 @@ export default function Payments() {
                 </InputOTPGroup>
               </InputOTP>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button onClick={handleOtpSubmit} disabled={loading || otp.length < 6} className="w-full">
+              <Button
+                onClick={handleOtpSubmit}
+                disabled={loading || otp.length < 6}
+                className="w-full"
+              >
                 {loading ? "Verifying..." : "Verify & Proceed"}
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Payment Modal */}
+        <Dialog
+          open={selectedInvoice !== null}
+          onOpenChange={() => setSelectedInvoice(null)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Pay Invoice</DialogTitle>
+              <DialogDescription>
+                You are about to pay the following invoice:
+              </DialogDescription>
+            </DialogHeader>
+            <div>
+              <p>Invoice ID: {selectedInvoice?.invoiceId}</p>
+              <p>Amount: {formatCurrency(selectedInvoice?.amount)}</p>
+            </div>
+            <Button
+              onClick={async () => {
+                if (selectedInvoice) {
+                  if (isConnected && provider) {
+                    const signer = await provider.getSigner();
+                    const tx = await signer.sendTransaction({
+                      to: "0x0000000000000000000000000000000000000000", // Placeholder address
+                      value: ethers.parseEther(
+                        (selectedInvoice.amount / 3000).toString(),
+                      ), // Placeholder conversion
+                    });
+                    console.log("Transaction sent:", tx);
+                  } else {
+                    setShowPaymentDialog(true);
+                  }
+                  setSelectedInvoice(null);
+                }
+              }}
+            >
+              Confirm Payment
+            </Button>
           </DialogContent>
         </Dialog>
 
@@ -674,25 +867,54 @@ export default function Payments() {
             </DialogHeader>
             <div className="flex flex-col items-center gap-6 py-4">
               <div className="p-4 bg-white rounded-lg">
-                <QRCodeSVG value="bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6" size={200} />
+                <QRCodeSVG
+                  value={`bitcoin:bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6?amount=${
+                    selectedInvoice?.amount / 50000
+                  }&label=Invoice-${
+                    selectedInvoice?.invoiceId
+                  }&message=Payment+for+Invoice+${selectedInvoice?.invoiceId}`}
+                  size={200}
+                />
               </div>
               <div className="w-full text-center">
-                <Label>BTC Wallet Address</Label>
+                <Label>BTC Payment URI</Label>
                 <p className="text-sm font-mono break-all p-2 bg-muted rounded-md">
-                  bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6
+                  {`bitcoin:bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6?amount=${
+                    selectedInvoice?.amount / 50000
+                  }&label=Invoice-${
+                    selectedInvoice?.invoiceId
+                  }&message=Payment+for+Invoice+${selectedInvoice?.invoiceId}`}
                 </p>
-                <Button variant="ghost" size="sm" className="mt-2" onClick={() => navigator.clipboard.writeText("bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6")}>
-                  Copy Address
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="mt-2"
+                  onClick={() =>
+                    navigator.clipboard.writeText(
+                      `bitcoin:bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6?amount=${
+                        selectedInvoice?.amount / 50000
+                      }&label=Invoice-${
+                        selectedInvoice?.invoiceId
+                      }&message=Payment+for+Invoice+${selectedInvoice?.invoiceId}`,
+                    )
+                  }
+                >
+                  Copy URI
                 </Button>
               </div>
               <Separator />
               <div className="w-full space-y-4">
-                 <p className="text-xs text-muted-foreground text-center">
-                    Please ensure you are sending only BTC to this address. Sending any other currency may result in the loss of your deposit.
-                 </p>
-                 <Button onClick={() => setShowPaymentDialog(false)} className="w-full">
-                    I have sent the payment
-                 </Button>
+                <p className="text-xs text-muted-foreground text-center">
+                  Please ensure you are sending only BTC to this address.
+                  Sending any other currency may result in the loss of your
+                  deposit.
+                </p>
+                <Button
+                  onClick={() => setShowPaymentDialog(false)}
+                  className="w-full"
+                >
+                  I have sent the payment
+                </Button>
               </div>
             </div>
           </DialogContent>

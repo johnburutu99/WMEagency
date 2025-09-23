@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { databaseService } from '../services/databaseService';
 
 // Client data validation schema
 export const ClientSchema = z.object({
@@ -33,6 +32,42 @@ export const ClientSchema = z.object({
       isVerified: z.boolean().default(true),
       isDemo: z.boolean().default(false),
       priority: z.enum(["low", "medium", "high"]).default("medium"),
+      notifications: z
+        .object({
+          emailReminders: z.boolean().default(true),
+        })
+        .default({ emailReminders: true }),
+      crypto: z
+        .object({
+          walletAddress: z.string().optional(),
+          linkedAt: z.date().optional(),
+        })
+        .optional(),
+      paymentMethods: z
+        .array(
+          z.object({
+            id: z.string(),
+            type: z.enum(["Credit Card", "Bank Account", "Wire Transfer"]),
+            name: z.string(),
+            last4: z.string().optional(),
+            brand: z.string().optional(),
+            isDefault: z.boolean().default(false),
+            status: z.enum(["active", "unavailable"]).default("active"),
+          }),
+        )
+        .default([]),
+      transactions: z
+        .array(
+          z.object({
+            id: z.string(),
+            amount: z.number(),
+            currency: z.string(),
+            status: z.enum(["pending", "paid", "failed"]),
+            createdAt: z.date(),
+            paymentMethodId: z.string(),
+          }),
+        )
+        .default([]),
     })
     .optional(),
 });
@@ -61,19 +96,7 @@ export type UpdateClient = z.infer<typeof UpdateClientSchema>;
 // SQLite-based database
 export class ClientDatabase {
   constructor() {
-    this.init();
-  }
 
-  private async init() {
-    const db = await databaseService.getDb();
-    const count = await db.get('SELECT COUNT(*) as count FROM clients');
-    if (count.count === 0) {
-      await this.seedDatabase(db);
-    }
-  }
-
-  private async seedDatabase(db: any) {
-    const sampleClients: CreateClient[] = [
       {
         bookingId: "WME24001",
         name: "John Doe",
@@ -95,23 +118,27 @@ export class ClientDatabase {
         },
         metadata: {
           priority: "high",
+          notifications: { emailReminders: true },
+          paymentMethods: [
+            {
+              id: "pm_1",
+              type: "Credit Card",
+              name: "Visa **** 4242",
+              last4: "4242",
+              brand: "Visa",
+              isDefault: true,
+              status: "active",
+            },
+          ],
+          transactions: [],
         },
       },
-    ];
 
-    for (const client of sampleClients) {
-        const clientWithDemo: any = { ...client, metadata: { ...client.metadata, isDemo: true } };
-        await this.createClient(clientWithDemo);
-    }
   }
 
   // Get client by booking ID
   async getClient(bookingId: string): Promise<Client | null> {
-    const db = await databaseService.getDb();
-    const row = await db.get('SELECT * FROM clients WHERE bookingId = ?', bookingId.toUpperCase());
-    if (!row) return null;
 
-    return this.rowToClient(row);
   }
 
   // Get all clients
@@ -131,8 +158,10 @@ export class ClientDatabase {
         createdAt: new Date(),
         updatedAt: new Date(),
         isVerified: true,
-        isDemo: clientData.metadata?.isDemo || false,
         priority: clientData.metadata?.priority || "medium",
+        notifications: { emailReminders: true },
+        paymentMethods: [],
+        transactions: [],
       },
     };
 
@@ -178,35 +207,13 @@ export class ClientDatabase {
       },
     };
 
-    const validatedClient = ClientSchema.parse(updatedClientData);
-
-    await db.run(
-      `UPDATE clients SET name = ?, email = ?, phone = ?, artist = ?, event = ?, eventDate = ?, eventLocation = ?, status = ?, contractAmount = ?, currency = ?, balance = ?, coordinator = ?, metadata = ?
-       WHERE bookingId = ?`,
-      validatedClient.name,
-      validatedClient.email,
-      validatedClient.phone,
-      validatedClient.artist,
-      validatedClient.event,
-      validatedClient.eventDate,
-      validatedClient.eventLocation,
-      validatedClient.status,
-      validatedClient.contractAmount,
-      validatedClient.currency,
-      validatedClient.balance,
-      JSON.stringify(validatedClient.coordinator),
-      JSON.stringify(validatedClient.metadata),
-      bookingId.toUpperCase()
-    );
 
     return validatedClient;
   }
 
   // Delete client
   async deleteClient(bookingId: string): Promise<boolean> {
-    const db = await databaseService.getDb();
-    const result = await db.run('DELETE FROM clients WHERE bookingId = ?', bookingId.toUpperCase());
-    return result.changes > 0;
+
   }
 
   // Search clients

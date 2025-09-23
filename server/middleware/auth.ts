@@ -5,7 +5,7 @@ import jwt from "jsonwebtoken";
 declare global {
   namespace Express {
     interface Request {
-      user?: { isAdmin: boolean };
+      user?: { isAdmin: boolean; username?: string };
     }
   }
 }
@@ -21,10 +21,14 @@ export const adminAuthMiddleware: RequestHandler = (req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "");
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      throw new Error("JWT_SECRET is not set");
+    }
+    const decoded = jwt.verify(token, secret) as { isAdmin?: boolean; username?: string };
 
     if (typeof decoded === "object" && decoded.isAdmin) {
-      req.user = { isAdmin: true };
+      req.user = { isAdmin: true, username: decoded.username };
       next();
     } else {
       return res.status(403).json({
