@@ -9,7 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "../components/ui/tabs";
 import { Star, Shield, Globe, IdCard, Loader2 } from "lucide-react";
 import { apiClient } from "../lib/api";
 
@@ -39,14 +44,20 @@ export default function Index() {
     }
   }, [searchParams]);
 
-  const handleImpersonatedLogin = async (impersonatedBookingId: string, token: string) => {
+  const handleImpersonatedLogin = async (
+    impersonatedBookingId: string,
+    token: string,
+  ) => {
     setIsLoading(true);
     setError("");
     try {
       const response = await apiClient.login(impersonatedBookingId, token);
       if (response && response.success) {
         try {
-          localStorage.setItem("wme-user-data", JSON.stringify((response as any).client));
+          localStorage.setItem(
+            "wme-user-data",
+            JSON.stringify((response as any).client),
+          );
         } catch (e) {
           /* ignore storage errors */
         }
@@ -86,7 +97,10 @@ export default function Index() {
       const response = await apiClient.login(bookingId);
       if (response && response.success) {
         try {
-          localStorage.setItem("wme-user-data", JSON.stringify((response as any).client));
+          localStorage.setItem(
+            "wme-user-data",
+            JSON.stringify((response as any).client),
+          );
         } catch (e) {
           /* ignore storage errors */
         }
@@ -138,16 +152,24 @@ export default function Index() {
             <CardContent>
               {showSuccess && (
                 <div className="p-4 bg-green-800/30 border border-green-700 rounded mb-4">
-                  <p className="text-green-200 text-sm">Your email was verified successfully.</p>
+                  <p className="text-green-200 text-sm">
+                    Your email was verified successfully.
+                  </p>
                 </div>
               )}
 
               <Tabs defaultValue="login" className="w-full">
                 <TabsList className="grid w-full grid-cols-2 bg-black/20">
-                  <TabsTrigger value="login" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                  <TabsTrigger
+                    value="login"
+                    className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                  >
                     Client Access
                   </TabsTrigger>
-                  <TabsTrigger value="booking" className="data-[state=active]:bg-wme-gold data-[state=active]:text-black">
+                  <TabsTrigger
+                    value="booking"
+                    className="data-[state=active]:bg-wme-gold data-[state=active]:text-black"
+                  >
                     New Booking
                   </TabsTrigger>
                 </TabsList>
@@ -165,7 +187,9 @@ export default function Index() {
                           placeholder="Enter 8-character Booking ID"
                           value={bookingId}
                           onChange={(e) => {
-                            const value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                            const value = e.target.value
+                              .toUpperCase()
+                              .replace(/[^A-Z0-9]/g, "");
                             if (value.length <= 8) {
                               setBookingId(value);
                               setError("");
@@ -185,7 +209,12 @@ export default function Index() {
                       </div>
                     )}
 
-                    <Button type="submit" className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold" size="lg" disabled={isLoading}>
+                    <Button
+                      type="submit"
+                      className="w-full bg-wme-gold text-black hover:bg-wme-gold/90 font-semibold"
+                      size="lg"
+                      disabled={isLoading}
+                    >
                       {isLoading ? (
                         <>
                           <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -199,7 +228,9 @@ export default function Index() {
                 </TabsContent>
 
                 <TabsContent value="booking">
-                  <div className="text-sm text-gray-300">New booking flow coming soon.</div>
+                  <div className="text-sm text-gray-300">
+                    New booking flow coming soon.
+                  </div>
                 </TabsContent>
               </Tabs>
 

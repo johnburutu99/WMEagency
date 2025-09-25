@@ -1,9 +1,9 @@
-import path from 'path';
-import fs from 'fs/promises';
-import { existsSync, mkdirSync } from 'fs';
+import path from "path";
+import fs from "fs/promises";
+import { existsSync, mkdirSync } from "fs";
 
-const dbPath = path.resolve(process.cwd(), 'db');
-const dbFilePath = path.resolve(dbPath, 'clients.json');
+const dbPath = path.resolve(process.cwd(), "db");
+const dbFilePath = path.resolve(dbPath, "clients.json");
 
 if (!existsSync(dbPath)) {
   mkdirSync(dbPath);
@@ -11,17 +11,17 @@ if (!existsSync(dbPath)) {
 
 async function readDb(): Promise<any[]> {
   try {
-    const content = await fs.readFile(dbFilePath, 'utf-8');
-    return JSON.parse(content || '[]');
+    const content = await fs.readFile(dbFilePath, "utf-8");
+    return JSON.parse(content || "[]");
   } catch (err) {
     // If file doesn't exist or is invalid, initialize with empty array
-    await fs.writeFile(dbFilePath, '[]', 'utf-8');
+    await fs.writeFile(dbFilePath, "[]", "utf-8");
     return [];
   }
 }
 
 async function writeDb(data: any[]) {
-  await fs.writeFile(dbFilePath, JSON.stringify(data, null, 2), 'utf-8');
+  await fs.writeFile(dbFilePath, JSON.stringify(data, null, 2), "utf-8");
 }
 
 class DatabaseService {
@@ -32,19 +32,23 @@ class DatabaseService {
         const clients = await readDb();
         const q = sql.toLowerCase();
 
-        if (q.includes('lower(name) like') || q.includes('lower(artist) like') || q.includes('lower(event) like')) {
-          const term = (params[0] || '').replace(/%/g, '').toLowerCase();
+        if (
+          q.includes("lower(name) like") ||
+          q.includes("lower(artist) like") ||
+          q.includes("lower(event) like")
+        ) {
+          const term = (params[0] || "").replace(/%/g, "").toLowerCase();
           return clients.filter((c: any) => {
             return (
-              (c.name || '').toLowerCase().includes(term) ||
-              (c.artist || '').toLowerCase().includes(term) ||
-              (c.event || '').toLowerCase().includes(term) ||
-              (c.bookingId || '').toLowerCase().includes(term)
+              (c.name || "").toLowerCase().includes(term) ||
+              (c.artist || "").toLowerCase().includes(term) ||
+              (c.event || "").toLowerCase().includes(term) ||
+              (c.bookingId || "").toLowerCase().includes(term)
             );
           });
         }
 
-        if (q.includes('where status =')) {
+        if (q.includes("where status =")) {
           const status = params[0];
           return clients.filter((c: any) => c.status === status);
         }
@@ -56,7 +60,7 @@ class DatabaseService {
       get: async (sql: string, ...params: any[]) => {
         const clients = await readDb();
         const q = sql.toLowerCase();
-        if (q.includes('where bookingid =')) {
+        if (q.includes("where bookingid =")) {
           const id = params[0];
           return clients.find((c: any) => c.bookingId === id) ?? null;
         }
@@ -67,10 +71,27 @@ class DatabaseService {
         const clients = await readDb();
         const q = sql.toLowerCase();
 
-        if (q.startsWith('insert into clients')) {
+        if (q.startsWith("insert into clients")) {
           // Expected order in insert from code: bookingId, name, email, phone, artist, event, eventDate, eventLocation, status, contractAmount, currency, balance, coordinator, metadata
-          const [bookingId, name, email, phone, artist, eventVal, eventDate, eventLocation, status, contractAmount, currency, balance, coordinatorJson, metadataJson] = params;
-          const coordinator = coordinatorJson ? JSON.parse(coordinatorJson) : {};
+          const [
+            bookingId,
+            name,
+            email,
+            phone,
+            artist,
+            eventVal,
+            eventDate,
+            eventLocation,
+            status,
+            contractAmount,
+            currency,
+            balance,
+            coordinatorJson,
+            metadataJson,
+          ] = params;
+          const coordinator = coordinatorJson
+            ? JSON.parse(coordinatorJson)
+            : {};
           const metadata = metadataJson ? JSON.parse(metadataJson) : {};
           const client = {
             bookingId,
@@ -93,7 +114,7 @@ class DatabaseService {
           return { changes: 1 };
         }
 
-        if (q.startsWith('update clients set')) {
+        if (q.startsWith("update clients set")) {
           // Last param is bookingId
           const bookingId = params[params.length - 1];
           const existing = clients.find((c: any) => c.bookingId === bookingId);
@@ -101,7 +122,21 @@ class DatabaseService {
 
           // We expect params in the same order as the update in the model
           // name,email,phone,artist,event,eventDate,eventLocation,status,contractAmount,currency,balance,coordinator,metadata, bookingId
-          const [name, email, phone, artist, eventVal, eventDate, eventLocation, status, contractAmount, currency, balance, coordinatorJson, metadataJson] = params.slice(0, params.length - 1);
+          const [
+            name,
+            email,
+            phone,
+            artist,
+            eventVal,
+            eventDate,
+            eventLocation,
+            status,
+            contractAmount,
+            currency,
+            balance,
+            coordinatorJson,
+            metadataJson,
+          ] = params.slice(0, params.length - 1);
           existing.name = name;
           existing.email = email;
           existing.phone = phone;
@@ -114,12 +149,16 @@ class DatabaseService {
           existing.currency = currency;
           existing.balance = balance;
           try {
-            existing.coordinator = coordinatorJson ? JSON.parse(coordinatorJson) : existing.coordinator;
+            existing.coordinator = coordinatorJson
+              ? JSON.parse(coordinatorJson)
+              : existing.coordinator;
           } catch (e) {
             /* ignore */
           }
           try {
-            existing.metadata = metadataJson ? JSON.parse(metadataJson) : existing.metadata;
+            existing.metadata = metadataJson
+              ? JSON.parse(metadataJson)
+              : existing.metadata;
           } catch (e) {
             /* ignore */
           }
@@ -128,10 +167,12 @@ class DatabaseService {
           return { changes: 1 };
         }
 
-        if (q.startsWith('delete from clients')) {
+        if (q.startsWith("delete from clients")) {
           const bookingId = params[0];
           const before = clients.length;
-          const filtered = clients.filter((c: any) => c.bookingId !== bookingId);
+          const filtered = clients.filter(
+            (c: any) => c.bookingId !== bookingId,
+          );
           await writeDb(filtered);
           return { changes: before - filtered.length };
         }

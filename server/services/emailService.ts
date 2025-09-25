@@ -1,4 +1,4 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 class EmailService {
   private transporter: nodemailer.Transporter;
@@ -7,7 +7,7 @@ class EmailService {
     this.transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST,
       port: Number(process.env.EMAIL_PORT) || 587,
-      secure: process.env.EMAIL_SSL === 'true',
+      secure: process.env.EMAIL_SSL === "true",
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASSWORD,
@@ -79,7 +79,7 @@ class EmailService {
     const mailOptions = {
       from: `"WME Client Portal" <${process.env.EMAIL_USER}>`,
       to,
-      subject: 'Your WME OTP',
+      subject: "Your WME OTP",
       html,
     };
 
@@ -91,7 +91,7 @@ class EmailService {
     const mailOptions = {
       from: `"WME Client Portal" <${process.env.EMAIL_USER}>`,
       to,
-      subject: 'Welcome to WME Client Portal',
+      subject: "Welcome to WME Client Portal",
       html,
     };
 

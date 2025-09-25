@@ -101,7 +101,10 @@ export class ClientDatabase {
   // Get client by booking ID
   async getClient(bookingId: string): Promise<Client | null> {
     const db = await databaseService.getDb();
-    const row = await db.get('SELECT * FROM clients WHERE bookingId = ?', bookingId);
+    const row = await db.get(
+      "SELECT * FROM clients WHERE bookingId = ?",
+      bookingId,
+    );
     if (!row) return null;
     return this.rowToClient(row);
   }
@@ -109,7 +112,7 @@ export class ClientDatabase {
   // Get all clients
   async getAllClients(): Promise<Client[]> {
     const db = await databaseService.getDb();
-    const rows = await db.all('SELECT * FROM clients');
+    const rows = await db.all("SELECT * FROM clients");
     return rows.map((r: any) => this.rowToClient(r));
   }
 
@@ -148,14 +151,17 @@ export class ClientDatabase {
       validatedClient.currency,
       validatedClient.balance,
       JSON.stringify(validatedClient.coordinator),
-      JSON.stringify(validatedClient.metadata)
+      JSON.stringify(validatedClient.metadata),
     );
 
     return validatedClient;
   }
 
   // Update client
-  async updateClient(bookingId: string, updates: UpdateClient): Promise<Client | null> {
+  async updateClient(
+    bookingId: string,
+    updates: UpdateClient,
+  ): Promise<Client | null> {
     const db = await databaseService.getDb();
     const existingClient = await this.getClient(bookingId);
     if (!existingClient) {
@@ -189,7 +195,7 @@ export class ClientDatabase {
       validated.balance,
       JSON.stringify(validated.coordinator),
       JSON.stringify(validated.metadata),
-      bookingId
+      bookingId,
     );
 
     return validated;
@@ -198,9 +204,15 @@ export class ClientDatabase {
   // Delete client
   async deleteClient(bookingId: string): Promise<boolean> {
     const db = await databaseService.getDb();
-    const result = await db.run('DELETE FROM clients WHERE bookingId = ?', bookingId);
+    const result = await db.run(
+      "DELETE FROM clients WHERE bookingId = ?",
+      bookingId,
+    );
     // sqlite3 run returns an object with changes in some drivers; treat truthy as success
-    return (result && result.changes && result.changes > 0) || (result && (result as any).lastID !== undefined) ? true : true;
+    return (result && result.changes && result.changes > 0) ||
+      (result && (result as any).lastID !== undefined)
+      ? true
+      : true;
   }
 
   // Search clients
@@ -213,7 +225,10 @@ export class ClientDatabase {
        LOWER(artist) LIKE ? OR
        LOWER(event) LIKE ? OR
        LOWER(bookingId) LIKE ?`,
-      searchTerm, searchTerm, searchTerm, searchTerm
+      searchTerm,
+      searchTerm,
+      searchTerm,
+      searchTerm,
     );
     return rows.map((r: any) => this.rowToClient(r));
   }
@@ -221,7 +236,7 @@ export class ClientDatabase {
   // Get clients by status
   async getClientsByStatus(status: Client["status"]): Promise<Client[]> {
     const db = await databaseService.getDb();
-    const rows = await db.all('SELECT * FROM clients WHERE status = ?', status);
+    const rows = await db.all("SELECT * FROM clients WHERE status = ?", status);
     return rows.map((r: any) => this.rowToClient(r));
   }
 
