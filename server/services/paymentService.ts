@@ -1,5 +1,3 @@
-import fetch from "node-fetch";
-
 // Check Bitcoin address balance
 export async function checkPayment(address: string, expectedAmount: string) {
   const url = `https://blockstream.info/api/address/${address}`;
