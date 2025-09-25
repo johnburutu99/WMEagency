@@ -104,6 +104,7 @@ class ApiClient {
     return this.request("/auth/admin/verify");
   }
 
+  async adminLogout(): Promise<ApiResponse> {
     return this.request("/auth/admin/logout", {
       method: "POST",
     });
@@ -112,7 +113,7 @@ class ApiClient {
   async login(
     bookingId: string,
     impersonationToken?: string,
-
+  ): Promise<ApiResponse> {
     const headers: Record<string, string> = {};
     if (impersonationToken) {
       headers["Authorization"] = `Bearer ${impersonationToken}`;
