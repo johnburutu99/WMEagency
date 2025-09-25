@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
@@ -6,7 +6,6 @@ import { Label } from "../components/ui/label";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
@@ -16,15 +15,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "../components/ui/tabs";
-import {
-  Shield,
-  Star,
-  Users,
-  Globe,
-  IdCard,
-  Loader2,
-  CheckCircle,
-} from "lucide-react";
+import { Star, Shield, Globe, IdCard, Loader2 } from "lucide-react";
 import { apiClient } from "../lib/api";
 
 export default function Index() {
@@ -48,17 +39,28 @@ export default function Index() {
     } else if (verified === "true" && verifiedBookingId) {
       setShowSuccess(true);
       setBookingId(verifiedBookingId);
-      // Hide success message after 10 seconds
       const timer = setTimeout(() => setShowSuccess(false), 10000);
       return () => clearTimeout(timer);
     }
   }, [searchParams]);
 
+  const handleImpersonatedLogin = async (
+    impersonatedBookingId: string,
+    token: string,
+  ) => {
     setIsLoading(true);
     setError("");
     try {
       const response = await apiClient.login(impersonatedBookingId, token);
-
+      if (response && response.success) {
+        try {
+          localStorage.setItem(
+            "wme-user-data",
+            JSON.stringify((response as any).client),
+          );
+        } catch (e) {
+          /* ignore storage errors */
+        }
         window.location.href = "/dashboard";
       } else {
         setError("Impersonation login failed.");
@@ -69,7 +71,6 @@ export default function Index() {
       setIsLoading(false);
     }
   };
-
 
   const validateBookingId = (id: string) => {
     const regex = /^[A-Z0-9]{8}$/i;
@@ -94,12 +95,21 @@ export default function Index() {
 
     try {
       const response = await apiClient.login(bookingId);
-
-        localStorage.setItem(
-          "wme-user-data",
-          JSON.stringify(response.client),
-        );
-
+      if (response && response.success) {
+        try {
+          localStorage.setItem(
+            "wme-user-data",
+            JSON.stringify((response as any).client),
+          );
+        } catch (e) {
+          /* ignore storage errors */
+        }
+        window.location.href = "/dashboard";
+      } else {
+        setError(response.error || "Login failed");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred");
     } finally {
       setIsLoading(false);
     }
@@ -132,6 +142,19 @@ export default function Index() {
           </div>
         </div>
       </header>
+
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="w-full max-w-2xl p-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Access Your Client Portal</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {showSuccess && (
+                <div className="p-4 bg-green-800/30 border border-green-700 rounded mb-4">
+                  <p className="text-green-200 text-sm">
+                    Your email was verified successfully.
+                  </p>
                 </div>
               )}
 
@@ -204,12 +227,14 @@ export default function Index() {
                   </form>
                 </TabsContent>
 
-                    </div>
+                <TabsContent value="booking">
+                  <div className="text-sm text-gray-300">
+                    New booking flow coming soon.
                   </div>
                 </TabsContent>
               </Tabs>
 
-              <div className="text-center">
+              <div className="text-center mt-6">
                 <p className="text-xs text-gray-400">
                   By accessing your account, you agree to our{" "}
                   <Link to="/terms" className="text-wme-gold hover:underline">

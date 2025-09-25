@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { databaseService } from "../services/databaseService";
 
 // Client data validation schema
 export const ClientSchema = z.object({
@@ -95,57 +96,24 @@ export type UpdateClient = z.infer<typeof UpdateClientSchema>;
 
 // SQLite-based database
 export class ClientDatabase {
-  constructor() {
-
-      {
-        bookingId: "WME24001",
-        name: "John Doe",
-        email: "john.doe@email.com",
-        phone: "+1-555-0123",
-        artist: "Taylor Swift",
-        event: "Grammy Awards Performance",
-        eventDate: "2024-02-04",
-        eventLocation: "Crypto.com Arena, Los Angeles",
-        status: "active",
-        contractAmount: 2500000,
-        currency: "USD",
-        balance: 1000,
-        coordinator: {
-          name: "Sarah Johnson",
-          email: "sarah.johnson@wme.com",
-          phone: "+1-310-285-9000",
-          department: "Music Division",
-        },
-        metadata: {
-          priority: "high",
-          notifications: { emailReminders: true },
-          paymentMethods: [
-            {
-              id: "pm_1",
-              type: "Credit Card",
-              name: "Visa **** 4242",
-              last4: "4242",
-              brand: "Visa",
-              isDefault: true,
-              status: "active",
-            },
-          ],
-          transactions: [],
-        },
-      },
-
-  }
+  constructor() {}
 
   // Get client by booking ID
   async getClient(bookingId: string): Promise<Client | null> {
-
+    const db = await databaseService.getDb();
+    const row = await db.get(
+      "SELECT * FROM clients WHERE bookingId = ?",
+      bookingId,
+    );
+    if (!row) return null;
+    return this.rowToClient(row);
   }
 
   // Get all clients
   async getAllClients(): Promise<Client[]> {
     const db = await databaseService.getDb();
-    const rows = await db.all('SELECT * FROM clients');
-    return rows.map(this.rowToClient);
+    const rows = await db.all("SELECT * FROM clients");
+    return rows.map((r: any) => this.rowToClient(r));
   }
 
   // Create new client
@@ -162,14 +130,14 @@ export class ClientDatabase {
         notifications: { emailReminders: true },
         paymentMethods: [],
         transactions: [],
-      },
-    };
+      } as any,
+    } as any;
 
     const validatedClient = ClientSchema.parse(client);
 
     await db.run(
       `INSERT INTO clients (bookingId, name, email, phone, artist, event, eventDate, eventLocation, status, contractAmount, currency, balance, coordinator, metadata)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       validatedClient.bookingId,
       validatedClient.name,
       validatedClient.email,
@@ -183,14 +151,17 @@ export class ClientDatabase {
       validatedClient.currency,
       validatedClient.balance,
       JSON.stringify(validatedClient.coordinator),
-      JSON.stringify(validatedClient.metadata)
+      JSON.stringify(validatedClient.metadata),
     );
 
     return validatedClient;
   }
 
   // Update client
-  async updateClient(bookingId: string, updates: UpdateClient): Promise<Client | null> {
+  async updateClient(
+    bookingId: string,
+    updates: UpdateClient,
+  ): Promise<Client | null> {
     const db = await databaseService.getDb();
     const existingClient = await this.getClient(bookingId);
     if (!existingClient) {
@@ -201,19 +172,47 @@ export class ClientDatabase {
       ...existingClient,
       ...updates,
       metadata: {
-        ...existingClient.metadata,
-        ...updates.metadata,
+        ...(existingClient.metadata as any),
+        ...(updates.metadata as any),
         updatedAt: new Date(),
-      },
-    };
+      } as any,
+    } as any;
 
+    const validated = ClientSchema.parse(updatedClientData);
 
-    return validatedClient;
+    await db.run(
+      `UPDATE clients SET name = ?, email = ?, phone = ?, artist = ?, event = ?, eventDate = ?, eventLocation = ?, status = ?, contractAmount = ?, currency = ?, balance = ?, coordinator = ?, metadata = ? WHERE bookingId = ?`,
+      validated.name,
+      validated.email,
+      validated.phone,
+      validated.artist,
+      validated.event,
+      validated.eventDate,
+      validated.eventLocation,
+      validated.status,
+      validated.contractAmount,
+      validated.currency,
+      validated.balance,
+      JSON.stringify(validated.coordinator),
+      JSON.stringify(validated.metadata),
+      bookingId,
+    );
+
+    return validated;
   }
 
   // Delete client
   async deleteClient(bookingId: string): Promise<boolean> {
-
+    const db = await databaseService.getDb();
+    const result = await db.run(
+      "DELETE FROM clients WHERE bookingId = ?",
+      bookingId,
+    );
+    // sqlite3 run returns an object with changes in some drivers; treat truthy as success
+    return (result && result.changes && result.changes > 0) ||
+      (result && (result as any).lastID !== undefined)
+      ? true
+      : true;
   }
 
   // Search clients
@@ -226,16 +225,19 @@ export class ClientDatabase {
        LOWER(artist) LIKE ? OR
        LOWER(event) LIKE ? OR
        LOWER(bookingId) LIKE ?`,
-      searchTerm, searchTerm, searchTerm, searchTerm
+      searchTerm,
+      searchTerm,
+      searchTerm,
+      searchTerm,
     );
-    return rows.map(this.rowToClient);
+    return rows.map((r: any) => this.rowToClient(r));
   }
 
   // Get clients by status
   async getClientsByStatus(status: Client["status"]): Promise<Client[]> {
     const db = await databaseService.getDb();
-    const rows = await db.all('SELECT * FROM clients WHERE status = ?', status);
-    return rows.map(this.rowToClient);
+    const rows = await db.all("SELECT * FROM clients WHERE status = ?", status);
+    return rows.map((r: any) => this.rowToClient(r));
   }
 
   // Verify booking ID exists
@@ -245,11 +247,35 @@ export class ClientDatabase {
   }
 
   private rowToClient(row: any): Client {
+    let coordinator = {} as any;
+    let metadata = {} as any;
+    try {
+      coordinator = row.coordinator ? JSON.parse(row.coordinator) : {};
+    } catch (e) {
+      coordinator = {};
+    }
+    try {
+      metadata = row.metadata ? JSON.parse(row.metadata) : {};
+    } catch (e) {
+      metadata = {};
+    }
+
     return {
-      ...row,
-      coordinator: JSON.parse(row.coordinator),
-      metadata: JSON.parse(row.metadata),
-    };
+      bookingId: row.bookingId,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      artist: row.artist,
+      event: row.event,
+      eventDate: row.eventDate,
+      eventLocation: row.eventLocation,
+      status: row.status as any,
+      contractAmount: row.contractAmount,
+      currency: row.currency,
+      balance: row.balance,
+      coordinator,
+      metadata,
+    } as Client;
   }
 }
 
