@@ -42,7 +42,8 @@
     "util": "^0.12.5",
     "process": "^0.11.10",
     "uuid": "^11.1.0",
-    "node-fetch": "^3.3.2"
+    "node-fetch": "^3.3.2",
+    "qrcode.react": "^4.2.0"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
