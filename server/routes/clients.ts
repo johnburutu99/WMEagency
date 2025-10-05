@@ -94,6 +94,28 @@ export const getAllClients: RequestHandler = async (req, res) => {
   }
 };
 
+// Get all demo clients (admin endpoint)
+export const getDemoClients: RequestHandler = async (req, res) => {
+  try {
+    const allClients = await clientDatabase.getAllClients();
+    const demoClients = allClients.filter(client => client.metadata?.isDemo);
+
+    res.json({
+      success: true,
+      data: {
+        clients: demoClients,
+        total: demoClients.length,
+      },
+    });
+  } catch (error) {
+    console.error("Get demo clients error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Failed to retrieve demo clients",
+    });
+  }
+};
+
 // Get single client by booking ID
 export const getClient: RequestHandler = async (req, res) => {
   try {
@@ -142,14 +164,6 @@ export const createClient: RequestHandler = async (req, res) => {
 
     // Send welcome email
     await emailService.sendWelcomeEmail(newClient.email, newClient.name, newClient.bookingId);
-
-    // Emit WebSocket event
-    (req as any).io.emit("new-client", newClient);
-    (req as any).io.emit("new-activity", {
-      type: "new-client",
-      message: `New client created: ${newClient.name}`,
-      timestamp: new Date(),
-    });
 
     res.status(201).json({
       success: true,

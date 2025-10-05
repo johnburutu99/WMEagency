@@ -7,7 +7,7 @@ describe('App', () => {
     // Check for a known page title from the Index page
     // Use queryAllByText because the text appears twice (for mobile and desktop layouts)
     expect(
-      screen.queryAllByText(/Welcome to the/i).length
+      screen.queryAllByText(/Client Portal/i).length
     ).toBeGreaterThan(0);
   });
 });

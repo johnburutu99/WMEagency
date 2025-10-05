@@ -27,6 +27,7 @@ import {
   deleteClient,
   bulkUpdateClients,
   generateBookingId,
+  getDemoClients,
 } from "./routes/clients";
 import {
   getDashboardStats,
@@ -55,7 +56,7 @@ import {
   createInvoice,
   listInvoices,
   getInvoice,
-} from "./routes/invoice.js";
+} from "./routes/invoice";
 
 export function createServer() {
   const app = express();
@@ -123,16 +124,6 @@ export function createServer() {
   app.get("/api/booking-id/generate", generateBookingId);
 
   // Admin routes
-  app.get("/api/admin/dashboard", adminAuthMiddleware, getDashboardStats);
-  app.get("/api/admin/analytics", adminAuthMiddleware, getClientAnalytics);
-  app.get("/api/admin/export", adminAuthMiddleware, exportClients);
-  app.get("/api/admin/health", adminAuthMiddleware, getSystemHealth);
-  app.post("/api/admin/command", adminAuthMiddleware, sendCommandToClient);
-  app.post(
-    "/api/admin/approve-payment/:bookingId",
-    adminAuthMiddleware,
-    approvePayment,
-  );
 
   // Booking submission routes
   app.post("/api/booking/submit", handleBookingSubmission);
@@ -149,23 +140,23 @@ export function createServer() {
     handleGenerateDepositAddress,
   );
 
-  app.get("/api/invoice/:id", async (req, res) => {
-    const { checkPayment } = await import("./services/paymentService");
-    const { clientDatabase } = await import("./models/Client");
-    const client = await clientDatabase.getClient(req.params.id);
-    if (!client) {
-      return res.status(404).json({ error: "Invoice not found" });
-    }
-    const paid = await checkPayment(
-      "bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6",
-      ((client.contractAmount || 0) / 50000).toString(),
-    );
-    if (paid) {
-      client.status = "completed";
-      await clientDatabase.updateClient(req.params.id, client);
-    }
-    res.json(client);
-  });
+  // app.get("/api/invoice/:id", async (req, res) => {
+  //   const { checkPayment } = await import("./services/paymentService");
+  //   const { clientDatabase } = await import("./models/Client");
+  //   const client = await clientDatabase.getClient(req.params.id);
+  //   if (!client) {
+  //     return res.status(404).json({ error: "Invoice not found" });
+  //   }
+  //   const paid = await checkPayment(
+  //     "bc1qynk4vkfuvjfwyylta9w6dq9haa5yx3hsrx80m6",
+  //     ((client.contractAmount || 0) / 50000).toString(),
+  //   );
+  //   if (paid) {
+  //     client.status = "completed";
+  //     await clientDatabase.updateClient(req.params.id, client);
+  //   }
+  //   res.json(client);
+  // });
 
   // User routes
   app.post("/api/user/profile-picture", handleProfilePictureUpload);

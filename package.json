@@ -26,23 +26,24 @@
     "@reown/appkit-adapter-ethers": "^1.7.19",
     "@reown/appkit-pay": "^1.7.19",
     "@tensorflow/tfjs": "^4.22.0",
-    "@types/nodemailer": "^7.0.0",
-    "buffer": "^6.0.3",
     "cookie-parser": "^1.4.7",
     "dotenv": "^17.2.1",
     "ethers": "^6.15.0",
-    "express": "^5.1.0",
+    "express": "^4.18.2",
     "face-api.js": "^0.22.2",
     "jsonwebtoken": "^9.0.2",
-    "node-fetch": "^3.3.2",
-    "nodemailer": "^7.0.5",
-    "process": "^0.11.10",
-    "qrcode.react": "^4.2.0",
+    "zod": "^3.23.2",
+    "sqlite": "^4.1.0",
+    "sqlite3": "^5.1.2",
+    "nodemailer": "^6.9.3",
     "socket.io": "^4.8.1",
     "socket.io-client": "^4.8.1",
+    "buffer": "^6.0.3",
     "util": "^0.12.5",
+    "process": "^0.11.10",
     "uuid": "^11.1.0",
-    "zod": "^4.0.17"
+    "node-fetch": "^3.3.2",
+    "qrcode.react": "^4.2.0"
   },
   "devDependencies": {
     "@esbuild-plugins/node-globals-polyfill": "^0.2.3",
@@ -87,7 +88,7 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/cookie-parser": "^1.4.9",
     "@types/cors": "^2.8.19",
-    "@types/express": "^5.0.3",
+    "@types/express": "^4.17.17",
     "@types/jest": "^30.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.3.0",
@@ -134,5 +135,6 @@
     "vaul": "^1.1.2",
     "vite": "^7.1.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "packageManager": "pnpm@10.17.1+sha512.17c560fca4867ae9473a3899ad84a88334914f379be46d455cbf92e5cf4b39d34985d452d2583baf19967fa76cb5c17bc9e245529d0b98745721aa7200ecaf7a"
 }
