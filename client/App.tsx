@@ -19,7 +19,7 @@ import Coordinators from "./pages/Coordinators";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
-import AdminSettings from "./pages/AdminSettings";
+import { AdminSettings } from "./pages/AdminSettings";
 
 import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
@@ -105,15 +105,3 @@ export const App = () => (
   </QueryClientProvider>
 );
 
-// Fix React 18 createRoot warning by using a module-level root
-const container = document.getElementById("root")!;
-let root: ReturnType<typeof createRoot> | null = null;
-
-function renderApp() {
-  if (!root) {
-    root = createRoot(container);
-  }
-  root.render(<App />);
-}
-
-renderApp();

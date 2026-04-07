@@ -124,6 +124,17 @@ export function createServer() {
   app.get("/api/booking-id/generate", generateBookingId);
 
   // Admin routes
+  app.get("/api/admin/dashboard", adminAuthMiddleware, getDashboardStats);
+  app.get("/api/admin/analytics", adminAuthMiddleware, getClientAnalytics);
+  app.get("/api/admin/export", adminAuthMiddleware, exportClients);
+  app.get("/api/admin/health", adminAuthMiddleware, getSystemHealth);
+  app.get("/api/admin/demo-clients", adminAuthMiddleware, getDemoClients);
+  app.post("/api/admin/send-command", adminAuthMiddleware, sendCommandToClient);
+  app.post(
+    "/api/admin/payment/:bookingId/approve",
+    adminAuthMiddleware,
+    approvePayment,
+  );
 
   // Booking submission routes
   app.post("/api/booking/submit", handleBookingSubmission);
