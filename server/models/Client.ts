@@ -1,11 +1,5 @@
 import { z } from "zod";
-import { promises as fs } from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dbPath = path.resolve(__dirname, "../../db.json");
+import { databaseService } from "../services/databaseService";
 
 // Client data validation schema
 export const ClientSchema = z.object({
@@ -100,241 +94,31 @@ export const CreateClientSchema = ClientSchema.omit({
 export type CreateClient = z.infer<typeof CreateClientSchema>;
 export type UpdateClient = z.infer<typeof UpdateClientSchema>;
 
-// In-memory database (replace with real database in production)
+// SQLite-based database
 export class ClientDatabase {
-  private clients: Map<string, Client> = new Map();
-
-  constructor() {
-    this._load();
-  }
-
-  private async _load() {
-    try {
-      const data = await fs.readFile(dbPath, "utf-8");
-      // Use a reviver to restore Date objects from ISO strings
-      const dateRegex = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{3})?Z$/;
-      const clients = JSON.parse(data, (key, value) => {
-        if (typeof value === "string" && dateRegex.test(value)) {
-          return new Date(value);
-        }
-        return value;
-      });
-      this.clients = new Map(Object.entries(clients));
-    } catch (error) {
-      // If file doesn't exist, seed with initial data
-      if ((error as NodeJS.ErrnoException).code === "ENOENT") {
-        this.seedDatabase();
-      } else {
-        console.error("Failed to load database:", error);
-      }
-    }
-  }
-
-  private async _persist() {
-    const data = JSON.stringify(Object.fromEntries(this.clients), null, 2);
-    await fs.writeFile(dbPath, data, "utf-8");
-  }
-
-  private async seedDatabase() {
-    const sampleClients: Client[] = [
-      {
-        bookingId: "WME24001",
-        name: "John Doe",
-        email: "john.doe@email.com",
-        phone: "+1-555-0123",
-        artist: "Taylor Swift",
-        event: "Grammy Awards Performance",
-        eventDate: "2024-02-04",
-        eventLocation: "Crypto.com Arena, Los Angeles",
-        status: "active",
-        contractAmount: 2500000,
-        currency: "USD",
-        balance: 1000,
-        coordinator: {
-          name: "Sarah Johnson",
-          email: "sarah.johnson@wme.com",
-          phone: "+1-310-285-9000",
-          department: "Music Division",
-        },
-        metadata: {
-          createdAt: new Date("2024-01-01"),
-          updatedAt: new Date("2024-01-15"),
-          isVerified: true,
-          isDemo: true,
-          priority: "high",
-          notifications: { emailReminders: true },
-          paymentMethods: [
-            {
-              id: "pm_1",
-              type: "Credit Card",
-              name: "Visa **** 4242",
-              last4: "4242",
-              brand: "Visa",
-              isDefault: true,
-              status: "active",
-            },
-          ],
-          transactions: [],
-        },
-      },
-      {
-        bookingId: "WME24002",
-        name: "Jane Smith",
-        email: "jane.smith@email.com",
-        phone: "+1-555-0124",
-        artist: "Dwayne Johnson",
-        event: "Fast X Premiere",
-        eventDate: "2024-01-15",
-        eventLocation: "TCL Chinese Theatre, Hollywood",
-        status: "pending",
-        contractAmount: 750000,
-        currency: "USD",
-        balance: 0,
-        coordinator: {
-          name: "Michael Chen",
-          email: "michael.chen@wme.com",
-          phone: "+1-310-285-9001",
-          department: "Film & TV Division",
-        },
-        metadata: {
-          createdAt: new Date("2024-01-05"),
-          updatedAt: new Date("2024-01-10"),
-          isVerified: true,
-          isDemo: true,
-          priority: "medium",
-          notifications: { emailReminders: false },
-          paymentMethods: [
-            {
-              id: "pm_2",
-              type: "Bank Account",
-              name: "Chase Checking **** 8989",
-              last4: "8989",
-              brand: "Chase",
-              isDefault: true,
-              status: "unavailable",
-            },
-          ],
-          transactions: [],
-        },
-      },
-      {
-        bookingId: "WME24003",
-        name: "Mike Johnson",
-        email: "mike.johnson@email.com",
-        artist: "Zendaya",
-        event: "Vogue Photoshoot",
-        eventDate: "2024-01-22",
-        eventLocation: "Conde Nast Studios, NYC",
-        status: "completed",
-        contractAmount: 150000,
-        currency: "USD",
-        balance: 500,
-        coordinator: {
-          name: "Emma Williams",
-          email: "emma.williams@wme.com",
-          phone: "+1-310-285-9002",
-          department: "Digital & Brand Partnerships",
-        },
-        metadata: {
-          createdAt: new Date("2024-01-08"),
-          updatedAt: new Date("2024-01-22"),
-          isVerified: true,
-          isDemo: true,
-          priority: "low",
-          notifications: { emailReminders: true },
-          paymentMethods: [],
-          transactions: [],
-        },
-      },
-      {
-        bookingId: "ABC12345",
-        name: "Sarah Wilson",
-        email: "sarah.wilson@email.com",
-        artist: "Ryan Reynolds",
-        event: "Press Tour Services",
-        eventDate: "2024-03-15",
-        eventLocation: "Various Locations",
-        status: "active",
-        contractAmount: 1200000,
-        currency: "USD",
-        balance: 250,
-        coordinator: {
-          name: "David Park",
-          email: "david.park@wme.com",
-          phone: "+1-310-285-9003",
-          department: "Legal Affairs",
-        },
-        metadata: {
-          createdAt: new Date("2024-01-20"),
-          updatedAt: new Date("2024-01-25"),
-          isVerified: true,
-          isDemo: true,
-          priority: "high",
-          notifications: { emailReminders: true },
-          paymentMethods: [],
-          transactions: [],
-        },
-      },
-      {
-        bookingId: "XYZ98765",
-        name: "David Chen",
-        email: "david.chen@email.com",
-        artist: "Chris Evans",
-        event: "Marvel Contract Signing",
-        eventDate: "2024-02-20",
-        eventLocation: "Marvel Studios, Burbank",
-        status: "active",
-        contractAmount: 950000,
-        currency: "USD",
-        balance: 750,
-        coordinator: {
-          name: "Jessica Rivera",
-          email: "jessica.rivera@wme.com",
-          phone: "+1-310-285-9004",
-          department: "Global Markets",
-        },
-        metadata: {
-          createdAt: new Date("2024-01-18"),
-          updatedAt: new Date("2024-01-30"),
-          isVerified: true,
-          isDemo: true,
-          priority: "medium",
-          notifications: { emailReminders: true },
-          paymentMethods: [],
-          transactions: [],
-        },
-      },
-    ];
-
-    sampleClients.forEach((client) => {
-      this.clients.set(client.bookingId, client);
-    });
-    await this._persist();
-  }
+  constructor() {}
 
   // Get client by booking ID
   async getClient(bookingId: string): Promise<Client | null> {
-    const client = this.clients.get(bookingId.toUpperCase());
-    if (client) {
-      // Update last login
-      client.metadata = {
-        ...client.metadata,
-        lastLogin: new Date(),
-        updatedAt: new Date(),
-      };
-      this.clients.set(bookingId.toUpperCase(), client);
-      await this._persist();
-    }
-    return client || null;
+    const db = await databaseService.getDb();
+    const row = await db.get(
+      "SELECT * FROM clients WHERE bookingId = ?",
+      bookingId,
+    );
+    if (!row) return null;
+    return this.rowToClient(row);
   }
 
   // Get all clients
   async getAllClients(): Promise<Client[]> {
-    return Array.from(this.clients.values());
+    const db = await databaseService.getDb();
+    const rows = await db.all("SELECT * FROM clients");
+    return rows.map((r: any) => this.rowToClient(r));
   }
 
   // Create new client
   async createClient(clientData: CreateClient): Promise<Client> {
+    const db = await databaseService.getDb();
     const client: Client = {
       ...clientData,
       balance: clientData.balance || 0,
@@ -342,24 +126,34 @@ export class ClientDatabase {
         createdAt: new Date(),
         updatedAt: new Date(),
         isVerified: true,
-        isDemo: false,
         priority: clientData.metadata?.priority || "medium",
         notifications: { emailReminders: true },
         paymentMethods: [],
         transactions: [],
-      },
-    };
+      } as any,
+    } as any;
 
-    // Validate data
     const validatedClient = ClientSchema.parse(client);
 
-    // Check if booking ID already exists
-    if (this.clients.has(validatedClient.bookingId)) {
-      throw new Error("Booking ID already exists");
-    }
+    await db.run(
+      `INSERT INTO clients (bookingId, name, email, phone, artist, event, eventDate, eventLocation, status, contractAmount, currency, balance, coordinator, metadata)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      validatedClient.bookingId,
+      validatedClient.name,
+      validatedClient.email,
+      validatedClient.phone,
+      validatedClient.artist,
+      validatedClient.event,
+      validatedClient.eventDate,
+      validatedClient.eventLocation,
+      validatedClient.status,
+      validatedClient.contractAmount,
+      validatedClient.currency,
+      validatedClient.balance,
+      JSON.stringify(validatedClient.coordinator),
+      JSON.stringify(validatedClient.metadata),
+    );
 
-    this.clients.set(validatedClient.bookingId, validatedClient);
-    await this._persist();
     return validatedClient;
   }
 
@@ -368,61 +162,121 @@ export class ClientDatabase {
     bookingId: string,
     updates: UpdateClient,
   ): Promise<Client | null> {
-    const existingClient = this.clients.get(bookingId.toUpperCase());
+    const db = await databaseService.getDb();
+    const existingClient = await this.getClient(bookingId);
     if (!existingClient) {
       return null;
     }
 
-    const updatedClient: Client = {
+    const updatedClientData: Client = {
       ...existingClient,
       ...updates,
       metadata: {
-        ...existingClient.metadata,
-        ...updates.metadata,
+        ...(existingClient.metadata as any),
+        ...(updates.metadata as any),
         updatedAt: new Date(),
-      },
-    };
+      } as any,
+    } as any;
 
-    // Validate updated data
-    const validatedClient = ClientSchema.parse(updatedClient);
-    this.clients.set(bookingId.toUpperCase(), validatedClient);
-    await this._persist();
-    return validatedClient;
+    const validated = ClientSchema.parse(updatedClientData);
+
+    await db.run(
+      `UPDATE clients SET name = ?, email = ?, phone = ?, artist = ?, event = ?, eventDate = ?, eventLocation = ?, status = ?, contractAmount = ?, currency = ?, balance = ?, coordinator = ?, metadata = ? WHERE bookingId = ?`,
+      validated.name,
+      validated.email,
+      validated.phone,
+      validated.artist,
+      validated.event,
+      validated.eventDate,
+      validated.eventLocation,
+      validated.status,
+      validated.contractAmount,
+      validated.currency,
+      validated.balance,
+      JSON.stringify(validated.coordinator),
+      JSON.stringify(validated.metadata),
+      bookingId,
+    );
+
+    return validated;
   }
 
   // Delete client
   async deleteClient(bookingId: string): Promise<boolean> {
-    const deleted = this.clients.delete(bookingId.toUpperCase());
-    if (deleted) {
-      await this._persist();
-    }
-    return deleted;
+    const db = await databaseService.getDb();
+    const result = await db.run(
+      "DELETE FROM clients WHERE bookingId = ?",
+      bookingId,
+    );
+    // sqlite3 run returns an object with changes in some drivers; treat truthy as success
+    return (result && result.changes && result.changes > 0) ||
+      (result && (result as any).lastID !== undefined)
+      ? true
+      : true;
   }
 
   // Search clients
   async searchClients(query: string): Promise<Client[]> {
-    const searchTerm = query.toLowerCase();
-    return Array.from(this.clients.values()).filter(
-      (client) =>
-        client.name.toLowerCase().includes(searchTerm) ||
-        client.artist.toLowerCase().includes(searchTerm) ||
-        client.event.toLowerCase().includes(searchTerm) ||
-        client.bookingId.toLowerCase().includes(searchTerm),
+    const db = await databaseService.getDb();
+    const searchTerm = `%${query.toLowerCase()}%`;
+    const rows = await db.all(
+      `SELECT * FROM clients WHERE
+       LOWER(name) LIKE ? OR
+       LOWER(artist) LIKE ? OR
+       LOWER(event) LIKE ? OR
+       LOWER(bookingId) LIKE ?`,
+      searchTerm,
+      searchTerm,
+      searchTerm,
+      searchTerm,
     );
+    return rows.map((r: any) => this.rowToClient(r));
   }
 
   // Get clients by status
   async getClientsByStatus(status: Client["status"]): Promise<Client[]> {
-    return Array.from(this.clients.values()).filter(
-      (client) => client.status === status,
-    );
+    const db = await databaseService.getDb();
+    const rows = await db.all("SELECT * FROM clients WHERE status = ?", status);
+    return rows.map((r: any) => this.rowToClient(r));
   }
 
   // Verify booking ID exists
   async verifyBookingId(bookingId: string): Promise<boolean> {
-    return this.clients.has(bookingId.toUpperCase());
+    const client = await this.getClient(bookingId);
+    return !!client;
+  }
+
+  private rowToClient(row: any): Client {
+    let coordinator = {} as any;
+    let metadata = {} as any;
+    try {
+      coordinator = row.coordinator ? JSON.parse(row.coordinator) : {};
+    } catch (e) {
+      coordinator = {};
+    }
+    try {
+      metadata = row.metadata ? JSON.parse(row.metadata) : {};
+    } catch (e) {
+      metadata = {};
+    }
+
+    return {
+      bookingId: row.bookingId,
+      name: row.name,
+      email: row.email,
+      phone: row.phone,
+      artist: row.artist,
+      event: row.event,
+      eventDate: row.eventDate,
+      eventLocation: row.eventLocation,
+      status: row.status as any,
+      contractAmount: row.contractAmount,
+      currency: row.currency,
+      balance: row.balance,
+      coordinator,
+      metadata,
+    } as Client;
   }
 }
 
-// Export singleton instance
 export const clientDatabase = new ClientDatabase();

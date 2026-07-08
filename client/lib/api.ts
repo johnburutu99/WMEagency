@@ -140,7 +140,7 @@ class ApiClient {
 
   // Payment
   async initiatePaymentOtp(
-    bookingId: string
+    bookingId: string,
   ): Promise<ApiResponse<{ message: string }>> {
     return this.request("/payment/initiate-otp", {
       method: "POST",
@@ -150,7 +150,7 @@ class ApiClient {
 
   async verifyPaymentOtp(
     bookingId: string,
-    otp: string
+    otp: string,
   ): Promise<ApiResponse<{ message: string }>> {
     return this.request("/payment/verify-otp", {
       method: "POST",
@@ -275,33 +275,18 @@ class ApiClient {
     return this.request("/admin/health");
   }
 
-  async getDemoClients(): Promise<ApiResponse<{ clients: Client[]; total: number }>> {
+  async getDemoClients(): Promise<
+    ApiResponse<{ clients: Client[]; total: number }>
+  > {
     return this.request("/admin/demo-clients");
   }
 
-  async impersonateClient(bookingId: string): Promise<ApiResponse<{ impersonationToken: string }>> {
+  async impersonateClient(
+    bookingId: string,
+  ): Promise<ApiResponse<{ impersonationToken: string }>> {
     return this.request("/auth/admin/impersonate", {
       method: "POST",
       body: JSON.stringify({ bookingId }),
-    });
-  }
-
-  async sendCommandToClient(
-    bookingId: string,
-    command: string,
-    payload: any,
-  ): Promise<ApiResponse<{ message: string }>> {
-    return this.request("/admin/command", {
-      method: "POST",
-      body: JSON.stringify({ bookingId, command, payload }),
-    });
-  }
-
-  async approvePayment(
-    bookingId: string,
-  ): Promise<ApiResponse<{ message: string }>> {
-    return this.request(`/admin/approve-payment/${bookingId}`, {
-      method: "POST",
     });
   }
 
