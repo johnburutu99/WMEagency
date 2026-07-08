@@ -19,8 +19,8 @@ import Coordinators from "./pages/Coordinators";
 import { AdminProtectedRoute } from "./components/AdminProtectedRoute";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
-import AdminSettings from "./pages/AdminSettings";
-import Analytics from "./pages/Analytics";
+import { AdminSettings } from "./pages/AdminSettings";
+
 import PlaceholderPage from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import SettingsPage from "./pages/Settings"; // Renamed to avoid conflict with lucide-react
@@ -56,14 +56,7 @@ export const App = () => (
                 </AdminProtectedRoute>
               }
             />
-            <Route
-              path="/admin/analytics"
-              element={
-                <AdminProtectedRoute>
-                  <Analytics />
-                </AdminProtectedRoute>
-              }
-            />
+
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/verify-identity" element={<VerifyIdentityPage />} />
             <Route path="/dashboard/bookings" element={<Bookings />} />
@@ -112,15 +105,3 @@ export const App = () => (
   </QueryClientProvider>
 );
 
-// Fix React 18 createRoot warning by using a module-level root
-const container = document.getElementById("root")!;
-let root: ReturnType<typeof createRoot> | null = null;
-
-function renderApp() {
-  if (!root) {
-    root = createRoot(container);
-  }
-  root.render(<App />);
-}
-
-renderApp();

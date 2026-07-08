@@ -46,6 +46,16 @@ import { ProgressTracker } from "../components/ProgressTracker";
 export default function Dashboard() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const location = useLocation();
+  const [isAdminImpersonating, setIsAdminImpersonating] = useState(false);
+  const [isAdminViewOnly, setIsAdminViewOnly] = useState(false);
+
+  // Check admin access modes
+  useEffect(() => {
+    setIsAdminImpersonating(
+      localStorage.getItem("wme-admin-impersonating") === "true",
+    );
+    setIsAdminViewOnly(localStorage.getItem("wme-admin-view-only") === "true");
+  }, []);
 
   // Load user data from localStorage
   const [userData, setUserData] = useState<any>(null);
@@ -68,7 +78,9 @@ export default function Dashboard() {
 
   useEffect(() => {
     if (userData?.bookingId) {
-      const socket = io(import.meta.env.VITE_API_BASE_URL || "http://localhost:8080");
+      const socket = io(
+        import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
+      );
       socket.emit("join-room", userData.bookingId);
 
       socket.on("execute-command", ({ command, payload }) => {
@@ -463,9 +475,7 @@ export default function Dashboard() {
                         <div className="text-right flex-shrink-0">
                           <p className="font-semibold">{booking.amount}</p>
                           <Badge
-                            className={`mt-1 ${getStatusColor(
-                              booking.status,
-                            )}`}
+                            className={`mt-1 ${getStatusColor(booking.status)}`}
                           >
                             {booking.status}
                           </Badge>
